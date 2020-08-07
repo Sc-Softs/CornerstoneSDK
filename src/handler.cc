@@ -14,7 +14,7 @@ int   HandlerBase::onPrivateMsg(void *pm)
     private_msg_struct pms;
     unpack::private_msg(pms,pm);
     if(string(pms.msgContent) == code::UTF8Decode("测试") ){
-        app->sendFriendMsg(pms.robotQQ,pms.senderQQ,R"(
+        app->SendFriendMessage(pms.robotQQ,pms.senderQQ,R"(
             愿你在我看不到的地方安然无恙，
             愿你的冬天永远不缺暖阳。
             愿你的明天不再经历雨打风霜，

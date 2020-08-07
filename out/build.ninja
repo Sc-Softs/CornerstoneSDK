@@ -1,7 +1,7 @@
 ninja_required_version = 1.7.2
 
 rule gn
-  command = f:/TDM-GCC/bin/gn.exe --root=./.. -q gen .
+  command = ../bin/gn.exe --root=./.. -q gen .
   description = Regenerating ninja files
 
 build build.ninja: gn

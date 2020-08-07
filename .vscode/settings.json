@@ -52,6 +52,9 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "atomic": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp"
     }
 }

@@ -5,7 +5,6 @@ shared_library("plugin.demo.dll"){
         "//src/handler.cc",
         "//src/sdk/app.hpp",
         "//src/config.h",
-        "//src/sdk/app.util.cc"
     ]
 
     ldflags= [
