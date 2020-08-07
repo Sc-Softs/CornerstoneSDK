@@ -1,0 +1,18 @@
+ninja_required_version = 1.7.2
+
+rule gn
+  command = f:/TDM-GCC/bin/gn.exe --root=./.. -q gen .
+  description = Regenerating ninja files
+
+build build.ninja: gn
+  generator = 1
+  depfile = build.ninja.d
+
+subninja toolchain.ninja
+
+build $:plugin.demo.dll: phony ./plugin.demo.dll
+
+build all: phony $
+    ./plugin.demo.dll
+
+default all

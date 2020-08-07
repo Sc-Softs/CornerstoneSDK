@@ -1,0 +1,13 @@
+cflags =
+cflags_cc =
+root_out_dir = .
+target_output_name = plugin.demo
+
+build ./out/main.o: cxx ../src/main.cpp
+
+build ./plugin.demo: solink ./out/main.o
+  ldflags =
+  libs =
+  frameworks =
+  output_extension = 
+  output_dir = 

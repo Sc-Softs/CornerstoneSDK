@@ -1,0 +1,21 @@
+shared_library("plugin.demo.dll"){
+    sources = [
+        "//src/sdk/main.cpp",
+        "//src/sdk/app.cls.cc",
+        "//src/handler.cc",
+        "//src/sdk/app.hpp",
+        "//src/config.h",
+        "//src/sdk/app.util.cc"
+    ]
+
+    ldflags= [
+        "-static,--enable-stdcall-fixup"
+    ]
+    cflags = [
+        "-g,-std=c++17"
+    ]
+    libs=[
+        def_file #在config/config.gn有写
+    ]
+    cflags = []
+}

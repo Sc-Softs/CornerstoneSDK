@@ -1,0 +1,4 @@
+declare_args(){
+    def_file = "//def/config.def"
+}
+set_default_toolchain("//config/toolchain:mingw")

@@ -1,0 +1,34 @@
+【不想写MarkDown。】
+本程序采用
+GCC(G++)9.1 GN(Generate Ninja) + Ninja 开发。
+GN 和 Ninja已经编译好并附带在本SDK内。GN和Ninja构建工具版权属于Google
+
+有兴趣的同学，可以把代码迁移到Visual Studio编译。但是，VS的C++已经不支持<win7的系统了。
+
+如果需要开发，请下载：
+TDM-GCC( 我会发在群里)，注意安装时要选添加path
+本SDK
+Visual Studio Code (https://code.visualstudio.com/)
+VSCODE 的插件（包你好用）：
+material theme
+material theme icon
+path intellisense
+cpptools
+gn
+
+============使用方法====================
+VSCode打开这个目录
+ctrl+` (1左边的键)打开<终端>
+输入build敲回车
+完毕！
+============说明======================
+你可以在build.cmd里面加上复制dll到小栗子对应目录的命令
+需要修改dll名称，仅仅需要修改本目录的BUILD.gn
+C++文件，你最好只修改handler.cc和config.h
+对应api在全局的app里面。调用例子参见handler.cc
+名称，权限在config.h里面修改。
+
+
+============注意=====================
+如果你新加入了C++源文件，你需要在BUILD.gn声明它!
+如果你觉得编译慢，在src目录下，执行g++ xxx.h命令，把.h预编译成二进制
