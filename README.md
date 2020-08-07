@@ -1,2 +1,0 @@
-# CornSDK
-CornSDK for c++
