@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma pack(4)
+
 #include <cstdint>
 
 #include "../include/json.hpp"
@@ -132,7 +134,7 @@ inline FuncT* _f(Json api, const char* name);
 
 namespace HandlerBase
 {
-    struct private_msg_struct
+    using private_msg = volatile struct private_msg_struct
     {
         elong senderQQ;           //8
         elong robotQQ;            //8
@@ -159,9 +161,9 @@ namespace HandlerBase
         etext fileName;            //文件名
         elong fileSize;           //文件大小  ?只有传文件才有。
     };
-    int onPrivateMsg(void *private_msg);
+    int OnPrivateMsg(private_msg *pm);
     //int onPrivateMsg(void* sz);
-    struct group_msg_struct
+    using group_msg = volatile struct group_msg_struct
     {
         elong senderQQ; //8zijie ?
         elong robotQQ;
@@ -189,20 +191,20 @@ namespace HandlerBase
         eint msgAppID;      //消息appid, 整数型, , , 消息appid
     };
 
-    int onGroupMsg(void *group_msg);
+    int OnGroupMsg(group_msg *gm);
 
     //我也不知道参数啥结构
-    int onUninstall(void **);
+    int OnUninstall(void **);
 
     //我也不知道传入的是啥
-    int onSettings(void *);
+    int OnSettings(void *);
     
     //插件被启用事件
-    int onEnabled(void*);
+    int OnEnabled(void*);
     //插件被禁用事件
-    int onDisabled(void*);
+    int OnDisabled(void*);
 
-    struct event_message_struct
+    using event_message = volatile struct event_message_struct
     {
 
         elong robotQQ;             //, 长整数型
@@ -219,7 +221,7 @@ namespace HandlerBase
         eint msgTmpType;          //消息子类型, 整数型
     };
     //事件消息
-    int onEvent(void* em);
+    int OnEvent(event_message* em);
 }; // namespace HandlerBase
 
 class Application
@@ -233,7 +235,7 @@ public:
     Application(etext apidata, etext pluginkey);
     ~Application();
 
-    const char* getJSON();
+    string getJSON();
 
 public: //Api
  /*        //输出日志

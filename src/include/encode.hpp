@@ -22,7 +22,7 @@ namespace code
         return strTemp;
     }
 
-    inline const char* UTF8Decode(const std::string& src_str)
+    inline std::string UTF8Decode(const std::string& src_str)
     {
         auto len = MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, nullptr, 0);
         auto wszGBK = new wchar_t[len + 1];
@@ -37,18 +37,9 @@ namespace code
             delete[] wszGBK;
         if (szGBK)
             delete[] szGBK;
-        return strTemp.c_str();
+        return strTemp;
     }
 }; // namespace code
-//#ifndef USE_E_TYPES
-inline std::string e2s(const char* src_str)
-{
-    return code::UTF8Encode(src_str);
-}
-inline const char* s2e(const std::string& src_str)
-{
-    return code::UTF8Decode(src_str);
-}
-//#else
 
-//#endif
+#define e2s(src_str) code::UTF8Encode(src_str).c_str()
+#define s2e(src_str) code::UTF8Decode(src_str).c_str()

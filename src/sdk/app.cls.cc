@@ -16,28 +16,28 @@ Application::~Application()
 {
 }
 
-const char* Application::getJSON()
+std::string Application::getJSON()
 {
     Json json_info = Json::parse(JSON_PART);
 
 #ifdef ENABLE_PRIVATE_MSG
-    json_info["friendmsaddres"] = (unsigned long)&HandlerBase::onPrivateMsg;
+    json_info["friendmsaddres"] = (unsigned long)&HandlerBase::OnPrivateMsg;
 #endif
 
 #ifdef ENABLE_GROUP_MSG
-    json_info["groupmsaddres"] = (unsigned long)&HandlerBase::onGroupMsg;
+    json_info["groupmsaddres"] = (unsigned long)&HandlerBase::OnGroupMsg;
 #endif
 
 #ifdef  ENABLE_PLUGIN_SETTINGS
-    json_info["setproaddres"] = (unsigned long)&HandlerBase::onSettings;
+    json_info["setproaddres"] = (unsigned long)&HandlerBase::OnSettings;
 #endif
 
 #ifdef ENABLE_PLUGIN_ENABLED
-    json_info["useproaddres"] = (unsigned long)&HandlerBase::onEnabled;
+    json_info["useproaddres"] = (unsigned long)&HandlerBase::OnEnabled;
 #endif
 
 #ifdef ENABLE_PLUGIN_DISABLED
-    json_info["banproaddres"] = (unsigned long)&HandlerBase::onDisabled;
+    json_info["banproaddres"] = (unsigned long)&HandlerBase::OnDisabled;
 #endif
 
     //自动生成的API列表
@@ -48,7 +48,7 @@ const char* Application::getJSON()
                                                     {"desc", "需要此权限运行插件"}});
     }
     
-    return json_info.dump().c_str();
+    return json_info.dump();
 }
 
 /*
@@ -123,12 +123,14 @@ string Application::OutputLog(const string& message, int32_t text_color,
 string Application::SendFriendMessage(int64_t thisQQ, int64_t friendQQ,
     const string& content, int64_t* random, int32_t* req)
 {
+    auto a = random ? *random : 0;
+    auto b = req ? *req : 0;
     return e2s(_f
         <etext(etext, elong, elong, etext,
-            elong, eint)>
+            elong*, eint*)>
         (this->j, "发送好友消息")
         (s2e(this->api_key), thisQQ, friendQQ, s2e(content.c_str()),
-            random ? *random : 0, req ? *req : 0));
+           &a, &b));
 }
 
 /**
@@ -162,12 +164,14 @@ string Application::SendGroupTemporaryMessage(int64_t thisQQ, int64_t groupQQ,
     int64_t otherQQ, const string& content,
     int64_t* random, int32_t* req)
 {
+    auto a = random ? *random : 0;
+    auto b = req ? *req : 0;
     return e2s(_f
         <etext(etext, elong, elong, elong, etext,
-            elong**, eint**)>
+            elong*, eint*)>
         (this->j, "发送群临时消息")
         (s2e(this->api_key), thisQQ, groupQQ, otherQQ, s2e(content.c_str()),
-            &random, &req));
+            &a, &b));
 }
 
 /**
@@ -209,7 +213,7 @@ string Application::RemoveFriend(int64_t thisQQ, int64_t otherQQ)
 {
     return e2s(_f
         <etext(etext, elong, elong)>
-        (this->j, "添加群")
+        (this->j, "删除好友")
         (s2e(this->api_key), thisQQ, otherQQ));
 }
 
@@ -258,12 +262,14 @@ string Application::SendFriendJSONMessage(int64_t thisQQ, int64_t friendQQ,
     const string& json_content,
     int64_t* random, int32_t* req)
 {
+    auto a = random ? *random : 0;
+    auto b = req ? *req : 0;
     return e2s(_f
         <etext(etext, elong, elong, etext,
-            elong**, eint**)>
+            elong*, eint*)>
         (this->j, "发送好友json消息")
         (s2e(this->api_key), thisQQ, friendQQ, s2e(json_content),
-            &random, &req));
+            &a, &b));
 }
 
 /**
