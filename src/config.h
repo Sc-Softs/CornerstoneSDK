@@ -1,23 +1,33 @@
-#define ENABLE_PRIVATE_MSG //启用私聊处理。不需要直接去掉
-#define ENABLE_GROUP_MSG
-#define ENABLE_PLUGIN_SETTINGS
-#define ENABLE_PLUGIN_ENABLED//插件启用事件
-#define ENABLE_PLUGIN_DISABLED//插件被禁用事件
-const auto JSON_PART =   R"J(
-        {
-            "appname":    "C++样例应用",
-            "author":     "这是作者",
-            "appv":       "1.0.0",
-            "describe":   "应用的说明",
-            "sdkv":       "2.6.1"
-        }
-)J";
+#define ENABLE_PRIVATE_MESSAGE  // 好友消息事件
+#define ENABLE_GROUP_MESSAGE  // 群消息事件
+#define ENABLE_PLUGIN_UNINSTALL  // 插件卸载事件
+#define ENABLE_PLUGIN_SETTINGS  // 插件设置事件
+#define ENABLE_PLUGIN_ENABLED  // 插件被启用事件
+#define ENABLE_PLUGIN_DISABLED  // 插件被禁用事件
+#define ENABLE_EVENT  // 事件事件
 
-//在这里改动你的权限
-const auto authList = {"输出日志","发送好友消息"};
+//除sdkv以外，改写你的插件信息。
+constexpr auto AppInformation = R"JSON(
+    {
+        "appname":    "C++空壳应用",
+        "author":     "<作者名>",
+        "appv":       "1.0.0",
+        "describe":   "<应用说明>",
+        "sdkv":       "2.6.1"
+    }
+)JSON";
+
+// 权限: 申请理由
+constexpr auto PermissionList = R"JSON(
+    {
+        "输出日志": "<申请理由>",
+        "发送好友消息": "与好友互动",
+        "框架重启": "提示：危险权限默认禁用"
+    }
+)JSON";
 
 /*
-所有的权限：
+所有的权限（标记的是*危险权限*）：
 
 输出日志
 发送好友消息
@@ -25,8 +35,8 @@ const auto authList = {"输出日志","发送好友消息"};
 发送群临时消息
 添加好友
 添加群
-删除好友
-置屏蔽好友
+*删除好友*
+*置屏蔽好友*
 置特别关心好友
 发送好友xml消息
 发送群xml消息
@@ -36,13 +46,13 @@ const auto authList = {"输出日志","发送好友消息"};
 上传群图片
 上传好友语音
 上传群语音
-上传头像
+*上传头像*
 设置群名片
 取昵称_从缓存
 强制取昵称
-获取skey
-获取pskey
-获取clientkey
+*获取skey*
+*获取pskey*
+*获取clientkey*
 取框架QQ
 取好友列表
 取群列表
@@ -51,12 +61,12 @@ const auto authList = {"输出日志","发送好友消息"};
 取管理层列表
 取群名片
 取个性签名
-修改昵称
-修改个性签名
+*修改昵称*
+*修改个性签名*
 删除群成员
 禁言群成员
-退群
-解散群
+*退群*
+*解散群*
 上传群头像
 全员禁言
 群权限_发起新的群聊
@@ -79,12 +89,12 @@ const auto authList = {"输出日志","发送好友消息"};
 上传群文件
 创建群文件夹
 设置在线状态
-QQ点赞
+*QQ点赞*
 取图片下载地址
 记录致命错误
 查询好友信息
 查询群信息
-框架重启
+*框架重启*
 群文件转发至群
 群文件转发至好友
 好友文件转发至好友
@@ -92,13 +102,13 @@ QQ点赞
 取群名称_从缓存
 发送免费礼物
 取好友在线状态
-取QQ钱包个人信息
+*取QQ钱包个人信息*
 获取订单详情
 提交支付验证码
 领取红包
 分享音乐
-更改群聊消息内容
-更改私聊消息内容
+*更改群聊消息内容*
+*更改私聊消息内容*
 群聊口令红包
 群聊拼手气红包
 群聊普通红包

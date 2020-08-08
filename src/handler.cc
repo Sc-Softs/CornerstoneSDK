@@ -4,24 +4,18 @@
 #include <windows.h>
 #include "include/encode.hpp"
 #include <stdio.h>
-#include "include/unpack.hpp"
 
-using string = std::string; //省写std::
+using string = std::string; // 省写std::
 
-//收到私聊消息，使用 unpack::private_msg读取数据
-int HandlerBase::OnPrivateMsg(private_msg *pm)
+// 好友消息事件
+int HandlerBase::OnPrivateMessage(PrivateMessageData *pm)
 {
-    string msg(code::UTF8Encode(pm->msgContent));
-    /*
-    private_msg_struct pms;
-    unpack::private_msg(pms,pm);
-    */
+    string msg = code::UTF8Encode(pm->MessageContent);
     if(msg == "测试")
     {
         app->OutputLog("日志测试");
         app->OutputLog("好友消息测试");
-         
-        app->SendFriendMessage(pm->robotQQ, pm->senderQQ, R"(
+        app->SendFriendMessage(pm->ThisQQ, pm->SenderQQ, R"(
             愿你在我看不到的地方安然无恙，
             愿你的冬天永远不缺暖阳。
             愿你的明天不再经历雨打风霜，
@@ -32,35 +26,37 @@ int HandlerBase::OnPrivateMsg(private_msg *pm)
     return 0;
 }
 
-//收到群消息() 使用unpack里面的东西读取数据
-int HandlerBase::OnGroupMsg(group_msg *gm){
-    if(string(gm->msgContent) == code::UTF8Decode("测试")){
+// 群消息事件
+int HandlerBase::OnGroupMessage(GroupMessageData *gm){
+    if(string(gm->MessageContent) == code::UTF8Decode("测试")){
         
     }
     return 0;    
 }
 
-//插件卸载事件，这里清除app对象避免内存泄漏
+// 插件卸载事件（未知参数）
 int HandlerBase::OnUninstall(void **){
+    // 清除app对象避免内存泄漏
     delete app;
     return 0;
 }
 
-//设置按钮被点击事件，这里可以DlgBox弹出对话框
+// 插件设置事件（未知参数），这里可以弹出对话框
 int HandlerBase::OnSettings(void*){
     return 0;
 }
 
-//事件消息事件，使用unpack对应的方法读数据
-int HandlerBase::OnEvent(event_message* em){
-    return 0;
-}
-
-//插件被启用的事件
+// 插件被启用事件（未知参数）
 int HandlerBase::OnEnabled(void*){
     return 0;
 }
-//插件被禁用事件
+
+// 插件被禁用事件（未知参数）
 int HandlerBase::OnDisabled(void*){
+    return 0;
+}
+
+// 事件消息
+int HandlerBase::OnEvent(EventData* em){
     return 0;
 }

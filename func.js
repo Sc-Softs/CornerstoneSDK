@@ -1,432 +1,39 @@
-#define USE_E
-#include "app.hpp"
-#include "../config.h"
-#include <unordered_set>
-#include <map>
-/**
- * @brief 载入插件关键字和系统回调函数指针
- * @param apidata 系统回调函数指针JSON
- * @param pluginkey 插件关键字
- */
-Application::Application(etext apidata, etext pluginkey)
-    : api_key(code::UTF8Encode(pluginkey)), j(Json::parse(code::UTF8Encode(apidata)))
-{
-}
-
-Application::~Application()
-{
-}
-
-std::string Application::getJSON()
-{
-    auto json_info = Json::parse(AppInformation);
-
-#ifdef ENABLE_PRIVATE_MESSAGE
-    json_info["friendmsaddres"] = (unsigned long)&HandlerBase::OnPrivateMessage;
-#endif
-
-#ifdef ENABLE_GROUP_MESSAGE
-    json_info["groupmsaddres"] = (unsigned long)&HandlerBase::OnGroupMessage;
-#endif
-
-#ifdef ENABLE_PLUGIN_UNINSTALL
-    json_info["unitproaddres"] = (unsigned long)&HandlerBase::OnUninstall;
-#endif
-
-#ifdef ENABLE_PLUGIN_SETTINGS
-    json_info["setproaddres"] = (unsigned long)&HandlerBase::OnSettings;
-#endif
-
-#ifdef ENABLE_PLUGIN_ENABLED
-    json_info["useproaddres"] = (unsigned long)&HandlerBase::OnEnabled;
-#endif
-
-#ifdef ENABLE_PLUGIN_DISABLED
-    json_info["banproaddres"] = (unsigned long)&HandlerBase::OnDisabled;
-#endif
-
-#ifdef ENABLE_EVENT
-    json_info["eventmsaddres"] = (unsigned long)&HandlerBase::OnEvent;
-#endif
-
-    const std::unordered_set<string> dangerous_api{
-        "QQ点赞",
-        "获取clientkey",
-        "获取pskey",
-        "获取skey",
-        "解散群",
-        "删除好友",
-        "退群",
-        "置屏蔽好友",
-        "修改个性签名",
-        "修改昵称",
-        "上传头像",
-        "框架重启",
-        "取QQ钱包个人信息",
-        "更改群聊消息内容",
-        "更改私聊消息内容"};
-
-    std::map<string, string> map_permission = Json::parse(PermissionList);
-    for (auto i : map_permission)
-    {
-        auto is_safe = "1";                    // 是否是安全的权限
-        if (dangerous_api.count(i.first) == 1) // 如果 == 1 就算找到
-        {
-            is_safe = "0";
-        }
-
-        json_info["data"]["needapilist"][i.first] =
-            Json(
-                {{"state", is_safe},
-                 {"safe", is_safe},
-                 {"desc", i.second}});
+//这个脚本是用来生成函数的
+const fs = require("fs");
+const getType = (str) =>{
+    switch(str){
+        case "文本型":
+            return "const string&";
+        case "整数型":
+            return "int32_t";
+        case "长整数型":
+            return "int64_t";
+        case "逻辑型":
+            return "int32_t";
+        case "字节集":
+            return "const uint8_t*";
+        default:
+            return "手动处理";    
     }
-    return json_info.dump();
-}
+};
+const getRetType = (str) =>{
+    switch(str){
+        case "文本型":
+            return "string";
+        case "整数型":
+            return "int32_t";
+        case "长整数型":
+            return "int64_t";
+        case "逻辑型":
+            return "int32_t";
+        case "字节集":
+            return "const uint8_t*";
+        default:
+            return "手动处理";    
+    }
+};
 
-/**
- * @brief 输出日志
- * @param message 日志
- * @param text_color 文字颜色
- * @param background_color 背景颜色
- */
-string Application::OutputLog(const string &message, int32_t text_color,
-                              int32_t background_color)
-{
-    return e2s(_f<etext(etext, etext, eint, eint)>(this->j, "输出日志")(s2e(this->api_key), s2e(message.c_str()), text_color, background_color));
-}
-
-/**
- * @brief 发送好友消息
- * @param thisQQ 框架QQ
- * @param friendQQ 好友QQ
- * @param content 发送内容
- * @param random 撤回消息用
- * @param req 撤回消息用
- * @return 成功返回的time用于撤回消息
- */
-string Application::SendFriendMessage(int64_t thisQQ, int64_t friendQQ,
-                                      const string &content, int64_t *random, int32_t *req)
-{
-    auto a = random ? *random : 0;
-    auto b = req ? *req : 0;
-    return e2s(_f<etext(etext, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送好友消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(content.c_str()),
-                                                                   &a, &b));
-}
-
-/**
- * @brief 发送群消息
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param content 发送内容
- * @param anonymous 匿名发送
- */
-string Application::SendGroupMessage(int64_t thisQQ, int64_t groupQQ,
-                                     const string &content, bool anonymous)
-{
-    return e2s(_f<etext(etext, elong, elong, etext, bool)>(this->j, "发送群消息")(s2e(this->api_key), thisQQ, groupQQ, s2e(content.c_str()),
-                                                                                  anonymous));
-}
-
-/**
- * @brief 发送群临时消息
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param otherQQ 对方QQ
- * @param content 发送内容
- * @param random 撤回消息用
- * @param req 撤回消息用
- * @return 成功返回的time用于撤回消息
- */
-string Application::SendGroupTemporaryMessage(int64_t thisQQ, int64_t groupQQ,
-                                              int64_t otherQQ, const string &content,
-                                              int64_t *random, int32_t *req)
-{
-    auto a = random ? *random : 0;
-    auto b = req ? *req : 0;
-    return e2s(_f<etext(etext, elong, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送群临时消息")(s2e(this->api_key), thisQQ, groupQQ, otherQQ, s2e(content.c_str()),
-                                                                     &a, &b));
-}
-
-/**
- * @brief 添加好友
- * @param thisQQ 框架QQ
- * @param otherQQ 对方QQ
- * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
- */
-string Application::AddFriend(int64_t thisQQ, int64_t otherQQ,
-                              const string &verification)
-{
-    return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "添加好友")(s2e(this->api_key), thisQQ, otherQQ, s2e(verification.c_str())));
-}
-
-/**
- * @brief 添加群（你在群内或需要付费入群也会直接发送验证消息）
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param verification 回答问题答案或是验证消息
- */
-string Application::AddGroup(int64_t thisQQ, int64_t groupQQ,
-                             const string &verification)
-{
-    return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "添加群")(s2e(this->api_key), thisQQ, groupQQ, s2e(verification.c_str())));
-}
-
-/**
- * @brief 删除好友
- * @param thisQQ 框架QQ
- * @param otherQQ 对方QQ
- */
-string Application::RemoveFriend(int64_t thisQQ, int64_t otherQQ)
-{
-    return e2s(_f<etext(etext, elong, elong)>(this->j, "删除好友")(s2e(this->api_key), thisQQ, otherQQ));
-}
-
-/**
- * @brief 设置屏蔽好友
- * @param thisQQ 框架QQ
- * @param otherQQ 对方QQ
- * @param is_blocked 是否屏蔽
- */
-string Application::SetBlockFriend(int64_t thisQQ, int64_t otherQQ,
-                                   bool is_blocked)
-{
-    return e2s(_f<etext(etext, elong, elong, ebool)>(this->j, "置屏蔽好友")(s2e(this->api_key), thisQQ, otherQQ,
-                                                                            b2e(is_blocked)));
-}
-
-/**
- * @brief 设置特别关心好友
- * @param thisQQ 框架QQ
- * @param otherQQ 对方QQ
- * @param is_special 是否屏蔽
- */
-string Application::SetSpecialFriend(int64_t thisQQ, int64_t otherQQ,
-                                     bool is_special)
-{
-    return e2s(_f<etext(etext, elong, elong, ebool)>(this->j, "置特别关心好友")(s2e(this->api_key), thisQQ, otherQQ,
-                                                                                b2e(is_special)));
-}
-
-/**
- * @brief 发送好友JSON消息
- * @param thisQQ 框架QQ
- * @param friendQQ 好友QQ
- * @param json_content json发送内容
- * @param random 撤回消息用
- * @param req 撤回消息用
- * @return 成功返回的time用于撤回消息
- */
-string Application::SendFriendJSONMessage(int64_t thisQQ, int64_t friendQQ,
-                                          const string &json_content,
-                                          int64_t *random, int32_t *req)
-{
-    auto a = random ? *random : 0;
-    auto b = req ? *req : 0;
-    return e2s(_f<etext(etext, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送好友json消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(json_content),
-                                                                       &a, &b));
-}
-
-/**
- * @brief 发送群JSON消息
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param json_content json发送内容
- * @param anonymous 匿名发送
- */
-string Application::SendGroupJSONMessage(int64_t thisQQ, int64_t groupQQ,
-                                         const string &json_content, bool anonymous)
-{
-    return e2s(_f<etext(etext, elong, elong, etext, bool)>(this->j, "发送群json消息")(s2e(this->api_key), thisQQ, groupQQ,
-                                                                                      s2e(json_content), anonymous));
-}
-
-/**
- * @brief 上传好友图片
- * @param thisQQ 框架QQ
- * @param friendQQ 好友QQ
- * @param picture 图片数据
- * @param is_flash 是否闪照
- * @return 成功返回图片代码
- */
-string Application::UploadFriendImage(int64_t thisQQ, int64_t friendQQ,
-                                      const uint8_t *picture, size_t length, bool is_flash)
-{
-    return e2s(_f<etext(etext, elong, elong, ebool, ebin, eint)>(this->j, "上传好友图片")(s2e(this->api_key), thisQQ, friendQQ, b2e(is_flash),
-                                                                                          picture, static_cast<eint>(length)));
-}
-
-/**
- * @brief 上传群图片
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param picture 图片数据
- * @param is_flash 是否闪照
- * @return 成功返回图片代码
- */
-string Application::UploadGroupImage(int64_t thisQQ, int64_t groupQQ,
-                                     const uint8_t *picture, size_t size, bool is_flash)
-{
-    return e2s(_f<etext(etext, elong, elong, ebool, ebin, eint)>(this->j, "上传群图片")(s2e(this->api_key), thisQQ, groupQQ, b2e(is_flash),
-                                                                                        picture, static_cast<eint>(size)));
-}
-
-/**
- * @brief 上传好友语音
- * @param thisQQ 框架QQ
- * @param friendQQ 好友QQ
- * @param audio 语音数据
- * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
- * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本),匹配语音填a、b、s、ss、sss，注意是小写
- * @return 成功返回语音代码
- */
-string Application::UploadFriendAudio(int64_t thisQQ, int64_t friendQQ,
-                                      const uint8_t *audio, size_t size,
-                                      int32_t audio_type, const string &audio_text)
-{
-    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传好友语言")(s2e(this->api_key), thisQQ, friendQQ, audio_type, s2e(audio_text),
-                                                                                                audio, static_cast<eint>(size)));
-}
-
-/**
- * @brief 上传群语音
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param audio 语音数据
- * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
- * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本),匹配语音填a、b、s、ss、sss，注意是小写
- * @return 成功返回语音代码
- */
-string Application::UploadGroupAudio(int64_t thisQQ, int64_t groupQQ,
-                                     const uint8_t *audio, size_t size,
-                                     int32_t audio_type, const string &audio_text)
-{
-    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传群语音")(s2e(this->api_key), thisQQ, groupQQ, audio_type, s2e(audio_text),
-                                                                                              audio, static_cast<eint>(size)));
-}
-
-/**
- * @brief 上传头像
- * @param thisQQ 框架QQ
- * @param picture 图片数据
- * @param size 图片大小534
- */
-string Application::UploadAvatar(int64_t thisQQ, const uint8_t *picture, size_t size)
-{
-    return e2s(_f<etext(etext, elong, ebin, eint)>(this->j, "上传头像")(s2e(this->api_key), thisQQ, picture, static_cast<eint>(size)));
-}
-
-/**
- * @brief 设置群名片
- * @param thisQQ 框架QQ
- * @param groupQQ 群号
- * @param otherQQ 群成员QQ
- * @param nickname 新名片
- */
-string Application::SetGroupNickname(int64_t thisQQ, int64_t groupQQ,
-                                     int64_t otherQQ, const string &nickname)
-{
-    return e2s(_f<etext(etext, elong, elong, elong, etext)>(this->j, "设置群名片")(
-        s2e(this->api_key), thisQQ, groupQQ, otherQQ, s2e(nickname)));
-}
-
-/**
- * @brief 从缓存取昵称
- * @param otherQQ 对方QQ
- * @return 成功返回昵称
- */
-string Application::GetNameFromCache(int64_t otherQQ)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "取昵称_从缓存")(s2e(this->api_key), otherQQ));
-}
-
-/**
- * @brief 从缓存取昵称
- * @param otherQQ 对方QQ
- * @return 成功返回昵称
- */
-string Application::GetNameForce(int64_t otherQQ)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "强制取昵称")(s2e(this->api_key), otherQQ));
-}
-
-/**
- * @brief 从缓存取群名（如果是框架QQ没加的群，[查询群信息]后也会记录缓存）
- * @param groupQQ 群号
- * @return 成功返回群名称
- */
-string Application::GetGroupNameFromCache(int64_t groupQQ)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "取群名称_从缓存")(s2e(this->api_key), groupQQ));
-}
-
-/**
-     * @brief 获取SKey
-     * @param thisQQ 框架QQ
-     * @return 成功返回SKey
-     */
-string Application::GetSKey(int64_t thisQQ)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "获取skey")(s2e(this->api_key), thisQQ));
-}
-
-/**
-     * @brief 获取PSKey
-     * @param thisQQ 框架QQ
-     * @param domain 域: tenpay.com;openmobile.qq.com;docs.qq.com;connect.qq.com;qzone.qq.com;vip.qq.com;gamecenter.qq.com;qun.qq.com;game.qq.com;qqweb.qq.com;ti.qq.com;office.qq.com;mail.qq.com;mma.qq.com
-     * @return 成功返回PSKey
-     */
-string Application::GetPSKey(int64_t thisQQ, const string &domain)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "获取pskey")(s2e(this->api_key), thisQQ));
-}
-
-/**
-     * @brief 获取ClientKey
-     * @param thisQQ 框架QQ
-     * @return 成功返回ClientKey
-     */
-string Application::GetClientKey(int64_t thisQQ)
-{
-    return e2s(
-        _f<etext(etext, elong)>(this->j, "获取clientkey")(s2e(this->api_key), thisQQ));
-}
-
-/**
-     * @brief 获取框架QQ
-     */
-string Application::GetThisQQ()
-{
-    return e2s(
-        _f<etext(etext)>(this->j, "取框架QQ")(s2e(this->api_key)));
-}
-
-/**
- * @brief 获取好友列表
- * @param thisQQ 框架QQ
- * @return 成功返回好友数量，失败或无权限返回0
-*/
-/*
-int GetFriendList(uint64_t thisQQ,vector<FriendInformation> &array)
-{
-    int number = 0;
-    vector<FriendInformation> vecForRet;
-    FriendInformation *info;
-    
-    return number;
-}
-*/
-
-/*
-
+var apiList = `
 .子程序 取框架QQ, 文本型, 公开, 
 .局部变量 ret, 文本型, , , 
 
@@ -1183,4 +790,31 @@ int GetFriendList(uint64_t thisQQ,vector<FriendInformation> &array)
 
 调用子程序 (到整数 (j.取长整数 (好友接龙红包)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 接龙内容, 支付密码, 银行卡序列)
 返回 (ret)
-*/
+`;
+var apis = apiList.split(/\n/);
+var args = [];
+apiList = apis.map(
+    (value)=>{
+    if(value.startsWith(".子程序")){
+        var name = value.split(", ")[0].replace(".子程序","");
+        var type = value.split(", ")[1];
+        var comment = value;
+        args = [];
+        return `${getRetType(type)} ${name}( /*${comment}*/`;
+    }
+    else if(value.startsWith(".参数")){
+        var name = value.split(", ")[0].replace(".参数","");
+        var type = value.split(", ")[1];
+        var comment = value;
+        args.push(`${getType(type)} ${name}/*${comment}*/`);
+        return ``;
+    }
+    else if(value.startsWith("调用子程序")){
+        return `\t${args.join(", \n")}\n);`;
+    }
+});
+
+apiList = apiList.join("\n");
+var ret = apiList.replace("\n\n","");
+
+fs.writeFileSync("tmp.txt",ret);

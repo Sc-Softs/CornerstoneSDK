@@ -1,4 +1,4 @@
-cflags =
+cflags = -m32 -O3 -ffunction-sections -fdata-sections -std=c++14
 cflags_cc =
 root_out_dir = .
 target_output_name = plugin.demo.dll
@@ -8,7 +8,7 @@ build ./out/app.cls.o: cxx ../src/sdk/app.cls.cc
 build ./out/handler.o: cxx ../src/handler.cc
 
 build ./plugin.demo.dll: solink ./out/main.o ./out/app.cls.o ./out/handler.o | ../def/config.def
-  ldflags = -static,--enable-stdcall-fixup
+  ldflags = -static,--enable-stdcall-fixup,--gc-sections
   libs = ../def/config.def
   frameworks =
   output_extension = 

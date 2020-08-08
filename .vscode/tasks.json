@@ -6,12 +6,19 @@
         {
             "label": "清理",
             "type": "shell",
-            "command": "${workspaceFolder}//clean.cmd",
+            "command": "${workspaceFolder}\\clean.cmd"
         },
         {
             "label": "构建",
             "type": "shell",
-            "command": "${workspaceFolder}//build.cmd",
+            "command": "${workspaceFolder}\\build.cmd",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

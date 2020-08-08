@@ -8,13 +8,17 @@ shared_library("plugin.demo.dll"){
     ]
 
     ldflags= [
-        "-static,--enable-stdcall-fixup"
+        "-static,--enable-stdcall-fixup,--gc-sections"
     ]
     cflags = [
-        "-g,-std=c++17"
+        # "-g",
+        "-m32",
+        "-O3",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-std=c++14"
     ]
     libs=[
-        def_file #在config/config.gn有写
+        def_file # 在config/config.gn有写
     ]
-    cflags = []
 }
