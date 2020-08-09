@@ -1,14 +1,32 @@
-# Corn SDK for Modern C++
+<h1>
+  <p align=center>
+    Cornerstone SDK
+  </p>
+</h1>
+
+> Corn SDK for Modern C++
+
+<p align=center>
+  <a href="./todo.txt">
+    <img src="https://img.shields.io/badge/API-31%25-important.svg" />
+  </a>
+  <a href="cppreference.com">
+    <img src="https://img.shields.io/badge/language-C++-informational.svg" />
+  </a>
+  <a href="./LICENSE">
+      <img src="https://img.shields.io/badge/license-MIT-success.svg" />
+  </a>
+</p>
 
 ## **目前此SDK尚未开发完成**
 
 **此SDK在 <font size="4">[MIT](./LICENSE)</font> 许可证下发布**
 
-Copyright &copy; 2020 Contributors of Corn SDK for Modern C++
+Copyright &copy; 2020 Contributors of Cornerstone SDK
 
 本SDK采用 **GN(Generate Ninja)** 和 **Ninja** 作为构建工具
 
-**GN** 和 **Ninja** 已经编译好并附带在本SDK内，GN和Ninja构建工具版权属于 &copy; Google Inc.
+GN和Ninja已经编译好并附带在 `bin` 目录下，GN和Ninja构建工具版权属于 &copy; Google Inc.
 
 有兴趣的同学可以尝试将开发环境迁移到 Visual Studio 2015 或更新的MSVC环境上
 
@@ -24,7 +42,7 @@ Copyright &copy; 2020 Contributors of Corn SDK for Modern C++
   
    - 如果出现链接(link)问题，请尝试运行 `./clean.cmd` 后再次编译
 
-   - 如果觉得麻烦，本SDK附带VSCode运行配置,请执行菜单 `终端->运行任务` 即可完成操作
+   - 如果觉得麻烦，本SDK附带VSCode运行配置,可以执行菜单 `终端->运行生成任务` 来编译，执行 `终端->运行任务->清理` 来删除临时文件 
    
 ## 推荐的C++插件开发环境
 
