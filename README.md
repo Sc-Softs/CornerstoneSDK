@@ -10,7 +10,7 @@
   <a href="./todo.txt">
     <img src="https://img.shields.io/badge/API-31%25-important.svg" />
   </a>
-  <a href="cppreference.com">
+  <a href="https://zh.cppreference.com">
     <img src="https://img.shields.io/badge/language-C++-informational.svg" />
   </a>
   <a href="./LICENSE">
