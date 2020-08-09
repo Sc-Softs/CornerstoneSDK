@@ -1,6 +1,32 @@
+/*
+Corn SDK for Modern C++
+
+MIT License
+
+Copyright © 2020 Contributors of Corn SDK for Modern C++
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #define USE_E
 #include "app.hpp"
-#include "../config.h"
+#include "../config.hpp"
 #include <unordered_set>
 #include <map>
 /**
@@ -9,7 +35,7 @@
  * @param pluginkey 插件关键字
  */
 Application::Application(etext apidata, etext pluginkey)
-    : api_key(code::UTF8Encode(pluginkey)), j(Json::parse(code::UTF8Encode(apidata)))
+    : api_key(GBKtoUTF8(pluginkey)), j(Json::parse(GBKtoUTF8(apidata)))
 {
 }
 
@@ -22,31 +48,31 @@ std::string Application::getJSON()
     auto json_info = Json::parse(AppInformation);
 
 #ifdef ENABLE_PRIVATE_MESSAGE
-    json_info["friendmsaddres"] = (unsigned long)&HandlerBase::OnPrivateMessage;
+    json_info["friendmsaddres"] = (uintptr_t)&OnPrivateMessage;
 #endif
 
 #ifdef ENABLE_GROUP_MESSAGE
-    json_info["groupmsaddres"] = (unsigned long)&HandlerBase::OnGroupMessage;
+    json_info["groupmsaddres"] = (uintptr_t)&OnGroupMessage;
 #endif
 
 #ifdef ENABLE_PLUGIN_UNINSTALL
-    json_info["unitproaddres"] = (unsigned long)&HandlerBase::OnUninstall;
+    json_info["unitproaddres"] = (uintptr_t)&OnUninstall;
 #endif
 
 #ifdef ENABLE_PLUGIN_SETTINGS
-    json_info["setproaddres"] = (unsigned long)&HandlerBase::OnSettings;
+    json_info["setproaddres"] = (uintptr_t)&OnSettings;
 #endif
 
 #ifdef ENABLE_PLUGIN_ENABLED
-    json_info["useproaddres"] = (unsigned long)&HandlerBase::OnEnabled;
+    json_info["useproaddres"] = (uintptr_t)&OnEnabled;
 #endif
 
 #ifdef ENABLE_PLUGIN_DISABLED
-    json_info["banproaddres"] = (unsigned long)&HandlerBase::OnDisabled;
+    json_info["banproaddres"] = (uintptr_t)&OnDisabled;
 #endif
 
 #ifdef ENABLE_EVENT
-    json_info["eventmsaddres"] = (unsigned long)&HandlerBase::OnEvent;
+    json_info["eventmsaddres"] = (uintptr_t)&OnEvent;
 #endif
 
     const std::unordered_set<string> dangerous_api{
@@ -106,12 +132,12 @@ string Application::OutputLog(const string &message, int32_t text_color,
  * @return 成功返回的time用于撤回消息
  */
 string Application::SendFriendMessage(int64_t thisQQ, int64_t friendQQ,
-                                      const string &content, int64_t *random, int32_t *req)
+                                      const string &content, int64_t* random, int32_t* req)
 {
     auto a = random ? *random : 0;
     auto b = req ? *req : 0;
     return e2s(_f<etext(etext, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送好友消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(content.c_str()),
+                        elong*, eint*)>(this->j, "发送好友消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(content.c_str()),
                                                                    &a, &b));
 }
 
@@ -141,12 +167,12 @@ string Application::SendGroupMessage(int64_t thisQQ, int64_t groupQQ,
  */
 string Application::SendGroupTemporaryMessage(int64_t thisQQ, int64_t groupQQ,
                                               int64_t otherQQ, const string &content,
-                                              int64_t *random, int32_t *req)
+                                              int64_t* random, int32_t* req)
 {
     auto a = random ? *random : 0;
     auto b = req ? *req : 0;
     return e2s(_f<etext(etext, elong, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送群临时消息")(s2e(this->api_key), thisQQ, groupQQ, otherQQ, s2e(content.c_str()),
+                        elong*, eint*)>(this->j, "发送群临时消息")(s2e(this->api_key), thisQQ, groupQQ, otherQQ, s2e(content.c_str()),
                                                                      &a, &b));
 }
 
@@ -221,12 +247,12 @@ string Application::SetSpecialFriend(int64_t thisQQ, int64_t otherQQ,
  */
 string Application::SendFriendJSONMessage(int64_t thisQQ, int64_t friendQQ,
                                           const string &json_content,
-                                          int64_t *random, int32_t *req)
+                                          int64_t* random, int32_t* req)
 {
     auto a = random ? *random : 0;
     auto b = req ? *req : 0;
     return e2s(_f<etext(etext, elong, elong, etext,
-                        elong *, eint *)>(this->j, "发送好友json消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(json_content),
+                        elong*, eint*)>(this->j, "发送好友json消息")(s2e(this->api_key), thisQQ, friendQQ, s2e(json_content),
                                                                        &a, &b));
 }
 
@@ -253,7 +279,7 @@ string Application::SendGroupJSONMessage(int64_t thisQQ, int64_t groupQQ,
  * @return 成功返回图片代码
  */
 string Application::UploadFriendImage(int64_t thisQQ, int64_t friendQQ,
-                                      const uint8_t *picture, size_t length, bool is_flash)
+                                      const uint8_t* picture, size_t length, bool is_flash)
 {
     return e2s(_f<etext(etext, elong, elong, ebool, ebin, eint)>(this->j, "上传好友图片")(s2e(this->api_key), thisQQ, friendQQ, b2e(is_flash),
                                                                                           picture, static_cast<eint>(length)));
@@ -268,7 +294,7 @@ string Application::UploadFriendImage(int64_t thisQQ, int64_t friendQQ,
  * @return 成功返回图片代码
  */
 string Application::UploadGroupImage(int64_t thisQQ, int64_t groupQQ,
-                                     const uint8_t *picture, size_t size, bool is_flash)
+                                     const uint8_t* picture, size_t size, bool is_flash)
 {
     return e2s(_f<etext(etext, elong, elong, ebool, ebin, eint)>(this->j, "上传群图片")(s2e(this->api_key), thisQQ, groupQQ, b2e(is_flash),
                                                                                         picture, static_cast<eint>(size)));
@@ -284,7 +310,7 @@ string Application::UploadGroupImage(int64_t thisQQ, int64_t groupQQ,
  * @return 成功返回语音代码
  */
 string Application::UploadFriendAudio(int64_t thisQQ, int64_t friendQQ,
-                                      const uint8_t *audio, size_t size,
+                                      const uint8_t* audio, size_t size,
                                       int32_t audio_type, const string &audio_text)
 {
     return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传好友语言")(s2e(this->api_key), thisQQ, friendQQ, audio_type, s2e(audio_text),
@@ -301,7 +327,7 @@ string Application::UploadFriendAudio(int64_t thisQQ, int64_t friendQQ,
  * @return 成功返回语音代码
  */
 string Application::UploadGroupAudio(int64_t thisQQ, int64_t groupQQ,
-                                     const uint8_t *audio, size_t size,
+                                     const uint8_t* audio, size_t size,
                                      int32_t audio_type, const string &audio_text)
 {
     return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传群语音")(s2e(this->api_key), thisQQ, groupQQ, audio_type, s2e(audio_text),
@@ -314,7 +340,7 @@ string Application::UploadGroupAudio(int64_t thisQQ, int64_t groupQQ,
  * @param picture 图片数据
  * @param size 图片大小534
  */
-string Application::UploadAvatar(int64_t thisQQ, const uint8_t *picture, size_t size)
+string Application::UploadAvatar(int64_t thisQQ, const uint8_t* picture, size_t size)
 {
     return e2s(_f<etext(etext, elong, ebin, eint)>(this->j, "上传头像")(s2e(this->api_key), thisQQ, picture, static_cast<eint>(size)));
 }
@@ -409,29 +435,36 @@ string Application::GetThisQQ()
         _f<etext(etext)>(this->j, "取框架QQ")(s2e(this->api_key)));
 }
 
+#include <sstream>
 /**
  * @brief 获取好友列表
  * @param thisQQ 框架QQ
  * @return 成功返回好友数量，失败或无权限返回0
 */
-/*
-int GetFriendList(uint64_t thisQQ,vector<FriendInformation> &array)
+ size_t Application::GetFriendList(int64_t thisQQ/*, vector<FriendInformation>& friendList*/)
 {
     int number = 0;
-    vector<FriendInformation> vecForRet;
-    FriendInformation *info;
-    
-    return number;
+    earray info;
+    number = _f<eint(etext,elong,earray)>(this->j,"取好友列表")(s2e(this->api_key),thisQQ,&info);
+    std::wstringstream wss;
+    wss << (uintptr_t)info;
+    MessageBox(nullptr, TEXT("Application::GetFriendList"), wss.str().c_str(), MB_OK);
+    return  number;
 }
-*/
+
+
+/**
+ * @brief 获取群列表
+ * @param thisQQ 框架QQ
+ * @param friendList 群信息列表
+ * @return 成功返回群数量，失败或无权限返回0
+ */
+size_t Application::GetGroupList(int64_t thisQQ/*, vector<GroupInformation>& groupList*/)
+{
+    return 0;
+}
 
 /*
-
-.子程序 取框架QQ, 文本型, 公开, 
-.局部变量 ret, 文本型, , , 
-
-调用子程序 (到整数 (j.取长整数 (取框架QQ)), , ret, pluginkey)
-返回 (ret)
 
 .子程序 取好友列表, 整数型, 公开, 失败或无权限返回数量0
 .参数 框架QQ, 长整数型, , 
@@ -840,8 +873,7 @@ int GetFriendList(uint64_t thisQQ,vector<FriendInformation> &array)
 
 .局部变量 ret, 文本型, , , 
 
-调用子程序 (到整数 (j.取长整数 (取图片下载地址)), , ret, pluginkey, 图片代码, 框架QQ, 群号)
-返回 (ret)
+调用子程序 (到整数 (j.取长整数 (取图片下载地址)), , ret, pluginkey, 图片代码, 
 
 .子程序 查询好友信息, 逻辑型, 公开, 支持陌生人查询
 .参数 框架QQ, 长整数型, , 

@@ -1,21 +1,33 @@
-// 插件信息
-constexpr auto Configuration = R"CFG(
-{
-    "名称": "CornerstoneSDK空壳插件",
-    "作者": "<这里填写作者名>",
-    "版本": "1.0.0",
-    "说明": "<这里填写插件说明>",
-    "权限":
+#define ENABLE_PRIVATE_MESSAGE  // 好友消息事件
+#define ENABLE_GROUP_MESSAGE  // 群消息事件
+#define ENABLE_PLUGIN_UNINSTALL  // 插件卸载事件
+#define ENABLE_PLUGIN_SETTINGS  // 插件设置事件
+#define ENABLE_PLUGIN_ENABLED  // 插件被启用事件
+#define ENABLE_PLUGIN_DISABLED  // 插件被禁用事件
+#define ENABLE_EVENT  // 事件事件
+
+//除sdkv以外，改写你的插件信息。
+constexpr auto AppInformation = R"JSON(
     {
-        "输出日志": "<这里填写申请理由>",
+        "appname":    "C++空壳应用",
+        "author":     "<作者名>",
+        "appv":       "1.0.0",
+        "describe":   "<应用说明>",
+        "sdkv":       "2.6.1"
+    }
+)JSON";
+
+// 权限: 申请理由
+constexpr auto PermissionList = R"JSON(
+    {
+        "输出日志": "<申请理由>",
         "发送好友消息": "与好友互动",
         "框架重启": "提示：危险权限默认禁用"
     }
-}
- )CFG";
+)JSON";
 
 /*
-所有的权限（有标记的是*危险权限*）：
+所有的权限（标记的是*危险权限*）：
 
 输出日志
 发送好友消息
@@ -109,4 +121,5 @@ constexpr auto Configuration = R"CFG(
 好友画图红包
 好友语音红包
 好友接龙红包
+
 */

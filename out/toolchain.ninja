@@ -14,4 +14,4 @@ rule stamp
   command = echo Stamping
   description = Stamp
 
-subninja obj/plugin.demo.dll.ninja
+subninja obj/cornerstone_demo_plugin.dll.ninja

@@ -1,5 +1,5 @@
 # Corn SDK for Modern C++
-=i
+
 ## **目前此SDK尚未开发完成**
 
 **此SDK在 <font size="4">[MIT](./LICENSE)</font> 许可证下发布**
@@ -65,7 +65,7 @@ Copyright &copy; 2020 Contributors of Corn SDK for Modern C++
 
 - 如果你觉得编译慢，请执行 `g++ xxx.h` 命令，将头文件预编译成二进制
 
-- C++源文件和头文件全部采用 **UTF8编码** ，易语言采用 **GBK编码** ，请使用 `code::UTF8Encode` 和 `code::UTF8Decode` 函数来转换编码
+- C++源文件和头文件全部采用 **UTF8编码** ，易语言采用 **GBK编码** ，请使用 `GBKtoUTF8` 和 `UTF8toGBK` 函数来转换编码
 
 ## 鸣谢
 

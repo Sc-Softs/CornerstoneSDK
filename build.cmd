@@ -7,8 +7,8 @@ set path=%path%;%~dp0\bin\
 gn gen out
 
 ::清理缓存
-del out\out\app.cls.o /q
-del out\out\handler.o /q
+del out\out\api.o /q
+del out\out\plugin.o /q
 
 ninja -C "out" -j 5
 ::TODO：在这里把插件复制到框架位置便于调试 copy out\*.dll C:\frame\main\plugin\

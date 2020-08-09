@@ -10,9 +10,9 @@ build build.ninja: gn
 
 subninja toolchain.ninja
 
-build $:plugin.demo.dll: phony ./plugin.demo.dll
+build $:cornerstone_demo_plugin.dll: phony ./cornerstone_demo_plugin.dll
 
 build all: phony $
-    ./plugin.demo.dll
+    ./cornerstone_demo_plugin.dll
 
 default all
