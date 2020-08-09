@@ -46,9 +46,11 @@ GN和Ninja已经编译好并附带在 `bin` 目录下，GN和Ninja构建工具�
    
 ## 推荐的C++插件开发环境
 
-- 此SDK
+- Cornerstone SDK
 
-- TDM-GCC(我会发在群里)，注意安装时要选添加PATH
+- TDM-GCC
+
+  - 注意安装时要选添加PATH
 
 - [Visual Studio Code](https://code.visualstudio.com/) 和插件:
 
