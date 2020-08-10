@@ -34,9 +34,11 @@ SOFTWARE.
 // 万能的json for modern c++
 using Json = nlohmann::json;
 
+#include <string>
 // 标准库字符串类
 using string = std::string;
 
+#include <vector>
 // 标准库向量类
 template <class T>
 using vector = std::vector<T>;
@@ -59,10 +61,12 @@ using edouble = double;       // 易语言双精度小数型
 using edate = uint64_t;       // 易语言日期时间型
 using ebool = int32_t;        // 易语言逻辑型
 using etext = const char*;    // 易语言文本型(GBK)
-using ebin = const uint8_t*;  // 易语言字节集
+using ebin = const void*;  // 易语言字节集
 using esubptr = uintptr_t;     // 易语言子程序指针
 
 using earray = void*;      // 易语言数组
+
+class earray1D;
 
 // 易语言常量
 constexpr ebool etrue = 1;
@@ -161,10 +165,13 @@ enum class EventType : eint
     Friend_StickerLiked = 27,
     // 好友事件_随心贴增添
     Friend_StickerAdded = 28,
+
     // 空间事件_与我相关
     QZone_Related = 30,
+
     // 框架事件_登录成功
     This_SignInSuccess = 32,
+
     // 群事件_我被邀请加入群
     Group_Invited = 1,
     // 群事件_某人加入了群

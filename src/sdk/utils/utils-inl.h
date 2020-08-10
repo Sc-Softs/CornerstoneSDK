@@ -30,9 +30,9 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-class UnPack{
+class Unpack{
 public:
-    UnPack(void *data){
+    Unpack(void *data){
         this->data = (uint8_t *)data;
     }
     template <class RetT>
@@ -44,6 +44,54 @@ public:
 private:
     uint8_t *data;
     int offset = 0;
+};
+
+//模板放上面方便
+//template <class EStructT>
+class earray1D
+{
+public:
+    /**
+     * @brief 解包易语言数组（成员为简单类型）
+     */
+    template <class ESimpleT>
+    static size_t Unpack(const void* data, vector<ESimpleT>& array)
+    {
+        auto unpack = Unpack(data);
+        auto dimension = unpack.get<eint>();  // 数组维度 
+        if (dimension != 1)  // 只考虑1维的情况
+        {
+            return -1;
+        }
+        auto size = unpack.get<eint>();
+        array.clear();
+        for (auto i = 0; i < size; i++)
+        {
+            array.push_back(unpack.get<ESimpleT>());
+        }
+        return size;
+    }
+
+    /**
+     * @brief 解包易语言数组（成员为自定义结构）
+     */
+    template <class EStructT>
+    static size_t UnpackStruct(const void* data, vector<EStructT>& array)
+    {
+        auto unpack = Unpack(data);
+        auto dimension = unpack.get<eint>();  // 数组维度 
+        if (dimension != 1)  // 只考虑1维的情况
+        {
+            return -1;
+        }
+        auto size = unpack.get<eint>();
+        array.clear();
+        for (auto i = 0; i < size; i++)
+        {
+            array.push_back(*(unpack.get<*EStructT>()));
+        }
+        return size;
+    }
 };
 
 template <class FuncT>

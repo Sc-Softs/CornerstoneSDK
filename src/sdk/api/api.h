@@ -33,7 +33,6 @@ SOFTWARE.
 class API
 {
 public:
-
     /**
      * @brief 载入插件关键字和系统回调函数指针
      * @param apidata 系统回调函数指针JSON
@@ -50,7 +49,7 @@ public:
      * @param background_color 背景颜色
      */
     string OutputLog(const string &message, int32_t text_color = 32768,
-        int32_t background_color = 16777215);
+                     int32_t background_color = 16777215);
 
     /**
      * @brief 发送好友消息
@@ -62,8 +61,8 @@ public:
      * @return 成功返回的time用于撤回消息
      */
     string SendFriendMessage(int64_t thisQQ, int64_t otherQQ,
-        const string &content,
-        int64_t* random = nullptr, int32_t* req = nullptr);
+                             const string &content,
+                             int64_t *random = nullptr, int32_t *req = nullptr);
 
     /**
      * @brief 发送群消息
@@ -73,7 +72,7 @@ public:
      * @param anonymous 匿名发送
      */
     string SendGroupMessage(int64_t thisQQ, int64_t groupQQ,
-        const string &content, bool anonymous = false);
+                            const string &content, bool anonymous = false);
 
     /**
      * @brief 发送群临时消息
@@ -86,9 +85,9 @@ public:
      * @return 成功返回的time用于撤回消息
      */
     string SendGroupTemporaryMessage(int64_t thisQQ, int64_t groupQQ,
-        int64_t otherQQ, const string &content,
-        int64_t* random = nullptr, int32_t* req = nullptr);
-        
+                                     int64_t otherQQ, const string &content,
+                                     int64_t *random = nullptr, int32_t *req = nullptr);
+
     /**
      * @brief 添加好友
      * @param thisQQ 框架QQ
@@ -96,7 +95,7 @@ public:
      * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
      */
     string AddFriend(int64_t thisQQ, int64_t otherQQ,
-        const string &verification);
+                     const string &verification);
 
     /**
      * @brief 添加群（你在群内或需要付费入群也会直接发送验证消息）
@@ -105,7 +104,7 @@ public:
      * @param verification 回答问题答案或是验证消息
      */
     string AddGroup(int64_t thisQQ, int64_t groupQQ,
-    const string &verification);
+                    const string &verification);
 
     /**
      * @brief 删除好友
@@ -121,7 +120,7 @@ public:
      * @param is_blocked 是否屏蔽
      */
     string SetBlockFriend(int64_t thisQQ, int64_t otherQQ,
-        bool is_blocked);
+                          bool is_blocked);
 
     /**
      * @brief 设置特别关心好友
@@ -130,7 +129,7 @@ public:
      * @param is_special 是否屏蔽
      */
     string SetSpecialFriend(int64_t thisQQ, int64_t otherQQ,
-        bool is_special);
+                            bool is_special);
 
     /**
      * @brief 发送好友JSON消息
@@ -142,9 +141,8 @@ public:
      * @return 成功返回的time用于撤回消息
      */
     string SendFriendJSONMessage(int64_t thisQQ, int64_t FriendQQ,
-        const string &json_content,
-        int64_t* random = nullptr, int32_t* req = nullptr);
-
+                                 const string &json_content,
+                                 int64_t *random = nullptr, int32_t *req = nullptr);
 
     /**
      * @brief 发送群JSON消息
@@ -154,7 +152,7 @@ public:
      * @param anonymous 匿名发送
      */
     string SendGroupJSONMessage(int64_t thisQQ, int64_t groupQQ,
-        const string &json_content, bool anonymous = false);
+                                const string &json_content, bool anonymous = false);
 
     /**
      * @brief 上传好友图片
@@ -165,7 +163,7 @@ public:
      * @return 成功返回图片代码
      */
     string UploadFriendImage(int64_t thisQQ, int64_t friendQQ,
-        const uint8_t* picture, size_t length, bool is_flash);
+                             const uint8_t *picture, size_t length, bool is_flash);
 
     /**
      * @brief 上传群图片
@@ -176,7 +174,7 @@ public:
      * @return 成功返回图片代码
      */
     string UploadGroupImage(int64_t thisQQ, int64_t groupQQ,
-        const uint8_t* picture, size_t size, bool is_flash);
+                            const uint8_t *picture, size_t size, bool is_flash);
 
     /**
      * @brief 上传好友语音
@@ -188,8 +186,8 @@ public:
      * @return 成功返回语音代码
      */
     string UploadFriendAudio(int64_t thisQQ, int64_t friendQQ,
-        const uint8_t* audio, size_t size,
-        int32_t audio_type, const string &audio_text);
+                             const uint8_t *audio, size_t size,
+                             int32_t audio_type, const string &audio_text);
 
     /*
      * @param audio 语音数据
@@ -199,8 +197,8 @@ public:
      * @return 成功返回语音代码
      */
     string UploadGroupAudio(int64_t thisQQ, int64_t groupQQ,
-        const uint8_t* audio, size_t size,
-        int32_t audio_type = 0, const string &audio_text = "");
+                            const uint8_t *audio, size_t size,
+                            int32_t audio_type = 0, const string &audio_text = "");
 
     /**
      * @brief 上传头像
@@ -209,7 +207,7 @@ public:
      * @param size 数据大小
      */
     string UploadAvatar(int64_t thisQQ,
-        const uint8_t* picture, size_t size);
+                        const uint8_t *picture, size_t size);
 
     /**
      * @brief 设置群名片
@@ -219,7 +217,7 @@ public:
      * @param nickname 新名片
      */
     string SetGroupNickname(int64_t thisQQ,
-        int64_t groupQQ, int64_t otherQQ, const string &nickname);
+                            int64_t groupQQ, int64_t otherQQ, const string &nickname);
 
     /**
      * @brief 从缓存取昵称
@@ -275,7 +273,7 @@ public:
      * @param friendList 好友信息列表
      * @return 成功返回好友数量，失败或无权限返回0
      */
-    size_t GetFriendList(int64_t thisQQ/*, vector<FriendInformation>& friendList*/);
+    size_t GetFriendList(int64_t thisQQ, vector<FriendInformation> &friendList);
 
     /**
      * @brief 获取群列表
@@ -283,755 +281,343 @@ public:
      * @param friendList 群信息列表
      * @return 成功返回群数量，失败或无权限返回0
      */
-    size_t GetGroupList(int64_t thisQQ/*, vector<GroupInformation>& groupList*/);
-
-/*
-
-.子程序 取群列表, 整数型, 公开, 失败或无权限返回数量0
-.参数 框架QQ, 长整数型, ,
-.参数 数据, 群信息, 参考 数组,
-
-.局部变量 ret, 整数型, , ,
-
-清除数组 (数据)
-调用子程序 (到整数 (j.取长整数 (“取群列表”)), , ret, pluginkey, 框架QQ, 取变量地址 (数据))
-返回 (ret)
-
-.子程序 取群成员列表, 整数型, 公开, 失败或无权限返回数量0
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 数据, 群成员信息, 参考 数组,
-
-.局部变量 ret, 整数型, , ,
-
-清除数组 (数据)
-调用子程序 (到整数 (j.取长整数 (“取群成员列表”)), , ret, pluginkey, 框架QQ, 群号, 取变量地址 (数据))
-返回 (ret)
-
-.子程序 设置管理员, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 群成员QQ, 长整数型, ,
-.参数 取消管理, 逻辑型, , 取消或设置
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“设置管理员”)), , ret, pluginkey, 框架QQ, 群号, 群成员QQ, 取消管理)
-返回 (ret)
-
-
-.子程序 取管理层列表, 文本型, 公开, 包括群主
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取管理层列表”)), , ret, pluginkey, 框架QQ, 群号)
-返回 (ret)
-
-.子程序 取群名片, 文本型, 公开, 成功返回群名片，注意，如果群成员的群名片未设置或群名片为空白，返回结果均为空
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 群成员QQ, 长整数型, ,
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取群名片”)), , ret, pluginkey, 框架QQ, 群号, 群成员QQ)
-返回 (ret)
-
-.子程序 取个性签名, 文本型, 公开, 成功返回个性签名
-.参数 框架QQ, 长整数型, ,
-.参数 对方QQ, 长整数型, , 可以填框架QQ本身
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取个性签名”)), , ret, pluginkey, 框架QQ, 对方QQ)
-返回 (ret)
-
-
-.子程序 修改昵称, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 昵称, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“修改昵称”)), , ret, pluginkey, 框架QQ, 昵称)
-返回 (ret)
-
-
-.子程序 修改个性签名, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 签名, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“修改个性签名”)), , ret, pluginkey, 框架QQ, 签名)
-返回 (ret)
-
-
-.子程序 删除群成员, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 群成员QQ, 长整数型, ,
-.参数 拒绝加群申请, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“删除群成员”)), , ret, pluginkey, 框架QQ, 群号, 群成员QQ, 拒绝加群申请)
-返回 (ret)
-
-
-.子程序 禁言群成员, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 群成员QQ, 长整数型, ,
-.参数 禁言时长, 整数型, , 单位：秒
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“禁言群成员”)), , ret, pluginkey, 框架QQ, 群号, 群成员QQ, 禁言时长)
-返回 (ret)
-
-
-.子程序 退群, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“退群”)), , ret, pluginkey, 框架QQ, 群号)
-返回 (ret)
-
-.子程序 解散群, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“解散群”)), , ret, pluginkey, 框架QQ, 群号)
-返回 (ret)
-
-.子程序 上传群头像, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 pic, 字节集, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“上传群头像”)), , ret, pluginkey, 框架QQ, 群号, 取变量数据地址 (pic), 取字节集长度 (pic))
-返回 (ret)
-
-
-.子程序 全员禁言, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否开启, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“全员禁言”)), , ret, pluginkey, 框架QQ, 群号, 是否开启)
-返回 (ret)
-
-
-.子程序 群权限_发起新的群聊, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_发起新的群聊”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_发起临时会话, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_发起临时会话”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_上传文件, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_上传文件”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_上传相册, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_上传相册”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_邀请好友加群, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_邀请好友加群”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_匿名聊天, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_匿名聊天”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_坦白说, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_坦白说”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_新成员查看历史消息, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 是否允许, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_新成员查看历史消息”)), , ret, pluginkey, 框架QQ, 群号, 是否允许)
-返回 (ret)
-
-
-.子程序 群权限_邀请方式设置, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 方式, 整数型, , 1 无需审核;2 需要管理员审核;3 100人以内无需审核
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群权限_邀请方式设置”)), , ret, pluginkey, 框架QQ, 群号, 方式)
-返回 (ret)
-
-
-.子程序 撤回消息_群聊, 逻辑型, 公开, 在群消息事件中使用，能收到并撤回自己发的消息，失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 fromRandom, 长整数型, ,
-.参数 fromReq, 整数型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“撤回消息_群聊”)), , ret, pluginkey, 框架QQ, 群号, fromRandom, fromReq)
-返回 (ret)
-
-.子程序 撤回消息_私聊本身, 逻辑型, 公开, 用于撤回自己发的消息，其他设备的个人消息通知也可以撤回
-.参数 框架QQ, 长整数型, ,
-.参数 对方QQ, 长整数型, ,
-.参数 fromRandom, 长整数型, ,
-.参数 fromReq, 整数型, ,
-.参数 time, 整数型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“撤回消息_私聊本身”)), , ret, pluginkey, 框架QQ, 对方QQ, fromRandom, fromReq, time)
-返回 (ret)
-
-.子程序 设置位置共享, 逻辑型, 公开, 开启后需要上报位置，大约3s上报一次，否则会自动关闭，失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 经度, 双精度小数型, , 如：121.711540
-.参数 纬度, 双精度小数型, , 如：31.403343
-.参数 是否开启, 逻辑型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“设置位置共享”)), , ret, pluginkey, 框架QQ, 群号, 经度, 纬度, 是否开启)
-返回 (ret)
-
-.子程序 上报当前位置, 逻辑型, 公开, 大约3s上报一次，不得过快，失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 经度, 双精度小数型, , 如：121.711540
-.参数 纬度, 双精度小数型, , 如：31.403343
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“上报当前位置”)), , ret, pluginkey, 框架QQ, 群号, 经度, 纬度)
-返回 (ret)
-
-.子程序 是否被禁言, 长整数型, 公开, 返回禁言时长，单位秒，[失败/无权限/未被禁言]返回0
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-
-.局部变量 ret, 长整数型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“是否被禁言”)), , ret, pluginkey, 框架QQ, 群号)
-返回 (ret)
-
-.子程序 处理群验证事件, , 公开, 在群验证事件下使用，无权限时不执行
-.参数 框架QQ, 长整数型, ,
-.参数 来源群号, 长整数型, ,
-.参数 触发QQ, 长整数型, ,
-.参数 消息Seq, 长整数型, ,
-.参数 操作类型, 整数型, , 11同意 12拒绝  14忽略
-.参数 事件类型, 整数型, , #群事件_某人申请加群/#群事件_我被邀请加入群
-
-调用子程序 (到整数 (j.取长整数 (“处理群验证事件”)), , , pluginkey, 框架QQ, 来源群号, 触发QQ, 消息Seq, 操作类型, 事件类型)
-
-.子程序 处理好友验证事件, , 公开, 在好友验证事件下使用，无权限时不执行
-.参数 框架QQ, 长整数型, ,
-.参数 触发QQ, 长整数型, ,
-.参数 消息Seq, 长整数型, ,
-.参数 操作类型, 整数型, , 1同意 2拒绝
-
-调用子程序 (到整数 (j.取长整数 (“处理好友验证事件”)), , , pluginkey, 框架QQ, 触发QQ, 消息Seq, 操作类型)
-
-
-.子程序 查看转发聊天记录内容, , 公开, 私聊消息也可以使用此命令解析，无权限时不执行
-.参数 框架QQ, 长整数型, ,
-.参数 resId, 文本型, , 可在xml消息代码中取到
-.参数 消息内容, 群消息数据, 参考 数组, 私聊消息也可从该结构取信息
-
-调用子程序 (到整数 (j.取长整数 (“查看转发聊天记录内容”)), , , pluginkey, 框架QQ, resId, 取变量地址 (消息内容))
-
-.子程序 上传群文件, , 公开, 本命令为耗时操作，请另开线程执行，本命令不支持上百mb的文件，无权限时不执行
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 文件路径, 文本型, , 本地文件路径
-.参数 文件夹, 文本型, 可空, 该空保留，暂时无效
-
-调用子程序 (到整数 (j.取长整数 (“上传群文件”)), , , pluginkey, 框架QQ, 群号, 文件路径, 文件夹)
-
-.子程序 创建群文件夹, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 文件夹名, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“创建群文件夹”)), , ret, pluginkey, 框架QQ, 群号, 文件夹名)
-返回 (ret)
-
-.子程序 设置在线状态, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 main, 整数型, , 11在线 31离开 41隐身 50忙碌 60Q我吧 70请勿打扰
-.参数 sun, 整数型, 可空, 当main=11时，可进一步设置 0普通在线 1000我的电量 1011信号弱 1024在线学习 1025在家旅游 1027TiMi中 1016睡觉中 1017游戏中 1018学习中 1019吃饭中 1021煲剧中 1022度假中 1032熬夜中 1050打球中 1051恋爱中 1052我没事 1028我在听歌
-.参数 电量, 整数型, 可空, sun=1000时，可以设置上报电量，取值1到100
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“设置在线状态”)), , ret, pluginkey, 框架QQ, main, sun, 电量)
-返回 (ret)
-
-
-.子程序 api是否有权限, 逻辑型, 公开, 判断某api是否有权限
-.参数 权限, 整数型, , #权限_
-
-.局部变量 ret, 逻辑型, , ,
-.局部变量 name, 文本型, , ,
-
-.判断开始 (apilist.是否存在 (相加 (“API[”, 到文本 (权限), “]”)))
-    赋值 (name, apilist.取文本 (相加 (“API[”, 到文本 (权限), “]”)))
-    调用子程序 (到整数 (j.取长整数 (“api是否有权限”)), , ret, pluginkey, name)
-.默认
-    赋值 (ret, 假)
-.判断结束
-返回 (ret)
-
-.子程序 重载自身, , 公开, 没有权限限制，请勿将新的插件文件下载至plugin文件夹，请确保新旧文件appname一致
-.参数 新文件路径, 文本型, 可空, 若要更新插件，可将插件文件下载后在此填写新文件路径
-
-调用子程序 (到整数 (j.取长整数 (“重载自身”)), , , pluginkey, 新文件路径)
-
-.子程序 取插件数据目录, 文本型, 公开, 没有权限限制，建议将设置文件之类的都写这里面，结果结尾带\
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取插件数据目录”)), , ret, pluginkey)
-返回 (ret)
-
-.子程序 QQ点赞, 文本型, 公开, 注意，非好友情况下进行点赞时返回成功，但不一定真正点上了
-.参数 框架QQ, 长整数型, ,
-.参数 对方QQ, 长整数型, ,
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“QQ点赞”)), , ret, pluginkey, 框架QQ, 对方QQ)
-返回 (ret)
-
-.子程序 取图片下载地址, 文本型, 公开,
-.参数 图片代码, 文本型, , 支持群聊、私聊的图片、闪照代码，注意是图片代码
-.参数 框架QQ, 长整数型, 可空, 群聊图片必填，私聊图片必空
-.参数 群号, 长整数型, 可空, 群聊图片必填，私聊图片必空
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取图片下载地址”)), , ret, pluginkey, 图片代码, 框架QQ, 群号)
-返回 (ret)
-
-.子程序 查询好友信息, 逻辑型, 公开, 支持陌生人查询
-.参数 框架QQ, 长整数型, ,
-.参数 对方QQ, 长整数型, ,
-.参数 数据, 好友信息, 参考,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“查询好友信息”)), , ret, pluginkey, 框架QQ, 对方QQ, 取变量地址 (数据))
-返回 (ret)
-
-.子程序 查询群信息, 逻辑型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 数据, 群卡片信息, 参考,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“查询群信息”)), , ret, pluginkey, 框架QQ, 群号, 取变量地址 (数据))
-返回 (ret)
-
-.子程序 框架重启, , 公开, 有权限限制，建议使用前检查是否具有权限
-调用子程序 (到整数 (j.取长整数 (“框架重启”)), , , pluginkey)
-
-.子程序 群文件转发至群, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 来源群号, 长整数型, ,
-.参数 目标群号, 长整数型, ,
-.参数 FileId, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群文件转发至群”)), , ret, pluginkey, 框架QQ, 来源群号, 目标群号, FileId)
-返回 (ret)
-
-.子程序 群文件转发至好友, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 来源群号, 长整数型, ,
-.参数 目标QQ, 长整数型, ,
-.参数 FileId, 文本型, ,
-.参数 Filename, 文本型, ,
-.参数 Req, 整数型, 参考 可空, 撤回消息用
-.参数 Random, 长整数型, 参考 可空, 撤回消息用
-.参数 time, 整数型, 参考 可空, 撤回消息用
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群文件转发至好友”)), , ret, pluginkey, 框架QQ, 来源群号, 目标QQ, FileId, Filename, Req, Random, time)
-返回 (ret)
-
-.子程序 好友文件转发至好友, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 来源QQ, 长整数型, ,
-.参数 目标QQ, 长整数型, ,
-.参数 FileId, 文本型, ,
-.参数 Filename, 文本型, ,
-.参数 Req, 整数型, 参考 可空, 撤回消息用
-.参数 Random, 整数型, 参考 可空, 撤回消息用
-.参数 time, 整数型, 参考 可空, 撤回消息用
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友文件转发至好友”)), , ret, pluginkey, 框架QQ, 来源QQ, 目标QQ, FileId, Filename, Req, Random, time)
-返回 (ret)
-
-.子程序 置群消息接收, 逻辑型, 公开, 失败或无权限返回假，此API未对返回结果进行分析，返回真不一定成功
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 设置类型, 整数型, , 1接收并提醒 2收进群助手 3屏蔽群消息 4接收不提醒
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“置群消息接收”)), , ret, pluginkey, 框架QQ, 群号, 设置类型)
-返回 (ret)
-
-.子程序 发送免费礼物, 文本型, 公开, 绕过广告发送免费礼物
-.参数 框架QQ, 长整数型, ,
-.参数 群号, 长整数型, ,
-.参数 对方QQ, 长整数型, ,
-.参数 packageID, 整数型, , 299卡布奇诺;302猫咪手表;280牵你的手;281可爱猫咪;284神秘面具;285甜wink;286我超忙的;289快乐肥宅水;290幸运手链;313坚强;307绒绒手套; 312爱心口罩;308彩虹糖果
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“发送免费礼物”)), , ret, pluginkey, 框架QQ, 群号, 对方QQ, packageID)
-返回 (ret)
-
-.子程序 取好友在线状态, 文本型, 公开, 失败或无权限返回空，支持查询陌生人
-.参数 框架QQ, 长整数型, ,
-.参数 对方QQ, 长整数型, ,
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取好友在线状态”)), , ret, pluginkey, 框架QQ, 对方QQ)
-返回 (ret)
-
-.子程序 取QQ钱包个人信息, 文本型, 公开, 包括余额、名字、银行卡等
-.参数 框架QQ, 长整数型, ,
-.参数 数据, QQ钱包信息, 参考, 取银行卡信息时注意不要数组越界
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“取QQ钱包个人信息”)), , ret, pluginkey, 框架QQ, 取变量地址 (数据))
-返回 (ret)
-
-.子程序 获取订单详情, 文本型, 公开, 可以查订单，比如别人给你转账，你可以查询转账的详情
-.参数 框架QQ, 长整数型, ,
-.参数 订单号, 文本型, , 或者称之为listid
-.参数 数据, 订单详情, 参考,
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“获取订单详情”)), , ret, pluginkey, 框架QQ, 订单号, 取变量地址 (数据))
-返回 (ret)
-
-
-.子程序 提交支付验证码, 文本型, 公开, 用银行卡支付时需要验证，只需要验证一次
-.参数 框架QQ, 长整数型, ,
-.参数 验证码信息, 验证码信息, , 银行卡发红包时传回的
-.参数 验证码, 文本型, , 手机收到的短信验证码
-.参数 支付密码, 文本型, , 用于验证并支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“提交支付验证码”)), , ret, pluginkey, 框架QQ, 取变量地址 (验证码信息), 验证码, 支付密码)
-返回 (ret)
-
-.子程序 分享音乐, 逻辑型, 公开, 失败或无权限返回假
-.参数 框架QQ, 长整数型, ,
-.参数 分享对象, 长整数型, , 分享的群或分享的好友QQ
-.参数 歌曲名, 文本型, ,
-.参数 歌手名, 文本型, ,
-.参数 跳转地址, 文本型, , 点击音乐json后跳转的地址
-.参数 封面地址, 文本型, , 音乐的封面图片地址
-.参数 文件地址, 文本型, , 音乐源文件地址，如https://xxx.com/xxx.mp3
-.参数 应用类型, 整数型, 可空, 0QQ音乐 1虾米音乐 2酷我音乐 3酷狗音乐 4网易云音乐  默认0
-.参数 分享类型, 整数型, 可空, 0私聊 1群聊  默认0
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“分享音乐”)), , ret, pluginkey, 框架QQ, 分享对象, 歌曲名, 歌手名, 跳转地址, 封面地址, 文件地址, 应用类型, 分享类型)
-返回 (ret)
-
-.子程序 更改群聊消息内容, 逻辑型, 公开, 使用此命令可以更改当前群聊消息内容，并使更改后的内容投递给之后的插件，无权限返回假
-.参数 数据指针, 整数型, ,
-.参数 新消息内容, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“更改群聊消息内容”)), , ret, pluginkey, 数据指针, 新消息内容)
-返回 (ret)
-
-.子程序 更改私聊消息内容, 逻辑型, 公开, 使用此命令可以更改当前私聊消息内容，并使更改后的内容投递给之后的插件，无权限返回假
-.参数 数据指针, 整数型, ,
-.参数 新消息内容, 文本型, ,
-
-.局部变量 ret, 逻辑型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“更改私聊消息内容”)), , ret, pluginkey, 数据指针, 新消息内容)
-返回 (ret)
-
-.子程序 群聊口令红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 口令, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊口令红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 口令, 支付密码, 银行卡序列)
-返回 (ret)
-
-.子程序 群聊拼手气红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 祝福语, 文本型, ,
-.参数 红包皮肤Id, 整数型, 可空, 1522光与夜之恋,1527代号:三国(打了一辈子仗),1525街霸:对决,1518代号:三国(俺送红包来了),1476天涯明月刀,1512一人之下。其他皮肤id自己找
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊拼手气红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 祝福语, 红包皮肤Id, 支付密码, 银行卡序列)
-返回 (ret)
-
-.子程序 群聊普通红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 祝福语, 文本型, ,
-.参数 红包皮肤Id, 整数型, 可空, 1522光与夜之恋,1527代号:三国(打了一辈子仗),1525街霸:对决,1518代号:三国(俺送红包来了),1476天涯明月刀,1512一人之下。其他皮肤id自己找
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊普通红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 祝福语, 红包皮肤Id, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 群聊画图红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 题目名, 文本型, , 只能填手Q有的，如：庄周
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊画图红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 题目名, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 群聊语音红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 语音口令, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊语音红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 语音口令, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 群聊接龙红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 接龙内容, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊接龙红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 接龙内容, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 群聊专属红包, 文本型, 公开,
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 群号, 长整数型, ,
-.参数 领取人, 文本型, , 多个领取人QQ用|分隔
-.参数 祝福语, 文本型, ,
-.参数 是否均分, 逻辑型, 可空, 默认不均分(拼手气),均分时每个领取人领取金额相同
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“群聊专属红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 群号, 领取人, 祝福语, 是否均分, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 好友口令红包, 文本型, 公开, 不支持非好友！
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 对方QQ, 长整数型, ,
-.参数 口令, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友口令红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 口令, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 好友普通红包, 文本型, 公开, 不支持非好友！
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 对方QQ, 长整数型, ,
-.参数 祝福语, 文本型, ,
-.参数 红包皮肤Id, 整数型, 可空, 1522光与夜之恋,1527代号:三国(打了一辈子仗),1525街霸:对决,1518代号:三国(俺送红包来了),1476天涯明月刀,1512一人之下。其他皮肤id自己找
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友普通红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 祝福语, 红包皮肤Id, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 好友画图红包, 文本型, 公开, 不支持非好友！
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 对方QQ, 长整数型, ,
-.参数 题目名, 文本型, , 只能填手Q有的，如：庄周
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友画图红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 题目名, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 好友语音红包, 文本型, 公开, 不支持非好友！
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 对方QQ, 长整数型, ,
-.参数 语音口令, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友语音红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 语音口令, 支付密码, 银行卡序列)
-返回 (ret)
-
-
-.子程序 好友接龙红包, 文本型, 公开, 不支持非好友！
-.参数 框架QQ, 长整数型, ,
-.参数 总数量, 整数型, ,
-.参数 总金额, 整数型, , 单位分
-.参数 对方QQ, 长整数型, ,
-.参数 接龙内容, 文本型, ,
-.参数 支付密码, 文本型, ,
-.参数 银行卡序列, 整数型, 可空, 大于0时使用银行卡支付
-
-.局部变量 ret, 文本型, , ,
-
-调用子程序 (到整数 (j.取长整数 (“好友接龙红包”)), , ret, pluginkey, 框架QQ, 总数量, 总金额, 对方QQ, 接龙内容, 支付密码, 银行卡序列)
-返回 (ret)
-*/
+    size_t GetGroupList(int64_t thisQQ, vector<GroupInformation> &groupList);
+
+    /**
+     * @brief 取群成员列表
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param group_member_list 数据
+     * @return 失败或无权限返回数量0
+     */
+    int32_t GetGroupMemberList(int64_t thisQQ, int64_t groupQQ, vector<GroupMemberInformation>& group_member_list);
+
+    /**
+     * @brief 设置管理员
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 群成员QQ
+     * @param is_administrator 取消管理 取消或设置
+     * @return 失败或无权限返回假
+     */
+    bool SetAdministrator(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ, bool is_administrator);
+
+    /**
+     * @brief 取管理层列表
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @return 包括群主
+     */
+    string GetAdministratorList(int64_t thisQQ, int64_t groupQQ);
+
+    /**
+     * @brief 取群名片
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 群成员QQ
+     * @return 成功返回群名片，注意，如果群成员的群名片未设置或群名片为空白，返回结果均为空
+     */
+    string GetGroupNickname(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ);
+
+    /**
+     * @brief 取个性签名
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ 可以填框架QQ本身
+     * @return 成功返回个性签名
+     */
+    string GetSignature(int64_t thisQQ, int64_t otherQQ);
+
+    /**
+     * @brief 修改昵称
+     * @param thisQQ 框架QQ
+     * @param name 昵称
+     * @return 失败或无权限返回假
+     */
+    bool SetName(int64_t thisQQ, string name);
+
+    /**
+     * @brief 修改个性签名
+     * @param thisQQ 框架QQ
+     * @param signature 签名
+     * @return 失败或无权限返回假
+     */
+    bool SetSignature(int64_t thisQQ, string signature);
+    
+    /**
+     * @brief 删除群成员
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 群成员QQ
+     * @param is_verification_refused 拒绝加群申请
+     * @return 失败或无权限返回假
+     */
+    bool RemoveGroupMember(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ, bool is_verification_refused);
+
+    /**
+     * @brief 禁言群成员
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 群成员QQ
+     * @param time 禁言时长 单位：秒
+     * @return 失败或无权限返回假
+     */
+    bool ShutUpGroupMember(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ, int32_t time);
+
+    /**
+     * @brief 退群
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @return 失败或无权限返回假
+     */
+    bool QuitGroup(int64_t thisQQ, int64_t groupQQ);
+    
+    /**
+     * @brief 解散群
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @return 失败或无权限返回假
+     */
+    bool DissolveGroup(int64_t thisQQ, int64_t groupQQ);
+   
+    /**
+     * @brief 上传群头像
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param picture pic
+     * @return 失败或无权限返回假
+     */
+    bool UploadGroupAvatar(int64_t thisQQ, int64_t groupQQ, const uint8_t *picture);
+
+    /**
+     * @brief 全员禁言
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_shut_up_all 是否开启
+     * @return 失败或无权限返回假
+     */
+    bool ShutUpAll(int64_t thisQQ, int64_t groupQQ, bool is_shut_up_all);
+
+    /**
+     * @brief 群权限_发起新的群聊
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_CreateGroup(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    /**
+     * @brief 群权限_发起临时会话
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_CreateTemporaryConversation(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+
+    /**
+     * @brief 群权限_上传文件
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_UploadFile(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    
+    /**
+     * @brief 群权限_上传相册
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_UploadPicture(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    /**
+     * @brief 群权限_邀请好友加群
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_InviteFriend(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    /**
+     * @brief 群权限_匿名聊天
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_Anonymous(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    /**
+     * @brief 群权限_坦白说
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_ChatFrankly(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+
+    /**
+     * @brief 群权限_新成员查看历史消息
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_allowed 是否允许
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_NewMemberReadChatHistory(int64_t thisQQ, int64_t groupQQ, bool is_allowed);
+    
+    /**
+     * @brief 群权限_邀请方式设置
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param method 方式 1 无需审核;2 需要管理员审核;3 100人以内无需审核
+     * @return 失败或无权限返回假
+     */
+    bool GroupPermission_SetInviteMethod(int64_t thisQQ, int64_t groupQQ, int32_t method);
+    
+    /**
+     * @brief 撤回消息_群聊
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param fromRandom fromRandom
+     * @param fromReq fromReq
+     * @return 在群消息事件中使用，能收到并撤回自己发的消息，失败或无权限返回假
+     */
+    bool Undid_Group(int64_t thisQQ, int64_t groupQQ, int64_t from_random, int32_t from_req);
+    
+    /**
+     * @brief 撤回消息_私聊本身
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @param from_random fromRandom
+     * @param from_req fromReq
+     * @param time time
+     * @return 用于撤回自己发的消息，其他设备的个人消息通知也可以撤回
+     */
+    bool Undid_Private(int64_t thisQQ, int64_t otherQQ, int64_t from_random, int32_t from_req, int32_t time);
+
+    /**
+     * @brief 设置位置共享（开启后需要上报位置，大约3s上报一次，否则会自动关闭）
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param Longitude 经度 如：121.711540
+     * @param Latitude 纬度 如：31.403343
+     * @param is_enabled 是否开启
+     * @return 失败或无权限返回假
+     */ 
+    bool SetLocationShare(int64_t thisQQ, int64_t groupQQ, double Longitude, double Latitude, bool is_enabled);
+
+    /**
+     * @brief 上报当前位置（大约3s上报一次，不得过快）
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param Longitude 经度 如：121.711540
+     * @param Latitude 纬度 如：31.403343
+     * @return 失败或无权限返回假
+     */
+    bool ReportCurrent(int64_t thisQQ, int64_t groupQQ, double Longitude, double Latitude);
+    
+    /**
+     * @brief 是否被禁言
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @return 返回禁言时长，单位秒，失败、无权限或未被禁言返回0
+     */
+    int64_t IsShuttedUp(int64_t thisQQ, int64_t groupQQ);
+
+    /**
+     * @brief 处理群验证事件 在群验证事件下使用，无权限时不执行
+     * @param thisQQ 框架QQ
+     * @param source_groupQQ 来源群号
+     * @param triggerQQ 触发QQ
+     * @param message_seq 消息Seq
+     * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
+     * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
+     */
+    void ProcessGroupVerificationEvent(int64_t thisQQ, int64_t source_groupQQ, int64_t triggerQQ, int64_t message_seq, int32_t operate_type, int32_t event_type);
+
+    /**
+     * @brief 处理好友验证事件 在好友验证事件下使用，无权限时不执行
+     * @param thisQQ 框架QQ
+     * @param triggerQQ 触发QQ
+     * @param message_seq 消息Seq
+     * @param operate_type 操作类型 1: 同意, 2: 拒绝
+     */
+    void ProcessFriendVerificationEvent(int64_t thisQQ, int64_t triggerQQ, int64_t message_seq, int32_t operate_type);
+
+    /**
+     * @brief 查看转发聊天记录内容 私聊消息也可以使用此命令解析，无权限时不执行
+     * @param thisQQ 框架QQ
+     * @param resID resID 可在xml消息代码中取到
+     * @param message_content 消息内容 私聊消息也可从该结构取信息
+     */
+    void ReadForwardedChatHistory(int64_t thisQQ, string resID, vector<GroupMessageData>& message_content)
+
+    /**
+     * @brief 上传群文件 本命令为耗时操作，请另开线程执行，本命令不支持上百mb的文件，无权限时不执行
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param path 文件路径 本地文件路径
+     * @param directory 文件夹 该空保留，暂时无效
+     */
+    void ProcessFriendVerificationEvent(int64_t thisQQ, int64_t groupQQ, string path, string directory);
+
+    /**
+     * @brief 创建群文件夹
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param directory 文件夹名
+     * @return 失败或无权限返回假
+     */
+    bool CreateGroupDirectory(int64_t thisQQ, int64_t groupQQ, string directory);
+
+    /**
+    * @brief 设置在线状态
+    * @param thisQQ 框架QQ
+    * @param main main 11: 在线, 31: 离开, 41: 隐身, 50: 忙碌, 60: Q我吧, 70: 请勿打扰
+    * @param sun sun 当main=11时，可进一步设置 0: 普通在线, 1000: 我的电量, 1011: 信号弱, 1016: 睡觉中, 1017: 游戏中, 1018: 学习中, 1019: 吃饭中, 1021: 煲剧中, 1022: 度假中, 1024: 在线学习, 1025: 在家旅游, 1027: TiMi中, 1028: 我在听歌, 1032: 熬夜中, 1050: 打球中, 1051: 恋爱中, 1052: 我没事
+    * @param battery 电量 sun=1000时，可以设置上报电量，取值1到100
+    * @return 失败或无权限返回假
+    */
+    bool SetStatus(int64_t thisQQ, int32_t main, int32_t sun = 0, int32_t battery = 0);
+
+    /**
+     * @brief api是否有权限
+     * @param permission 权限 #权限_
+     * @return 判断某api是否有权限
+     */
+    bool CheckPermission(int32_t permission);
+
+    /**
+     * @brief 取插件数据目录
+     * @param new_file_path 新文件路径 若要更新插件，可将插件文件下载后在此填写新文件路径
+     * @return 没有权限限制，建议将设置文件之类的都写这里面，结果结尾带\
+     */
+    string GetPluginDataDirectory(可空 string new_file_path);
+
+    /**
+     * @brief QQ点赞
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @return 注意，非好友情况下进行点赞时返回成功，但不一定真正点上了
+     */
+    string QQLike(int64_t thisQQ, int64_t otherQQ);
+
+    /**
+     * @brief 取图片下载地址
+     * @param image_code 图片代码 支持群聊、私聊的图片、闪照代码，注意是图片代码
+     * @param thisQQ 框架QQ 群聊图片必填，私聊图片必空
+     * @param groupQQ 群号 群聊图片必填，私聊图片必空
+     */
+    string GetImageDownloadLink(string image_code, 可空 int64_t thisQQ, 可空 int64_t groupQQ);
 
 protected:
     Json j;
     string api_key;
 };
 
-#endif  // CORNERSTONE_HEADER_API_H_
+#endif // CORNERSTONE_HEADER_API_H_

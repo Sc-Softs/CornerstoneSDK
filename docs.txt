@@ -1,0 +1,3434 @@
+﻿
+易语言支持库开发包（EDK）for C++ 开发手册
+
+作者：大连大有吴涛易语言软件开发有限公司
+时间：2015年10月
+
+版权声明：
+    本文件及其中所有实例的版权均为大连大有吴涛易语言软件开发有限公司所有，
+    仅授权给第三方用作开发易语言支持库或相关工具，禁止用于其他任何场合。
+
+此开发手册是在吴涛于2003年5月发布的易语言支持库开发手册的基础上补充完善而成。
+
+///////////////////////////////////////////////////////////////////////////////
+
+相对上一版本(2008.5)的改动
+--------------------------
+
+  支持在支持库中加入授权机制,例程请见"sdk\cpp\samples\licHtmlView\HtmlView".
+  授权机制的技术原理如下:
+  同一易语言支持库具有以下三类不同后缀的文件:
+    ".fne": 带有编辑接口信息的动态支持库文件
+    ".fnr": 不带编辑接口信息的动态支持库文件
+    ".lib": 支持库的静态链接库
+  对于易语言系统IDE来说,支持库的".fne"文件是必需的,因为只有其中才包括可以被ide访问的支持库对外接口信息,
+只有有了它该支持库才能在易语言开发环境中被用户使用,而".fnr"仅用作在用户编译好的程序运行时使用,".lib"仅
+用作在编译时静态链接用户程序使用,它们均不包括编辑接口信息.
+  因此,授权机制被设置为: 由支持库自己在"GetNewInf"函数中检查用户是否获得了授权,如果获得了,则返回正常的
+编辑接口信息,支持库可以正常在IDE中使用,否则返回一个空白的编辑接口信息,此时IDE将无法使用此支持库.
+  仔细查看licHtmlView的HtmlView.cpp文件中所有使用了"__E_STATIC_LIB"宏(用作编译静态库版本)和
+"__COMPILE_FNR"宏(用作编译fnr动态库版本)的代码部分可得知: 编译静态库时所有的编辑接口信息均不需要,
+编译fnr版本时,仅仅需要简单的LIB_DATA_TYPE_INFO类型信息数组(其中的绝大部分编辑信息譬如事件/属性定义信息
+均被跳过),从而保证了用户无法通过lib/fnr倒推出fne.
+  本例程授权检查处理较为简单,更为安全的做法为譬如直接将编辑接口信息数据放置在fne文件外部且不附带在支持
+库安装包中,用户购买授权后再通过网络把基于该用户计算机硬件代码加密后的编辑接口信息发送给用户实时解密使用.
+此时由于对外公开发布的支持库安装包中有实质数据缺失,破解将无从下手.但是支持库安装包中有支持库的fnr版本,
+用户可以通过执行预先编译好的exe文件来查看支持库效果,以便其判断是否购买.
+  注意: 具有支持库授权机制的易语言系统最低版本是5.4,所以必须设置LIB_INFO中的对应系统要求成员.
+
+相对上一版本(2003.5)的改动
+--------------------------
+
+A: 增加了跨操作系统编程支持：
+
+  1、各支持库需要说明其具有哪些操作系统版本，及支持库中所有命令、数据类型、
+     数据类型方法、数据类型事件、数据类型属性所支持的操作系统。以上这些信息，
+     在该支持库所具有的所有操作系统版本中必须一致。详见 __OS_WIN, __OS_LINUX, 
+     __OS_UNIX, OS_ALL, _LIB_OS, _DT_OS, _CMD_OS, _PROP_OS, _EVENT_OS 等宏定义的说明。
+  2、为了和以前的支持库相兼容，所有m_nRqSysMajorVer.m_nRqSysMinorVer版本号
+     小于3.6的都默认为支持Windows操作系统，包括内部的所有命令、数据类型、
+     数据类型方法、数据类型事件、数据类型属性。
+  3、所有组件固定属性和固定事件都支持所有操作系统。
+  4、对于纯工具库不进行操作系统支持检查。
+
+B: 数据类型增加了构造函数、析构函数和拷贝构造函数
+
+  详见 CT_IS_OBJ_CONSTURCT_CMD, CT_IS_OBJ_FREE_CMD, CT_IS_OBJ_COPY_CMD
+
+C: 增强事件处理机制
+
+  事件处理子程序允许有返回值，事件处理子程序的参数类型更丰富
+  详见 EVENT_INFO2, EVENT_ARG_INFO2, EVENT_NOTIFY2
+
+D: 新增枚举常量数据类型，详见 LDT_ENUM
+
+E: 其它改动，详见文件 lib2.h 内说明
+
+
+
+制作易语言支持库的详细步骤及方法说明：
+
+/*****************************************************************/
+
+1、易语言支持库实际上是一个DLL动态连接库，此库中必须输出一个名为 GetNewInf 的函数，原型见下：
+
+    #define FUNCNAME_GET_LIB_INFO   "GetNewInf"         // 取本支持库的PLIB_INFO指针的输出函数名称
+    typedef PLIB_INFO (WINAPI *PFN_GET_LIB_INFO) ();    // GetNewInf的函数原型
+
+    支持库文件名的后缀必须固定为.FNx，其中x为一类型字母，目前有意义的后缀有：
+        1、“.fne”：    带编辑信息、有运行支持代码的支持库；
+        2、“.fnl”：    带编辑信息、无运行支持代码的支持库；
+        3、“.fnr”：    不带编辑信息、有运行支持代码的支持库；
+
+/*****************************************************************/
+
+2、该输出函数返回支持库内部的一个 LIB_INFO 数据结构，该数据结构的定义及成员说明如下：
+
+	typedef struct
+	{
+		DWORD				m_dwLibFormatVer;
+			// 库格式号，应该等于LIB_FORMAT_VER。主要用途如下：
+			//   譬如 krnln.fnX 库，在做其它与此同名但功能完全不一致的库时，应当改变此格式号，
+			// 以防止错误装载。
+
+		LPTSTR				m_szGuid;
+			// 对应于本库的唯一GUID串，不能为NULL或空，库的所有版本此串都应相同。
+			// 如果为ActiveX控件，此串记录其CLSID。
+		INT					m_nMajorVersion;	// 本库的主版本号，必须大于0。
+		INT					m_nMinorVersion;	// 本库的次版本号。
+
+		INT					m_nBuildNumber;
+			// 构建版本号，无需对此版本号作任何处理。
+			//   本版本号仅用作区分相同正式版本号的系统软件（譬如仅仅修改了几个 BUG，
+			// 不值得升级正式版本的系统软件）。任何公布过给用户使用的版本其构建版本
+			// 号都应该不一样。
+			//   赋值时应该顺序递增。
+
+		INT					m_nRqSysMajorVer;		// 所需要的易语言系统的主版本号。
+		INT					m_nRqSysMinorVer;		// 所需要的易语言系统的次版本号。
+		INT					m_nRqSysKrnlLibMajorVer;	// 所需要的系统核心支持库的主版本号。
+		INT					m_nRqSysKrnlLibMinorVer;	// 所需要的系统核心支持库的次版本号。
+
+		LPTSTR				m_szName;
+			// 库名，不能为NULL或空。
+		INT					m_nLanguage;	// 库所支持的语言。
+		LPTSTR				m_szExplain;	// 库详细解释
+
+		#define		LBS_FUNC_NO_RUN_CODE		(1 << 2)
+			// 本库仅为声明库，没有对应功能的支持代码，因此不能运行。
+		#define		LBS_NO_EDIT_INFO			(1 << 3)
+			// 本库内无供编辑用的信息（编辑信息主要为：各种名称、解释字符串等）。
+		#define		LBS_IS_DB_LIB				(1 << 5)
+			// 本库是否为数据库操作支持库。
+	    //!!! 注意高位包含 __OS_xxxx 宏用于表明本支持库具有的所有操作系统版本。
+	    #define _LIB_OS(os)     (os)  // 用作转换os类型以便加入到m_dwState。
+	    #define _TEST_LIB_OS(m_dwState,os)    ((_LIB_OS (os) & m_dwState) != 0) // 用作测试支持库是否具有指定操作系统的版本。
+		DWORD				m_dwState;
+
+	//////////////////
+		LPTSTR				m_szAuthor;
+		LPTSTR				m_szZipCode;
+		LPTSTR				m_szAddress;
+		LPTSTR				m_szPhoto;
+		LPTSTR				m_szFax;
+		LPTSTR				m_szEmail;
+		LPTSTR				m_szHomePage;
+		LPTSTR				m_szOther;
+
+	//////////////////
+		INT                 m_nDataTypeCount;	// 本库中自定义数据类型的数目。
+		PLIB_DATA_TYPE_INFO m_pDataType;		// 本库中所有的自定义数据类型。
+			//   可以参考使用系统核心支持库中的自定义数据类型，系统核心支持库在程序
+			// 的库登记数组中的索引值加1后的值为1。
+
+		INT					m_nCategoryCount;	// 全局命令类别数目，可为0。
+		LPTSTR				m_szzCategory;		// 全局命令类别说明表
+
+		// 本库中提供的所有命令（全局命令及对象命令）的数目（可为0）。
+		INT					m_nCmdCount;
+		PCMD_INFO			m_pBeginCmdInfo;	// 可为NULL
+		PFN_EXECUTE_CMD*    m_pCmdsFunc;		// 指向每个命令的实现代码首地址，可为NULL
+
+		PFN_RUN_ADDIN_FN	m_pfnRunAddInFn;	// 可为NULL
+		//     有关AddIn功能的说明，两个字符串说明一个功能。第一个为功能名称
+		// （仅限一行20字符，如果希望自行初始位置而不被自动加入到工具菜单，则
+	    // 名称应该以@开始，此时会接收到值为 -(nAddInFnIndex + 1) 的调用通知），
+	    // 第二个为功能详细介绍（仅限一行60字符），最后由两个空串结束。
+		LPTSTR				m_szzAddInFnInfo;
+
+		PFN_NOTIFY_LIB		m_pfnNotify;		// 不能为NULL
+
+	    // 超级模板暂时保留不用。
+		PFN_SUPER_TEMPLATE	m_pfnSuperTemplate;	// 可为NULL
+		//     有关SuperTemplate的说明，两个字符串说明一个SuperTemplate。
+		// 第一个为SuperTemplate名称（仅限一行30字符），第二个为详细介绍（不限），
+		// 最后由两个空串结束。
+		LPTSTR m_szzSuperTemplateInfo;
+
+		// 本库预先定义的所有常量。
+		INT	m_nLibConstCount;
+		PLIB_CONST_INFO m_pLibConst;
+
+		LPTSTR m_szzDependFiles;	// 可为NULL
+		// 本库正常运行所需要依赖的其他支持文件
+	}
+	LIB_INFO, *PLIB_INFO;
+
+    下面是一个支持库定义信息的例子：
+
+    static LIB_INFO s_LibInfo =
+    {
+        LIB_FORMAT_VER,
+
+        // guid: { 0xd09f2340, 0x8185, 0x11d3, { 0x96, 0xf6, 0xaa, 0xf8, 0x44, 0xc7, 0xe3, 0x25 } }
+        #define        LI_LIB_GUID_STR    "d09f2340818511d396f6aaf844c7e325"
+        _T (LI_LIB_GUID_STR),
+
+        3,
+        0,
+
+        33,
+
+        3,
+        0,
+        3,
+        0,
+
+        _T ("系统核心支持库"),
+        LT_CHINESE,
+        _T("本支持库是易语言的核心库，为系统本身和每个易程序提供必需的功能支持"),
+        0,
+
+        _T("飞扬软件工作室吴涛"),
+        _T("443200"),
+        _T("湖北省枝江市鑫源村六栋严文芳转"),
+        _T("(0717)4222233"),
+        _T("(0717)4222233"),
+        _T("fly@eyuyan.com"),
+        _T("http://eyuyan.com"),
+        _T("祝您一帆风顺，心想事成！"),
+
+        sizeof (s_DataType) / sizeof (s_DataType[0]),
+        s_DataType,
+
+        21,
+        _T("0001流程控制\0"
+            "0014算术运算\0"
+            "0005逻辑比较\0"
+            "0015位运算\0"
+            "0002容器操作\0"
+            "0000数组操作\0"
+            "0000环境存取\0"
+            "0000拼音处理\0"
+            "0000文本操作\0"
+            "0000字节集操作\0"
+            "0000数值转换\0"
+            "0000时间操作\0"
+            "0000磁盘操作\0"
+            "0000文件读写\0"
+            "0000系统处理\0"
+            "0000媒体播放\0"
+            "0000程序调试\0"
+            "0000其他\0"
+            "0021数据库\0"
+            "0000网络通信\0"
+            "0000易向导\0"
+            "\0"),
+
+        sizeof (s_CmdInfo) / sizeof (s_CmdInfo [0]),
+        s_CmdInfo,
+
+        s_RunFunc,
+
+        NULL,
+        NULL,
+
+        ProcessNotifyLib,
+
+        NULL,
+        NULL,
+
+        sizeof (s_ConstInfo) / sizeof (s_ConstInfo [0]),
+        s_ConstInfo,
+
+        NULL
+    };
+
+/*****************************************************************/
+
+3、以下是 LIB_INFO 中将详细说明的成员：
+
+    INT                 m_nDataTypeCount;   // 本库中自定义数据类型的数目，必须等于m_pDataType所指向数组成员的数目。
+    PLIB_DATA_TYPE_INFO m_pDataType;        // 本库中所有的自定义数据类型。
+
+    // 本库中提供的所有命令（全局命令及对象方法）的数目（可为0）。
+    INT                 m_nCmdCount;
+    PCMD_INFO           m_pBeginCmdInfo;    // 可为NULL，指向所有命令及方法的定义数组。
+    PFN_EXECUTE_CMD*    m_pCmdsFunc;        // 指向每个命令的实现代码首地址，可为NULL
+
+    PFN_RUN_ADDIN_FN    m_pfnRunAddInFn;    // 可为NULL，用作为易语言IDE提供附加功能。
+    //     有关AddIn功能的说明，两个字符串说明一个功能。第一个为功能名称
+    // （限20字符），第二个为功能详细介绍（限60字符），最后由两个空串结束。
+    LPTSTR              m_szzAddInFnInfo;
+
+    PFN_NOTIFY_LIB      m_pfnNotify;        // 不能为NULL，用作提供接收来自易语言IDE或运行环境通知的函数。
+
+    // 本库定义的所有常量。
+    INT m_nLibConstCount;   // 常量数目。
+    PLIB_CONST_INFO m_pLibConst;    // 指向常量定义数组。
+
+/*****************************************************************/
+
+4、在说明以上成员之前，需要了解易语言的数据类型及数据存储方式。
+
+   数据类型的定义为：
+
+   typedef DWORD DATA_TYPE;
+
+   其详细说明为：
+
+    1、最高两位的值为2表示为系统定义的基本数据类型，定义如下：
+    #define        _SDT_NULL        0           // 空白数据类型
+    #define        _SDT_ALL         MAKELONG (MAKEWORD (0, 0), 0x8000)  // 通用型
+        /*  仅用于支持库命令定义其参数或返回值的数据类型，当用于定义库命令参数时，
+        _SDT_ALL可以匹配所有数据类型（数组类型必须符合要求）。*/
+    #define        SDT_BYTE         MAKELONG (MAKEWORD (1, 1), 0x8000)  // 字节
+    #define        SDT_SHORT        MAKELONG (MAKEWORD (1, 2), 0x8000)  // 短整数
+    #define        SDT_INT          MAKELONG (MAKEWORD (1, 3), 0x8000)  // 整数
+    #define        SDT_INT64        MAKELONG (MAKEWORD (1, 4), 0x8000)  // 长整数
+    #define        SDT_FLOAT        MAKELONG (MAKEWORD (1, 5), 0x8000)  // 小数
+    #define        SDT_DOUBLE       MAKELONG (MAKEWORD (1, 6), 0x8000)  // 双精度小数
+    #define        SDT_BOOL         MAKELONG (MAKEWORD (2, 0), 0x8000)  // 逻辑
+    #define        SDT_DATE_TIME    MAKELONG (MAKEWORD (3, 0), 0x8000)  // 日期时间
+    #define        SDT_TEXT         MAKELONG (MAKEWORD (4, 0), 0x8000)  // 文本
+    #define        SDT_BIN          MAKELONG (MAKEWORD (5, 0), 0x8000)  // 字节集
+    #define        SDT_SUB_PTR      MAKELONG (MAKEWORD (6, 0), 0x8000)  // 记录用户易语言子程序的代码地址
+
+    2、最高两位为0时表明此数据类型为在支持库中定义的数据类型，此时HIWORD的其余14位
+    记录该支持库在易程序中的记录索引，LOWORD为此数据类型在该支持库自定义类型定义信
+    息数组中的索引值+1。
+       由于无法确定其他支持库在某易程序中的记录索引，所以支持库无法引用其他支
+    持库中所定义的数据类型（除开系统核心支持库）。
+       系统核心支持库的记录索引始终为1，所以任何支持库都可以引用系统核心支持
+    库中所定义的数据类型。
+       为了使用本支持库中所定义的数据类型，可以设定记录索引值为0，比如MAKELONG (1, 0)
+    即可用作引用本支持库中定义的第一个数据类型。简单的说，在定义参数的类型或成员的类型时，
+    为1表示指定本支持库中的第一个数据类型，为2表示指定本支持库中的第二个数据类型，依次类推。
+
+    附：以下为目前系统核心支持库中数据类型列表。
+
+    #define        DTP_WIN_FORM             MAKELONG (1, 1)
+    #define        DTP_MENU                 MAKELONG (3, 1)
+    #define        DTP_FONT                 MAKELONG (4, 1)
+    #define        DTP_EDIT                 MAKELONG (5, 1)
+    #define        DTP_PIC_BOX              MAKELONG (6, 1)
+    #define        DTP_SHAPE_BOX            MAKELONG (7, 1)
+    #define        DTP_DRAW_PANEL           MAKELONG (8, 1)
+    #define        DTP_GROUP_BOX            MAKELONG (9, 1)
+    #define        DTP_LABEL                MAKELONG (10, 1)
+    #define        DTP_BUTTON               MAKELONG (11, 1)
+    #define        DTP_CHECK_BOX            MAKELONG (12, 1)
+    #define        DTP_RADIO_BOX            MAKELONG (13, 1)
+    #define        DTP_COMBO_BOX            MAKELONG (14, 1)
+    #define        DTP_LIST_BOX             MAKELONG (15, 1)
+    #define        DTP_CHKLIST_BOX          MAKELONG (16, 1)
+    #define        DTP_HSCROLL_BAR          MAKELONG (17, 1)
+    #define        DTP_VSCROLL_BAR          MAKELONG (18, 1)
+    #define        DTP_PROCESS_BAR          MAKELONG (19, 1)
+    #define        DTP_SLIDER_BAR           MAKELONG (20, 1)
+    #define        DTP_TAB                  MAKELONG (21, 1)
+    #define        DTP_ANIMATE              MAKELONG (22, 1)
+    #define        DTP_DATE_TIME_PICKER     MAKELONG (23, 1)
+    #define        DTP_MONTH_CALENDAR       MAKELONG (24, 1)
+    #define        DTP_DRIVER_BOX           MAKELONG (25, 1)
+    #define        DTP_DIR_BOX              MAKELONG (26, 1)
+    #define        DTP_FILE_BOX             MAKELONG (27, 1)
+    #define        DTP_COLOR_PICKER         MAKELONG (28, 1)
+    #define        DTP_HYPER_LINKER         MAKELONG (29, 1)
+    #define        DTP_SPIN                 MAKELONG (30, 1)
+    #define        DTP_COMMON_DLG           MAKELONG (31, 1)
+    #define        DTP_TIMER                MAKELONG (32, 1)
+    #define        DTP_PRINTER              MAKELONG (33, 1)
+    #define        DTP_FIELD_INF            MAKELONG (34, 1)
+    #define        DTP_HTML_VIEWER          MAKELONG (35, 1)
+    #define        DTP_UDP                  MAKELONG (36, 1)
+    #define        DTP_SOCK_CLIENT          MAKELONG (37, 1)
+    #define        DTP_SOCK_SERVER          MAKELONG (38, 1)
+    #define        DTP_SERIAL_PORT          MAKELONG (39, 1)
+    #define        DTP_PRINT_INF            MAKELONG (40, 1)
+    #define        DTP_GRID                 MAKELONG (41, 1)
+    #define        DTP_DATA_SOURCE          MAKELONG (42, 1)
+    #define        DTP_NPROVIDER            MAKELONG (43, 1)
+    #define        DTP_DBPROVIDER           MAKELONG (44, 1)
+    #define        DTP_RGN_BUTTON           MAKELONG (45, 1)
+    #define        DTP_ODBC_DB              MAKELONG (46, 1)
+    #define        DTP_ODBCPROVIDER         MAKELONG (47, 1)
+
+    3、数据存储方式：
+
+    每种数据类型数据的存储格式（用对应的C++数据类型说明）：
+
+    A、如果不为数组：
+        SDT_BYTE：     BYTE
+        SDT_SHORT：    SHORT
+        SDT_INT：      INT
+        SDT_INT64：    INT64
+        SDT_FLOAT：    FLOAT
+        SDT_DOUBLE：   DOUBLE
+        SDT_DATE_TIME：DATE
+        SDT_BOOL：     BOOL
+        SDT_TEXT：为一个指针，指针指向以0结束的字符串数据，如果指针值为NULL表示为空串。
+
+        SDT_BIN：为一个指针，如果为NULL表示为空字节集。指针所指向的数据格式等同于字节数组，即：
+            1、一个恒定为数值1的INT；
+            2、一个INT记录数据的长度；
+            3、相应长度的数据；
+
+        窗口单元和菜单数据类型：
+            1、一个DWORD记录窗口模板ID；
+            2、一个DWORD记录窗口单元/菜单项的ID。
+
+        复合数据类型（即非窗口单元和菜单的用户或库定义数据类型）：
+            为一个必定不为NULL的指针值，该指针所指向的数据格式为：
+
+                顺序排列所有成员，注意任何成员如果数据尺寸小于4个字节，都会被自动对齐到4个字节。
+                如以下复合类型：
+                    字节型      A
+                    短整数型    B
+                    整数型      C
+                则整个复合类型所占用的空间为 12 个字节，其中 A 和 B 都被对齐到 4 个字节，
+            因此 B 从第 4 个字节开始，C 从第 8 个字节开始。
+
+    B、如果为数组：
+        为一个必定不为NULL的指针值，该指针所指向的数据格式为：
+        1、一个INT记录该数组的维数（必定大于0）。
+        2、对应数目的INT值顺序记录对应维的成员数目（必定大于0）。
+        3、数组数据本身，格式为：
+            A、SDT_TEXT、SDT_BIN：
+               为指针数组，每个指针都指向一个单独的数据成员地址（注意指针值可能为NULL，
+               此时表示为一个空文本或者空字节集）。
+            B、窗口单元、菜单数据类型和简单数据类型：
+               为不为数组情况下数据的顺序排列；
+            C、复合数据类型：
+               为指针数组，每个指针都指向一个单独的数据成员地址。
+
+    C、注意：访问任何数据时，注意只能访问等同该数据长度（即非对齐长度）的数据。比如读
+    写一个字节型数据，只能假设只有此一个字节是可以访问的。有此限制的原因是当以传址的
+    方式将一个数组成员的指针传递到下一个子程序时，该指针处只有数组成员实际长度是可供
+    访问的（数组成员不会以4字节对齐）。
+
+/*****************************************************************/
+
+5、m_pfnNotify 成员说明：
+
+    本函数指针所指向的函数用作接收来自易语言IDE或者运行时环境的通知，其原型定义如下：
+
+    typedef INT (WINAPI *PFN_NOTIFY_LIB) (INT nMsg, DWORD dwParam1 = 0, DWORD dwParam2 = 0);
+
+    例子如下：
+
+    PFN_NOTIFY_SYS g_fnNotifySys = NULL;
+
+    INT WINAPI ProcessNotifyLib (INT nMsg, DWORD dwParam1, DWORD dwParam2)
+    {
+        INT nRet = NR_OK;
+
+        switch (nMsg)
+        {
+        case NL_SYS_NOTIFY_FUNCTION:
+            g_fnNotifySys = (PFN_NOTIFY_SYS)dwParam1;
+            /*
+                上面代码获得用作通知信息到易语言IDE或运行时环境的函数指针，获得指针后
+            即可建立类似下面函数用作通知信息到易语言IDE或运行时环境。
+
+                INT WINAPI NotifySys (INT nMsg, DWORD dwParam1, DWORD dwParam2)
+                {
+                    ASSERT (g_fnNotifySys != NULL);
+                    if (g_fnNotifySys != NULL)
+                        return g_fnNotifySys (nMsg, dwParam1, dwParam2);
+                    else
+                        return 0;
+                }
+            */
+            break;
+        default:
+            nRet = NR_ERR;
+            break;
+        }
+
+        return nRet;
+    }
+
+/*****************************************************************/
+
+6、m_nLibConstCount、m_pLibConst 成员说明：
+
+    下面是 LIB_CONST_INFO 的定义：
+
+    struct LIB_CONST_INFO
+    {
+        LPTSTR    m_szName;
+        LPTSTR    m_szEGName;
+        LPTSTR    m_szExplain;
+
+        SHORT     m_shtReserved;  // 必须为 1 。
+
+        #define    CT_NUM             1    // sample: 3.1415926
+        #define    CT_BOOL            2    // sample: 1
+        #define    CT_TEXT            3    // sample: "abc"
+        SHORT     m_shtType;
+
+        LPTSTR    m_szText;        // CT_TEXT
+        DOUBLE    m_dbValue;       // CT_NUM、CT_BOOL
+    };
+    typedef LIB_CONST_INFO* PLIB_CONST_INFO;
+
+    例子：
+
+    LIB_CONST_INFO s_ConstInfo [] =
+    {
+        {    _T("引号"), NULL,   _T("半角双引号"),   1,  CT_TEXT,    _T("\""),   0               },
+        {    _T("pi"),   NULL,   NULL,               1,  CT_NUM,     NULL,       3.1415926535    },
+        {    _T("藏青"), NULL,   NULL,               1,  CT_NUM,     NULL,       RGB(0,0,128)    },
+    };
+
+    m_nLibConstCount 应该等于 m_pLibConst 所指向定义信息数组的成员数目。
+
+/*****************************************************************/
+
+7、m_pfnRunAddInFn、m_szzAddInFnInfo成员说明：
+
+    这两个成员用作为易语言IDE系统添加辅助功能，所提供功能会被自动添加到IDE的“工具”菜单中。
+
+    下面为 PFN_RUN_ADDIN_FN 的定义：
+
+    typedef INT (WINAPI *PFN_RUN_ADDIN_FN) (INT nAddInFnIndex);
+
+    例子：
+
+    INT fnAddInFunc (INT nAddInFnIndex)
+    {
+        if (nAddInFnIndex == 0)  // 是否为第一个功能?
+        {
+            // 有关 NotifySys 请见前面的说明。
+            HWND hWnd = (HWND)NotifySys (NES_GET_MAIN_HWND);
+            if (hWnd != NULL)
+                ::MessageBox (hWnd, "这是个辅助工具功能!", "辅助工具", MB_YESNO);
+        }
+        return 0;
+    }
+
+    在 LIB_INFO 中作以下设置：
+        m_pfnRunAddInFn = fnAddInFunc;
+        m_szzAddInFnInfo = _T("辅助功能1\0这是个用作测试的辅助工具功能。\0\0");
+
+/*****************************************************************/
+
+8、如何定义并实现全局命令（即非对象的方法）：
+
+    需要使用到以下成员：
+
+    INT                 m_nCmdCount;    // 必须等于 m_pBeginCmdInfo 所指向的 CMD_INFO 的数目。
+    PCMD_INFO           m_pBeginCmdInfo;
+    PFN_EXECUTE_CMD*    m_pCmdsFunc;
+
+    ///////////////////////////////////////////////
+
+    其中 CMD_INFO 用作提供命令定义，具体定义及说明为：
+
+	struct CMD_INFO
+	{
+		LPTSTR		m_szName;			// 命令中文名称
+		LPTSTR		m_szEgName;			// 命令英文名称，可以为空或NULL。
+		
+		LPTSTR		m_szExplain;		// 命令详细解释
+		SHORT		m_shtCategory;		// 全局命令的所属类别，从1开始。对象成员命令的此值为-1。
+
+		#define		CT_IS_HIDED			(1 << 2)
+			//   本命令是否为隐含命令（即不需要由用户直接插入的命令，如循环结束命令、被废弃
+		    // 但为了保持兼容性又要存在的命令）。
+		#define		CT_IS_ERROR			(1 << 3)
+			// 本命令在本库中不能使用，具有此标志一定隐含，主要用作在不同语言版本的相同库中使用，
+			// 即：A命令在A语言版本库中可能需要实现并使用，但在B语言版本库中可能就不需要。如果
+			// 程序中使用了具有此标志的命令，则只能支持该程序调入和编译，而不能支持运行。
+			// 如具有此标志，本命令可以不实现其执行部分。
+		#define		CT_DISABLED_IN_RELEASE		(1 << 4)
+			// 本命令在RELEASE版本程序中不被使用（相当于空命令），本类型命令必须无返回值。
+		#define		CT_ALLOW_APPEND_NEW_ARG		(1 << 5)
+			//   在本命令的参数表的末尾是否可以添加新的参数，新参数等同于参数表中的最后一个参数，
+			// 本类型命令的参数必须最少有一个。
+		#define		CT_RETRUN_ARY_TYPE_DATA		(1 << 6)
+			// 用于说明m_dtRetValType，说明是否为返回数组数据。
+		#define		CT_IS_OBJ_COPY_CMD              (1 << 7)   // !!! 注意每个数据类型最多只能有一个方法具有此标记。
+			//   说明本命令为某数据类型的复制函数(执行将另一同类型数据类型数据复制到本对象时所需要的
+	        // 额外操作，在编译此数据类型对象的赋值语句时编译器先释放该对象的原有内容，然后生成调用此
+	        // 命令的代码，而不会再生成其它任何常规赋值及复制代码)。
+	        // !!! 1、此命令必须仅接受一个同数据类型参数而且不返回任何数据。
+	        //     2、执行本命令时对象的内容数据为未初始化状态，命令内必须负责初始化其全部成员数据。
+	        //     3、所提供过来的待复制数据类型参数数据可能为全零状态（由编译器自动生成的对象初始代码设置），
+	        //     复制时需要对此情况进行区别处理。
+		#define		CT_IS_OBJ_FREE_CMD              (1 << 8)   // !!! 注意每个数据类型最多只能有一个方法具有此标记。
+			//   说明本命令为某数据类型的析构函数(执行当该数据类型数据销毁时所需要的全部操作，
+	        // 当对象超出其作用区域时编译器仅仅生成调用此命令的代码，而不会生成任何常规销毁代码)。
+	        //   !!! 1、此命令必须没有任何参数而且不返回任何数据。
+	        //       2、此命令被执行时对象的内容数据可能为全零状态（由编译器自动生成的对象初始代码设置），
+	        //   释放时需要对此情况进行区别处理。
+		#define		CT_IS_OBJ_CONSTURCT_CMD         (1 << 9)   // !!! 注意每个数据类型最多只能有一个方法具有此标记。
+			//   说明本命令为某数据类型的构造函数(执行当该数据类型数据初始化时所需要的全部操作，
+	        //   !!! 1、此命令必须没有任何参数而且不返回任何数据。
+	        //       2、此命令被执行时对象的内容数据为全零状态。
+	        //       3、指定类型成员（复合数据类型成员、数组成员），必须按照对应格式继续进行下一步初始化。
+	    #define _CMD_OS(os)     ((os) >> 16)  // 用作转换os类型以便加入到m_wState。
+	    #define _TEST_CMD_OS(m_wState,os)    ((_CMD_OS (os) & m_wState) != 0) // 用作测试指定命令是否支持指定操作系统。
+		WORD		m_wState;
+
+		/*  !!!!! 千万注意：如果返回值类型为 _SDT_ALL , 绝对不能返回数组(即CT_RETRUN_ARY_TYPE_DATA
+			置位)或复合数据类型的数据(即用户或库自定义数据类型但不包含窗口或菜单组件),
+			因为无法自动删除复合类型中所分配的额外空间(如文本型或者字节集型成员等).
+	        由于通用型数据只可能通过库命令返回，因此所有_SDT_ALL类型的数据只可能为非数组的
+	        系统数据类型或窗口组件、菜单数据类型。
+		*/
+		// 返回值类型，使用前注意转换HIWORD为0的内部数据类型值到程序中使用的数据类型值。
+		DATA_TYPE	m_dtRetValType;
+
+		WORD		m_wReserved;
+
+		SHORT		m_shtUserLevel;	// 命令的用户学习难度级别，本变量的值为级别宏。
+
+		SHORT		m_shtBitmapIndex;	// 指定图像索引,从1开始,0表示无.
+		SHORT		m_shtBitmapCount;	// 图像数目(用作动画).
+
+		INT			m_nArgCount;		// 命令的参数数目
+		PARG_INFO	m_pBeginArgInfo;
+	};
+	typedef CMD_INFO* PCMD_INFO;
+
+    ///////////////////////////////////////////////
+
+    CMD_INFO 中使用 ARG_INFO 用作提供命令的参数定义，具体定义及说明为：
+
+	//    参数数据提供方式有四种：
+	//      1、立即数提供方式（不能用于库或用户自定义类型）；
+	//      2、单一变量提供方式（提供基本或自定义数据类型变量、变量数组元素、
+	//		   自定义变量的成员变量等）；
+	//      3、整个变量数组提供方式（提供整个变量数组的所有元素）；
+	//      4、参数命令提供方式（由命令的返回值来提供参数数据）。
+	typedef struct
+	{
+		LPTSTR		m_szName;				// 参数名称
+		LPTSTR		m_szExplain;			// 参数详细解释
+		SHORT		m_shtBitmapIndex;		// 指定图像索引,从1开始,0表示无.
+		SHORT		m_shtBitmapCount;		// 图像数目(用作动画).
+
+		DATA_TYPE	m_dtType;
+
+		INT			m_nDefault;
+			// 系统基本类型参数的默认指定值（在编辑程序时已被处理，编译时不需再处理）：
+			//     1、数字型：直接为数字值（如为小数，只能指定其整数部分，
+			//		  如为长整数，只能指定不超过INT限值的部分）；
+			//     2、逻辑型：1等于真，0等于假；
+			//     3、文本型：本变量此时为LPTSTR指针，指向默认文本串；
+			//     4、其它所有类型参数（包括自定义类型）一律无默认指定值。
+
+		DWORD		m_dwState;				// 参数MASK
+		#define		AS_HAS_DEFAULT_VALUE				(1 << 0)
+				// 本参数有默认值，默认值在m_nDefault中说明。本参数在编辑程序时已被处理，编译时不需再处理。
+		#define		AS_DEFAULT_VALUE_IS_EMPTY			(1 << 1)
+				//   本参数有默认值，默认值为空，与AS_HAS_DEFAULT_VALUE标志互斥，
+				// 运行时所传递过来的参数数据类型可能为_SDT_NULL。
+		#define		AS_RECEIVE_VAR      				(1 << 2)
+				//   为本参数提供数据时只能提供单一变量，而不能提供整个变量数组、立即数
+				// 或命令返回值。运行时所传递过来的参数数据肯定是内容不为数组的变量地址。
+		#define		AS_RECEIVE_VAR_ARRAY				(1 << 3)
+				//   为本参数提供数据时只能提供整个变量数组，而不能提供单一变量、立即数
+				// 或命令返回值。
+		#define		AS_RECEIVE_VAR_OR_ARRAY     		(1 << 4)
+				//   为本参数提供数据时只能提供单一变量或整个变量数组，而不能提供立即数
+				// 或命令返回值。如果具有此标志，则传递给库命令参数的数据类型将会通过DT_IS_ARY
+	            // 来标志其是否为数组。
+		#define		AS_RECEIVE_ARRAY_DATA   			(1 << 5)
+				//   为本参数提供数据时只能提供数组数据，如不指定本标志，默认为只能提供非数组数据。
+				// 如指定了本标志，运行时所传递过来的参数数据肯定为数组。
+		#define		AS_RECEIVE_ALL_TYPE_DATA            (1 << 6)
+				// 为本参数提供数据时可以同时提供非数组或数组数据，与上标志互斥。
+	            // 如果具有此标志，则传递给库命令参数的数据类型将会通过DT_IS_ARY来标志其是否为数组。
+		#define		AS_RECEIVE_VAR_OR_OTHER      		(1 << 9)
+				// 为本参数提供数据时可以提供单一变量或立即数或命令返回值，不能提供数组。
+	            // 如果具有此标志，则传递给库命令参数的数据类型将会通过DT_IS_VAR来标志其是否为变量地址。
+	}
+	ARG_INFO, *PARG_INFO;
+
+    ///////////////////////////////////////////////
+
+    m_pCmdsFunc 用作提供所有命令的实现函数列表，FN_EXECUTE_CMD 的原型为：
+
+    typedef void (*PFN_EXECUTE_CMD) (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf);
+
+    参数说明：
+    1、pRetData用作提供返回数据，当对应CMD_INFO中m_dtRetType为_SDT_NULL
+       （即定义无返回值）时，pRetData无效；
+    2、pArgInf 提供参数数据本身，所指向的 MDATA_INF 数组记录每个输入参数，
+       成员数目等同于 nArgCount 。
+
+    MDATA_INF 的定义为：
+
+    struct MDATA_INF
+    {
+        union
+        {
+            // 注意当对应参数具有AS_RECEIVE_VAR或AS_RECEIVE_VAR_ARRAY或AS_RECEIVE_VAR_OR_ARRAY
+            // 标志定义时将使用下面的第二部分。
+
+            // 第一部分。
+            BYTE          m_byte;         // SDT_BYTE 数据类型的数据，下同。
+            SHORT         m_short;        // SDT_SHORT
+            INT           m_int;          // SDT_INT
+            INT64         m_int64;        // SDT_INT64
+            FLOAT         m_float;        // SDT_FLOAT
+            DOUBLE        m_double;       // SDT_DOUBLE
+            DATE          m_date;         // SDT_DATE_TIME
+            BOOL          m_bool;         // SDT_BOOL
+
+            char*         m_pText;        // SDT_TEXT，经过系统预处理，即使是空文本，此指针值也不会为NULL，以便于处理。
+                                          // 指针所指向数据的格式见前面的描述。
+                                          // !!!为了避免修改到常量段(m_pText有可能会指向易程序常量段区域)中
+                                          // 的数据，只可读取而不可更改其中的内容，下同。
+
+            LPBYTE        m_pBin;         // SDT_BIN，经过系统预处理，即使是空字节集，此指针值也不会为NULL，以便于处理。
+                                          // 指针所指向数据的格式见前面的描述。
+                                          // !!!只可读取而不可更改其中的内容。
+
+            DWORD         m_dwSubCodeAdr; // SDT_SUB_PTR，为子程序代码地址指针。
+            MUNIT         m_unit;         // 窗口单元、菜单数据类型的数据。
+
+            void*         m_pCompoundData;// 复合数据类型数据指针，指针所指向数据的格式见前面的描述。
+                                          // !!! 只可读取而不可更改其中的内容。
+
+            void*         m_pAryData;     // 数组数据指针，指针所指向数据的格式见前面的描述。
+                                          // 注意如果为文本或字节集数组，则成员数据指针可能为NULL。
+                                          // !!! 只可读取而不可更改其中的内容。
+
+            // 第二部分。
+            // 为指向变量地址的指针，仅当参数具有AS_RECEIVE_VAR或AS_RECEIVE_VAR_ARRAY或
+            // AS_RECEIVE_VAR_OR_ARRAY标志时才被使用。
+            BYTE*   m_pByte;            // SDT_BYTE 数据类型变量的地址，下同。
+            SHORT*  m_pShort;           // SDT_SHORT
+            INT*    m_pInt;             // SDT_INT
+            INT64*  m_pInt64;           // SDT_INT64
+            FLOAT*  m_pFloat;           // SDT_FLOAT
+            DOUBLE* m_pDouble;          // SDT_DOUBLE
+            DATE*   m_pDate;            // SDT_DATE_TIME
+            BOOL*   m_pBool;            // SDT_BOOL
+
+            char**  m_ppText;           // SDT_TEXT，注意*m_ppText可能为NULL（代表空文本）。
+                                        // 写入新值之前必须释放前值，例句：NotifySys (NRS_MFREE, (DWORD)*m_ppText)。
+                                        // !!!不可直接更改*m_ppText所指向的内容，只能释放原指针后设置入NULL（空文本）
+                                        // 或使用NRS_MALLOC通知分配的新内存地址指针（下同）。
+
+            LPBYTE* m_ppBin;            // SDT_BIN，注意*m_ppBin可能为NULL（代表空字节集）。
+                                        // 写入新值之前必须释放前值，例句：NotifySys (NRS_MFREE, (DWORD)*m_ppBin)。
+                                        // !!!不可直接更改*m_ppBin所指向的内容，只能释放原指针后设置入NULL（空字节集）
+                                        // 或新指针。
+
+            DWORD*  m_pdwSubCodeAdr;    // SDT_SUB_PTR，子程序代码地址变量地址。
+            PMUNIT  m_pUnit;            // 窗口单元、菜单数据类型变量地址。
+
+            void**  m_ppCompoundData;   // 复合数据类型变量地址。
+                                        // !!!注意写入新值之前必须使用NRS_MFREE通知逐一释放所有成员（即：SDT_TEXT、
+                                        // SDT_BIN及复合数据类型成员）及原地址指针。
+                                        // !!!不可直接更改*m_ppCompoundData所指向的内容，只能释放原指针后设置入新指针。
+
+            void**  m_ppAryData;        // 数组数据变量地址，注意：
+                                        // 1、写入新值之前必须释放原值，例句：NotifySys (NRS_FREE_ARY,
+                                        //    m_dtDataType, (DWORD)*m_ppAryData)，注意：此例句只适用于
+                                        //    m_dtDataType为系统基本数据类型时的情况，如果为复合数据类型，
+                                        //    必须根据其定义信息逐一释放。
+                                        // 2、如果为文本或字节集数组，则其中成员的数据指针可能为NULL。
+                                        // !!!不可直接更改*m_ppAryData所指向的内容，只能释放原指针后设置入新指针。
+        };
+
+        // 1、当用作传递参数数据时，如果该参数具有 AS_RECEIVE_VAR_OR_ARRAY 或
+        //    AS_RECEIVE_ALL_TYPE_DATA 标志，且为数组数据，则包含标志 DT_IS_ARY ，
+        //    这也是 DT_IS_ARY 标志的唯一使用场合。
+        //    DT_IS_ARY 的定义为：
+        //      #define    DT_IS_ARY   0x20000000
+        // 2、当用作传递参数数据时，如果为空白数据，则为 _SDT_NULL 。
+        DATA_TYPE m_dtDataType;
+    };
+    typedef MDATA_INF* PMDATA_INF;
+
+    ///////////////////////////////////////////////
+
+    下面给出一些具体的例子用来说明如何定义且实现全局命令，更多的例子请参见所提供的HtmlView支持库的源代码 。
+
+    ///////////////////
+
+        首先给出一些例子中被使用到的公共辅助函数的实现代码：
+
+        // 使用指定文本数据建立易程序中使用的文本数据。
+        char* CloneTextData (char* ps)
+        {
+            if (ps == NULL || *ps == '\0')
+                return NULL;
+
+            INT nTextLen = strlen (ps);
+            char* pd = (char*)NotifySys (NRS_MALLOC, (DWORD)(nTextLen + 1), 0);
+            memcpy (pd, ps, nTextLen);
+            pd [nTextLen] = '\0';
+            return pd;
+        }
+
+        // 使用指定文本数据建立易程序中使用的文本数据。
+        //   nTextLen用作指定文本部分的长度（不包含结束零），
+        // 如果为-1，则取ps的全部长度。
+        char* CloneTextData (char* ps, INT nTextLen)
+        {
+            if (nTextLen <= 0)
+                return NULL;
+
+            char* pd = (char*)NotifySys (NRS_MALLOC, (DWORD)(nTextLen + 1), 0);
+            memcpy (pd, ps, nTextLen);
+            pd [nTextLen] = '\0';
+            return pd;
+        }
+
+        // 使用指定数据建立易程序中使用的字节集数据。
+        LPBYTE CloneBinData (LPBYTE pData, INT nDataSize)
+        {
+            if (nDataSize == 0)
+                return NULL;
+
+            LPBYTE pd = (LPBYTE)NotifySys (NRS_MALLOC, (DWORD)(sizeof (INT) * 2 + nDataSize), 0);
+            *(LPINT)pd = 1;
+            *(LPINT)(pd + sizeof (INT)) = nDataSize;
+            memcpy (pd + sizeof (INT) * 2, pData, nDataSize);
+            return pd;
+        }
+
+        // 报告运行时错误。
+        void GReportError (char* szErrText)
+        {
+            NotifySys (NRS_RUNTIME_ERR, (DWORD)szErrText, 0);
+        }
+
+        void* MMalloc (INT nSize)
+        {
+            return (void*)NotifySys (NRS_MALLOC, (DWORD)nSize, 0);
+        }
+
+        void MFree (void* p)
+        {
+            NotifySys (NRS_MFREE, (DWORD)p, 0);
+        }
+
+        // 返回数组的数据部分首地址及成员数目。
+        LPBYTE GetAryElementInf (void* pAryData, LPINT pnElementCount)
+        {
+            LPINT pnData = (LPINT)pAryData;
+            INT nArys = *pnData++;  // 取得维数。
+            // 计算成员数目。
+            INT nElementCount = 1;
+            while (nArys > 0)
+            {
+                nElementCount *= *pnData++;
+                nArys--;
+            }
+
+            if (pnElementCount != NULL)
+                *pnElementCount = nElementCount;
+            return (LPBYTE)pnData;
+        }
+
+        #define DTT_IS_NULL_DATA_TYPE   0
+        #define DTT_IS_SYS_DATA_TYPE    1
+        #define DTT_IS_USER_DATA_TYPE   2
+        #define DTT_IS_LIB_DATA_TYPE    3
+        // 取回数据类型的类别。
+        INT GetDataTypeType (DATA_TYPE dtDataType)
+        {
+            if (dtDataType == _SDT_NULL)
+                return DTT_IS_NULL_DATA_TYPE;
+
+            DWORD dw = dtDataType & 0xC0000000;
+            return dw == DTM_SYS_DATA_TYPE_MASK ? DTT_IS_SYS_DATA_TYPE :
+                    dw == DTM_USER_DATA_TYPE_MASK ? DTT_IS_USER_DATA_TYPE :
+                    DTT_IS_LIB_DATA_TYPE;
+        }
+
+        // 绝对不会返回NULL或者窗口句柄无效的CWnd*指针。
+        CWnd* GetWndPtr (PMDATA_INF pInf)
+        {
+            return (CWnd*)NotifySys (NRS_GET_AND_CHECK_UNIT_PTR,
+                    pInf [0].m_unit.m_dwFormID, pInf [0].m_unit.m_dwUnitID);
+        }
+
+    ///////////////////
+
+
+    1、使用到 CMD_INFO 中的 CT_ALLOW_APPEND_NEW_ARG 标志的命令例子：
+    2、返回系统基本数据类型的命令例子：
+
+        // 求余数
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/       _T("被除数"),
+            /*explain*/    NULL,
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_DOUBLE,
+            /*default*/    0,
+            /*state*/      NULL,
+            }, {
+            /*name*/       _T("除数"),
+            /*explain*/    NULL,
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_DOUBLE,
+            /*default*/    0,
+            /*state*/      NULL,
+            },
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*name*/          _T("求余数"),
+        /*egname*/        _T("mod"),
+        /*explain*/       _T("求出两个数值的商，并返回余数部分，运算符号为“%”或“Mod”"),
+        /*category*/      2,
+        /*state*/         CT_ALLOW_APPEND_NEW_ARG,
+        /*ret*/           SDT_DOUBLE,
+        /*reserved*/      0,
+        /*level*/         LVL_SIMPLE,
+        /*bmp inx*/       0,
+        /*bmp num*/       0,
+        /*ArgCount*/      2,
+        /*arg lp*/        s_ArgInfo,
+        },
+
+        // 命令实现函数
+        void fnMod (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            // 对于具有CT_ALLOW_APPEND_NEW_ARG标志的命令，需要读取nArgCount以获得实际参数数目。
+            DOUBLE db = pArgInf [0].m_double;
+            for (INT i = 1; i < nArgCount; i++)
+            {
+                pArgInf++;
+                if (pArgInf->m_double == 0)
+                    GReportError ("不能求余数于零");
+                db = fmod (db, pArgInf->m_double);
+            }
+
+            // 设置返回的双精度小数数据。
+            pRetData->m_double = db;
+        }
+
+    ///////////////////
+
+    3、使用到 CMD_INFO 中的 CT_RETURN_ARRAY_DATA 标志的命令例子：
+    4、具有定义有 AS_DEFAULT_VALUE_IS_EMPTY 标志参数的命令例子：
+
+        // 分割文本
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/       _T("待分割文本"),
+            /*explain*/    _T("如果参数值是一个长度为零的文本，则返回一个空数组，即没有任何成员的数组"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_TEXT,
+            /*default*/    0,
+            /*state*/      NULL,
+            }, {
+            /*name*/       _T("用作分割的文本"),
+            /*explain*/    _T("参数值用于标识子文本边界。如果被省略，"
+                      "则默认使用半角逗号字符作为分隔符。如果是一个长度为零的文本，则返回的数组"
+                      "仅包含一个成员，即完整的“待分割文本”"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_TEXT,
+            /*default*/    0,
+            /*state*/      AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/       _T("要返回的子文本数目"),
+            /*explain*/    _T("如果被省略，则默认返回所有的子文本"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_INT,
+            /*default*/    0,
+            /*state*/       AS_DEFAULT_VALUE_IS_EMPTY,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*name*/        _T("分割文本"),
+        /*egname*/      _T("split"),
+        /*explain*/     _T("将指定文本进行分割，返回分割后的一维文本数组"),
+        /*category*/    9,
+        /*state*/       CT_RETRUN_ARY_TYPE_DATA,
+        /*ret*/         SDT_TEXT,
+        /*reserved*/    0,
+        /*level*/       LVL_SIMPLE,
+        /*bmp inx*/     0,
+        /*bmp num*/     0,
+        /*ArgCount*/    3,
+        /*arg lp*/      s_ArgInfo,
+        };
+
+        // 命令实现函数
+        void fnSplit (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            LPTSTR szBeSplited = pArgInf [0].m_pText;
+            // 如果某个具有 AS_DEFAULT_VALUE_IS_EMPTY 标志的参数用户程序中没有为其提供参数值，
+            // 则其数据类型为 _SDT_NULL 。
+            LPTSTR szMark = pArgInf [1].m_dtDataType == _SDT_NULL ? _T(",") : pArgInf [1].m_pText;
+            INT nCount = pArgInf [2].m_dtDataType == _SDT_NULL ? -1 : max (0, pArgInf [2].m_int);
+
+            INT nLen1 = strlen (szBeSplited);
+            INT nLen2 = strlen (szMark);
+
+            CMyDWordArray aryText;
+
+            if (nLen1 > 0 && nCount != 0)
+            {
+                if (nLen2 == 0)
+                {
+                    // 有关 CloneTextData 请参见
+                    aryText.Add ((DWORD)CloneTextData (szBeSplited));
+                }
+                else
+                {
+                    LPTSTR pBegin = szBeSplited;
+                    LPTSTR ps = pBegin;
+
+                    while (nLen1 >= nLen2)
+                    {
+                        if (!memcmp (ps, szMark, nLen2))
+                        {
+                            aryText.Add ((DWORD)CloneTextData (pBegin, ps - pBegin));
+                            ps += nLen2;
+                            nLen1 -= nLen2;
+                            pBegin = ps;
+                            if (nCount != -1)
+                            {
+                                nCount--;
+                                if (nCount == 0)  break;
+                            }
+                        }
+                        else
+                        {
+                            if (IS_CC (*ps))
+                            {
+                                if (ps [1] == 0)  break;
+                                ps++;
+                                nLen1--;
+                            }
+                            ps++;
+                            nLen1--;
+                        }
+                    }
+
+                    if (*pBegin != '\0' && nCount != 0)
+                        aryText.Add ((DWORD)CloneTextData (pBegin));
+                }
+            }
+
+            // 建立数组数据。
+            INT nSize = aryText.GetDWordCount () * sizeof (DWORD);
+            LPBYTE p = (LPBYTE)MMalloc (sizeof (INT) * 2 + nSize);
+            *(LPINT)p = 1;  // 数组维数。
+            *(LPINT)(p + sizeof (INT)) = aryText.GetDWordCount ();
+            memcpy (p + sizeof (INT) * 2, aryText.GetPtr (), nSize);
+
+            pRetData->m_pAryData = p;  // 返回内容数组。
+        }
+
+    ///////////////////
+
+    5、返回复合数据类型数据的命令例子：
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*name*/        _T("取打印设置"),
+        /*egname*/      _T("GetPrintInf"),
+        /*explain*/     _T("返回打印数据源数据时所将使用的设置信息"),
+        /*category*/    -1,     // -1 表示为对象的方法。
+        /*state*/       NULL,
+        /*ret*/         DTP_PRINT_INF,
+        /*reserved*/    0,
+        /*level*/       LVL_SIMPLE,
+        /*bmp inx*/     0,
+        /*bmp num*/     0,
+        /*ArgCount*/    0,
+        /*arg lp*/      NULL,
+        };
+
+        // 实现函数
+        void fnGetPrintInf (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            CUDataSource* pUDataSource = (CUDataSource*)GetWndPtr (pArgInf);
+
+            CMPrintInfo info;
+            const CMPrintInfo* pInfo = pUDataSource->m_src.GetPrintInfo ();
+            if (pInfo != NULL)
+                info.CopyFrom (pInfo);
+
+            INT nPaperType = 0;
+            for (INT i = 0; i < sizeof (s_shtaryPaperType) / sizeof (s_shtaryPaperType [0]); i++)
+            {
+                if (info.m_shtPaperType == s_shtaryPaperType [i])
+                {
+                    nPaperType = i;
+                    break;
+                }
+            }
+
+            CFreqMem mem;
+            mem.AddInt (nPaperType);
+            mem.AddInt (info.m_shtOrientation == DMORIENT_LANDSCAPE ? 1 : 0);
+            mem.AddInt (info.m_rtMargin.left);
+            mem.AddInt (info.m_rtMargin.top);
+            mem.AddInt (info.m_rtMargin.right);
+            mem.AddInt (info.m_rtMargin.bottom);
+            mem.AddInt (info.m_nPageNumPlace);
+            mem.AddInt (info.m_nPrintCopies);
+            mem.AddInt (info.m_nFirstPageNO);
+            mem.AddBool (info.m_blIsPrintIntoFile);
+            mem.AddDWord ((DWORD)CloneTextData ((char*)(LPCTSTR)info.m_strPrintIntoFileName));
+            mem.AddBool (info.m_blAutoFillLastPage);
+            mem.AddBool (info.m_blAutoAddHidedSide );
+            mem.AddInt (info.m_nPagePrintMode);
+            mem.AddInt (info.m_nPrintRangeMode);
+            mem.AddInt (info.m_nBeginIndex);
+            mem.AddInt (info.m_nEndIndex);
+            mem.AddInt (info.m_nLinesPrePage);
+            mem.AddInt (info.GetPrintScale ());
+
+            // 设置返回的复合数据类型数据。
+            INT nSize = mem.GetSize ();
+            pRetData->m_pCompoundData = MMalloc (nSize);
+            memcpy (pRetData->m_pCompoundData, mem.GetPtr (), nSize);
+        }
+
+    ///////////////////
+
+    6、返回 _SDT_ALL 数据类型的命令例子：
+
+        // 从字节集转换
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/       _T("欲转换的字节集"),
+            /*explain*/    NULL,
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_BIN,
+            /*default*/    0,
+            /*state*/      NULL,
+            }, {
+            /*name*/       _T("欲转换为的数据类型"),
+            /*explain*/    _T("参数值可以为以下常量： 1、#字节型； 2、#短整数型； 3、#整数型； "
+                      "4、#长整数型； 5、#小数型； 6、#双精度小数型； 7、#逻辑型； 8、#日期时间型； "
+                      "9、#子程序指针型； 10、#文本型。转换后的数据将自动进行有效性校验及转换处理"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_INT,
+            /*default*/    0,
+            /*state*/      NULL,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/        _T("从字节集转换"),
+        /*egname*/        _T("CnvFromBin"),
+        /*explain*/       _T("将字节集转换成指定数据类型的数据，返回转换后的结果"),
+        /*category*/      10,
+        /*state*/         NULL,
+        /*ret*/           _SDT_ALL,
+        /*reserved*/      0,
+        /*level*/         LVL_SIMPLE,
+        /*bmp inx*/       0,
+        /*bmp num*/       0,
+        /*ArgCount*/      2,
+        /*arg lp*/        s_ArgInfo,
+        },
+
+        // 辅助函数
+        INT GetSysDataTypeDataSize (DATA_TYPE dtSysDataType)
+        {
+            ASSERT (sizeof (DWORD) == 4);
+
+            switch (dtSysDataType)
+            {
+            case SDT_BYTE:
+                ASSERT (sizeof (BYTE) == 1);
+                return sizeof (BYTE);
+            case SDT_SHORT:
+                ASSERT (sizeof (SHORT) == 2);
+                return sizeof (SHORT);
+            case SDT_BOOL:
+                ASSERT (sizeof (BOOL) == 4);
+                return sizeof (BOOL);
+            case SDT_INT:
+                ASSERT (sizeof (INT) == 4);
+                return sizeof (INT);
+            case SDT_FLOAT:
+                ASSERT (sizeof (FLOAT) == 4);
+                return sizeof (FLOAT);
+            case SDT_SUB_PTR:    // 记录子程序代码的地址指针
+                return sizeof (DWORD);
+            case SDT_TEXT:    // 文本型和字节集型为一个指针,因此为四个字节.
+            case SDT_BIN:
+                return sizeof (DWORD);
+            case SDT_INT64:
+                ASSERT (sizeof (INT64) == 8);
+                return sizeof (INT64);
+            case SDT_DOUBLE:
+                ASSERT (sizeof (DOUBLE) == 8);
+                return sizeof (DOUBLE);
+            case SDT_DATE_TIME:
+                ASSERT (sizeof (DATE) == 8);
+                return sizeof (DATE);
+            default:
+                ASSERT (FALSE);
+                return 0;
+            }
+
+            return 0;
+        }
+
+        // 辅助函数
+        void SetMDataValue (PMDATA_INF pRetData, LPBYTE pData, INT nDataSize)
+        {
+            switch (pRetData->m_dtDataType)
+            {
+            case SDT_BYTE:
+                pRetData->m_byte = *pData;
+                break;
+            case SDT_SHORT:
+                pRetData->m_short = *(SHORT*)pData;
+                break;
+            case SDT_INT:
+                pRetData->m_int = *(INT*)pData;
+                break;
+            case SDT_INT64:
+                pRetData->m_int64 = *(INT64*)pData;
+                break;
+            case SDT_FLOAT:
+                pRetData->m_float = *(FLOAT*)pData;
+                break;
+            case SDT_DOUBLE:
+                pRetData->m_double = *(DOUBLE*)pData;
+                break;
+            case SDT_BOOL:
+                pRetData->m_bool = (*(BOOL*)pData != FALSE);
+                break;
+            case SDT_DATE_TIME:
+                pRetData->m_date = max (MIN_DATE, min (MAX_DATE, *(DATE*)pData));
+                break;
+            case SDT_SUB_PTR:
+                pRetData->m_dwSubCodeAdr = *(LPDWORD)pData;
+                break;
+            case SDT_TEXT: {
+                INT nEndPos = FindByte (pData, nDataSize, 0);
+                pRetData->m_pText = CloneTextData ((char*)pData,
+                        (nEndPos != -1 ? nEndPos : nDataSize));
+                break; }
+            case SDT_BIN:
+                pRetData->m_pBin = CloneBinData (pData, nDataSize);
+                break;
+            DEFAULT_FAILD;
+            }
+        }
+
+        // 命令实现函数
+        void fnCnvFromBin (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            LPBYTE pData = pArgInf [0].m_pBin + sizeof (INT) * 2;
+            INT nDataSize = *(LPINT)(pData - sizeof (INT));
+
+            INT nType = pArgInf [1].m_int;
+            if (nType < 1 || nType > 10)
+                GReportError ("“欲转换为的数据类型”参数值无效");
+
+            //!!! 如果定义为返回 _SDT_ALL 数据类型数据，则必须设置
+            // pRetData->m_dtDataType 为所返回数据的 DATA_TYPE 。
+            pRetData->m_dtDataType =
+                    nType == 1 ? SDT_BYTE :
+                    nType == 2 ? SDT_SHORT :
+                    nType == 3 ? SDT_INT :
+                    nType == 4 ? SDT_INT64 :
+                    nType == 5 ? SDT_FLOAT :
+                    nType == 6 ? SDT_DOUBLE :
+                    nType == 7 ? SDT_BOOL :
+                    nType == 8 ? SDT_DATE_TIME :
+                    nType == 9 ? SDT_SUB_PTR :
+                    SDT_TEXT;
+
+            DWORD dwbuf [2];
+            INT nNeedSize = GetSysDataTypeDataSize (pRetData->m_dtDataType);
+            if (nType != 10 && nDataSize < nNeedSize)
+            {
+                ASSERT (nDataSize < sizeof (dwbuf));
+                dwbuf [0] = dwbuf [1] = 0;
+                memcpy (dwbuf, pData, nDataSize);
+                pData = (LPBYTE)dwbuf;
+                nDataSize = nNeedSize;
+            }
+
+            SetMDataValue (pRetData, pData, nDataSize);
+        }
+
+    ///////////////////
+
+    7、具有定义有 AS_RECEIVE_VAR 标志参数的命令例子：
+    8、具有 _SDT_ALL 数据类型参数的命令例子：
+
+        // 输入框
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/       _T("提示信息"),
+            /*explain*/    _T("如果提示信息包含多行，可在各行之间用回车符 (即“字符 (13)”)、"
+                       "换行符 (即“字符 (10)”) 或回车换行符的组合 (即：“字符 (13) + "
+                       "字符 (10)”) 来分隔。如果提示信息太长或行数过多，超过部分将不会被显示出来"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_TEXT,
+            /*default*/    0,
+            /*state*/      AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/       _T("窗口标题"),
+            /*explain*/    _T("参数值指定显示在对话框标题栏中的文本。如果省略，默认为文本“请输入：”"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_TEXT,
+            /*default*/    0,
+            /*state*/      AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/       _T("初始文本"),
+            /*explain*/    _T("参数值指定初始设置到对话框输入文本框中的内容"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_TEXT,
+            /*default*/    0,
+            /*state*/      AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/       _T("存放输入内容的容器"),
+            /*explain*/    _T("参数值所指定的容器可以为数值或文本型，用于以不同的数据类型取回输入内容"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       _SDT_ALL,
+            /*default*/    0,
+            /*state*/      AS_RECEIVE_VAR,
+            }, {
+            /*name*/       _T("输入方式"),
+            /*explain*/    _T("参数值可以为以下常量值： 1、#输入文本； 2、#输入整数； 3、#输入小数； "
+                       "4、#输入密码。如果省略本参数，默认为“#输入文本”"),
+            /*bmp inx*/    0,
+            /*bmp num*/    0,
+            /*type*/       SDT_INT,
+            /*default*/    0,
+            /*state*/      AS_DEFAULT_VALUE_IS_EMPTY,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/        _T("输入框"),
+        /*egname*/        _T("InputBox"),
+        /*explain*/       _T("在一对话框中显示提示，等待用户输入正文并按下按钮。"
+                    "如果用户在确认输入后（按下“确认输入”按钮或回车键）退出，返回真，否则返回假"),
+        /*category*/      15,
+        /*state*/         NULL,
+        /*ret*/           SDT_BOOL,
+        /*reserved*/      0,
+        /*level*/         LVL_SIMPLE,
+        /*bmp inx*/       0,
+        /*bmp num*/       0,
+        /*ArgCount*/      5,
+        /*arg lp*/        s_ArgInfo
+        };
+
+        // 命令实现函数
+        void fnInputBox (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            LPTSTR szTipText;
+            if (pArgInf [0].m_dtDataType != _SDT_NULL)
+                szTipText = pArgInf [0].m_pText;
+            else
+                szTipText = NULL;
+
+            CInputDlg dlg (NULL, (IsEmptyStr (szTipText) ? IDD_INPUT_DLG2 : IDD_INPUT_DLG));
+
+            if (pArgInf [0].m_dtDataType != _SDT_NULL)
+                dlg.m_strTip = szTipText;
+            if (pArgInf [1].m_dtDataType != _SDT_NULL)
+                dlg.m_strCaption = pArgInf [1].m_pText;
+            if (pArgInf [2].m_dtDataType != _SDT_NULL)
+                dlg.m_strInitText = pArgInf [2].m_pText;
+
+            if (pArgInf [4].m_dtDataType == _SDT_NULL)
+                dlg.m_nInputWay = 1;
+            else
+                dlg.m_nInputWay = max (1, min (4, pArgInf [4].m_int));
+
+            if (dlg.DoModal () == IDOK)
+            {
+                PMDATA_INF pInf = pArgInf + 3;
+                // 由于“存放输入内容的容器”参数定义为_SDT_ALL数据类型，所以必须检查其
+                // m_dtDataType以获取实际数据类型。
+                switch (pInf->m_dtDataType)
+                {
+                case SDT_TEXT:
+                    //!!! 注意必须释放以前的文本。
+                    MFree (*pInf->m_ppText);
+                    *pInf->m_ppText = CloneTextData ((char*)(LPCTSTR)dlg.m_strResult);
+                    break;
+                case SDT_BYTE:
+                    *pInf->m_pByte = (BYTE)(DWORD)atoi (dlg.m_strResult);
+                    break;
+                case SDT_SHORT:
+                    *pInf->m_pShort = (SHORT)atoi (dlg.m_strResult);
+                    break;
+                case SDT_INT:
+                    *pInf->m_pInt = atoi (dlg.m_strResult);
+                    break;
+                case SDT_INT64:
+                    *pInf->m_pInt64 = _atoi64 (dlg.m_strResult);
+                    break;
+                case SDT_FLOAT:
+                    *pInf->m_pFloat = atof (dlg.m_strResult);
+                    break;
+                case SDT_DOUBLE:
+                    *pInf->m_pDouble = atof (dlg.m_strResult);
+                    break;
+                }
+
+                // 设置返回值。
+                pRetData->m_bool = TRUE;
+            }
+            else
+            {
+                // 设置返回值。
+                pRetData->m_bool = FALSE;
+            }
+        }
+
+    ///////////////////
+
+    9、具有定义有 AS_RECEIVE_VAR_ARRAY 标志参数的命令例子：
+
+        // 取命令行
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/      _T("存放被取回命令行文本的数组容器"),
+            /*explain*/   _T("在命令执行完毕后，本容器数组内被顺序填入在启动易程序时附加"
+                    "在其可执行文件名后面的以空格分隔的命令行文本段。容器数组内原有数据被全部销毁，"
+                    "容器数组的维数被自动调整为命令行文本段数"),
+            /*bmp inx*/   0,
+            /*bmp num*/   0,
+            /*type*/      SDT_TEXT,
+            /*default*/   0,
+            /*state*/     AS_RECEIVE_VAR_ARRAY,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/        _T("取命令行"),
+        /*egname*/        _T("GetCmdLine"),
+        /*explain*/       _T("本命令可以取出在启动易程序时附加在其可执行文件名后面的所有以空格分隔"
+                    "的命令行文本段"),
+        /*category*/      7,
+        /*state*/         NULL,
+        /*ret*/           _SDT_NULL,
+        /*reserved*/      0,
+        /*level*/         LVL_SIMPLE,
+        /*bmp inx*/       0,
+        /*bmp num*/       0,
+        /*ArgCount*/      1,
+        /*arg lp*/        s_ArgInfo
+        },
+
+        // 命令实现函数
+        void fnGetCmdLine (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            LPBYTE p = (LPBYTE)GetCommandLine (), pb;
+            // 跳过调用程序名。
+            BYTE ch = ' ';
+            if (*p++ == '\"')
+                ch = '\"';
+            while (*p++ != ch);
+            if (ch != ' ' && *p == ' ')  p++;    // 跳过第一个空格。
+
+            CMyDWordArray aryText;
+
+            while (*p != '\0')
+            {
+                if (*p == '\"')
+                {
+                    p++;
+                    pb = p;
+                    while (*pb != '\0' && *pb != '\"')
+                    {
+                        if (IS_CC (*pb) == TRUE)
+                        {
+                            if (pb [1] == 0)  break;
+                            pb++;
+                        }
+                        pb++;
+                    }
+
+                    aryText.Add ((DWORD)CloneTextData ((char*)p, pb - p));
+
+                    p = pb;
+                    if (*p != '\0')  p++;
+                }
+                else if (*p > ' ')
+                {
+                    pb = p;
+                    while (*pb != '\0' && *pb != '\"' && *pb > ' ')
+                    {
+                        if (IS_CC (*pb) == TRUE)
+                        {
+                            if (pb [1] == 0)  break;
+                            pb++;
+                        }
+                        pb++;
+                    }
+
+                    aryText.Add ((DWORD)CloneTextData ((char*)p, pb - p));
+
+                    p = pb;
+                }
+                else
+                    p++;
+            }
+
+            //!!! 必须先释放原变量数组的数据内容。
+            NotifySys (NRS_FREE_ARY, (DWORD)pArgInf->m_dtDataType, (DWORD)*pArgInf->m_ppAryData);
+
+            // 建立新变量数组数据。
+            INT nSize = aryText.GetDWordCount () * sizeof (DWORD);
+            p = (LPBYTE)MMalloc (sizeof (INT) * 2 + nSize);
+            *(LPINT)p = 1;  // 数组维数。
+            *(LPINT)(p + sizeof (INT)) = aryText.GetDWordCount ();
+            memcpy (p + sizeof (INT) * 2, aryText.GetPtr (), nSize);
+
+            *pArgInf->m_ppAryData = p;  // 将新内容写回该数组变量。
+        }
+
+    ///////////////////
+
+    10、具有定义有 AS_RECEIVE_VAR_OR_ARRAY 标志参数的命令例子：
+
+        // 取数组成员数
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/      _T("欲检查的容器"),
+            /*explain*/   _T("参数值指定欲检查其成员数目的数组容器或者欲检查其是否为数组的容器"),
+            /*bmp inx*/   0,
+            /*bmp num*/   0,
+            /*type*/      _SDT_ALL,
+            /*default*/   0,
+            /*state*/     AS_RECEIVE_VAR_OR_ARRAY,
+            },
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/      _T("取数组成员数"),
+        /*egname*/      _T("GetAryElementCount"),
+        /*explain*/     _T("取指定数组容器的全部成员数目，如果该容器不为数组，返回-1，因此本"
+                   "命令也可以用作检查指定容器是否为数组容器"),
+        /*category*/    6,
+        /*state*/       NULL,
+        /*ret*/         SDT_INT,
+        /*reserved*/    0,
+        /*level*/       LVL_SIMPLE,
+        /*bmp inx*/     0,
+        /*bmp num*/     0,
+        /*ArgCount*/    1,
+        /*arg lp*/      s_ArgInfo
+        };
+
+        void fnGetAryElementCount (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            //!!! 对于具有 AS_RECEIVE_VAR_OR_ARRAY 或 AS_RECEIVE_ALL_TYPE_DATA 标志的参数，
+            // 其数据类型中可能带有DT_IS_ARY数组标志，必须以以下方式分离出其数据类型和数组标志。
+
+            // DATA_TYPE dtDataType = pArgInf [0].m_dtDataType & ~DT_IS_ARY;
+            BOOL blIsAry = (pArgInf [0].m_dtDataType & DT_IS_ARY) != 0;
+
+            if (blIsAry == FALSE)
+                pRetData->m_int = -1;
+            else
+                GetAryElementInf (*pArgInf [0].m_ppAryData, &pRetData->m_int);
+        }
+
+    ///////////////////
+
+    11、具有定义有 AS_RECEIVE_ARRAY_DATA 标志参数的命令例子：
+
+        // 画多边形（方法）
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/     _T("多边形顶点"),
+            /*explain*/  _T("本参数数组顺序记录多边形各顶点的横向及纵向坐标值。使用当前绘画单位，相对于画板或打印纸左上角"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_RECEIVE_ARRAY_DATA,
+            }, {
+            /*name*/     _T("顶点数目"),
+            /*explain*/  _T("本参数指定多边形顶点的总数目。如果被省略，默认为数组中所记录的顶点数目"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/       _T("画多边形"),
+        /*egname*/       _T("polygon"),
+        /*explain*/      _T("如果所画的多边形没有闭合，将自动闭合"),
+        /*category*/     -1,
+        /*state*/        NULL,
+        /*ret*/          _SDT_NULL,
+        /*reserved*/     0,
+        /*level*/        LVL_SIMPLE,
+        /*bmp inx*/      0,
+        /*bmp num*/      0,
+        /*ArgCount*/     2,
+        /*arg lp*/       s_ArgInfo
+        };
+
+        // 实现函数
+        void fnPolygon (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            CUDrawPanel* pUnit = (CUDrawPanel*)GetWndPtr (pArgInf);
+            ASSERT (pUnit != NULL);
+
+            CDC *paryDC [2];
+            paryDC [0] = NULL;
+
+            HDC hDC = NULL;
+            if (pUnit->m_pPaintDC != NULL)
+            {
+                paryDC [1] = pUnit->m_pPaintDC;
+            }
+            else
+            {
+                hDC = ::GetDC (pUnit->m_hWnd);
+                paryDC [1] = CDC::FromHandle (hDC);
+            }
+
+            CDC dcb;
+            CBitmap* pOldBmp;
+            if ((HBITMAP)pUnit->m_bmpRedraw != NULL)
+            {
+                dcb.CreateCompatibleDC (paryDC [1]);
+                pOldBmp = dcb.SelectObject (&pUnit->m_bmpRedraw);
+                paryDC [0] = &dcb;
+            }
+
+        ////////////////////////
+
+            for (INT i = 0; i <= 1; i++)
+            {
+                CDC* pDC = paryDC [i];
+                if (pDC == NULL)  continue;
+
+                pUnit->_BeginDraw (pDC, FALSE);
+
+                INT nElementCount;
+                LPBYTE pAryDataBegin = GetAryElementInf (pArgInf [1].m_pAryData, &nElementCount);
+
+                INT nPointNum = nElementCount / 2;
+                if (pArgInf [2].m_dtDataType != _SDT_NULL)
+                    nPointNum = min (nPointNum, pArgInf [2].m_int);
+                if (nPointNum > 1)
+                    pDC->Polygon ((LPPOINT)pAryDataBegin, nPointNum);
+
+                pUnit->_EndDraw (pDC);
+            }
+
+        ////////////////////////
+
+            if (paryDC [0] != NULL)
+                paryDC [0]->SelectObject (pOldBmp);
+
+            if (hDC != NULL)
+                ::ReleaseDC (pUnit->m_hWnd, hDC);
+        }
+
+    ///////////////////
+
+    12、具有定义有 AS_RECEIVE_ALL_TYPE_DATA 标志参数的命令例子：
+
+        // 到字节集
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+        /*name*/     _T("欲转换为字节集的数据"),
+        /*explain*/  _T("参数值只能为基本数据类型数据或字节数组"),
+        /*bmp inx*/  0,
+        /*bmp num*/  0,
+        /*type*/     _SDT_ALL,
+        /*default*/  0,
+        /*state*/    AS_RECEIVE_ALL_TYPE_DATA,
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/    _T("到字节集"),
+        /*egname*/    _T("ToBin"),
+        /*explain*/   _T("将指定数据转换为字节集后返回转换结果"),
+        /*category*/  10,
+        /*state*/     NULL,
+        /*ret*/       SDT_BIN,
+        /*reserved*/  0,
+        /*level*/     LVL_SIMPLE,
+        /*bmp inx*/   0,
+        /*bmp num*/   0,
+        /*ArgCount*/  1,
+        /*arg lp*/    s_ArgInfo
+        };
+
+        // 辅助函数
+        LPBYTE GetMDataPtr (PMDATA_INF pInf, LPINT pnDataSize)
+        {
+            ASSERT (GetDataTypeType (pInf->m_dtDataType) == DTT_IS_SYS_DATA_TYPE);
+
+            switch (pInf->m_dtDataType)
+            {
+            case SDT_BYTE:
+                *pnDataSize = sizeof (BYTE);
+                return (LPBYTE)&pInf->m_byte;
+            case SDT_SHORT:
+                *pnDataSize = sizeof (SHORT);
+                return (LPBYTE)&pInf->m_short;
+            case SDT_INT:
+                *pnDataSize = sizeof (INT);
+                return (LPBYTE)&pInf->m_int;
+            case SDT_INT64:
+                *pnDataSize = sizeof (INT64);
+                return (LPBYTE)&pInf->m_int64;
+            case SDT_FLOAT:
+                *pnDataSize = sizeof (FLOAT);
+                return (LPBYTE)&pInf->m_float;
+            case SDT_DOUBLE:
+                *pnDataSize = sizeof (DOUBLE);
+                return (LPBYTE)&pInf->m_double;
+            case SDT_BOOL:
+                *pnDataSize = sizeof (BOOL);
+                return (LPBYTE)&pInf->m_bool;
+            case SDT_DATE_TIME:
+                *pnDataSize = sizeof (DATE);
+                return (LPBYTE)&pInf->m_date;
+            case SDT_SUB_PTR:
+                *pnDataSize = sizeof (DWORD);
+                return (LPBYTE)&pInf->m_dwSubCodeAdr;
+            case SDT_TEXT:
+                *pnDataSize = strlen (pInf->m_pText) + 1;
+                return (LPBYTE)pInf->m_pText;
+            case SDT_BIN: {
+                LPBYTE pBinData = pInf->m_pBin + sizeof (INT) * 2;
+                *pnDataSize = *(LPINT)(pBinData - sizeof (INT));
+                return pBinData; }
+            default:
+                ASSERT (FALSE);
+                return NULL;
+            }
+        }
+
+        // 命令实现函数
+        void fnCnvToBin (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            //!!! 对于具有 AS_RECEIVE_VAR_OR_ARRAY 或 AS_RECEIVE_ALL_TYPE_DATA 标志的参数，
+            // 其数据类型中可能带有DT_IS_ARY数组标志，必须以以下方式分离出其数据类型和数组标志。
+
+            DATA_TYPE dtDataType = pArgInf [0].m_dtDataType & ~DT_IS_ARY;
+            BOOL blIsAry = (pArgInf [0].m_dtDataType & DT_IS_ARY) != 0;
+
+            LPBYTE pData;
+            INT nDataSize;
+            if (dtDataType == SDT_BYTE && blIsAry == TRUE)
+            {
+                pData = (LPBYTE)pArgInf [0].m_pAryData + sizeof (INT) * 2;
+                nDataSize = *(LPINT)(pData - sizeof (INT));
+            }
+            else if (blIsAry == TRUE || GetDataTypeType (dtDataType) != DTT_IS_SYS_DATA_TYPE)
+            {
+                pRetData->m_pBin = NULL;
+                return;
+            }
+            else if (dtDataType == SDT_TEXT)
+            {
+                pData = (LPBYTE)pArgInf->m_pText;
+                nDataSize = strlen (pArgInf->m_pText);
+            }
+            else
+                pData = GetMDataPtr (pArgInf, &nDataSize);
+
+            pRetData->m_pBin = CloneBinData (pData, nDataSize);
+        }
+
+    ///////////////////
+
+    13、具有复合数据类型参数的命令例子：
+
+        // 置打印设置信息
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+        /*name*/     _T("打印设置信息"),
+        /*explain*/  NULL,
+        /*bmp inx*/  0,
+        /*bmp num*/  0,
+        /*type*/     DTP_PRINT_INF,
+        /*default*/  0,
+        /*state*/    NULL,
+        },
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/     _T("置打印设置"),
+        /*egname*/     _T("SetPrintInf"),
+        /*explain*/    _T("设置打印数据源数据时所将使用的设置信息。"
+                  "成功返回真，失败返回假"),
+        /*category*/   -1,
+        /*state*/      NULL,
+        /*ret*/        SDT_BOOL,
+        /*reserved*/   0,
+        /*level*/      LVL_SIMPLE,
+        /*bmp inx*/    0,
+        /*bmp num*/    0,
+        /*ArgCount*/   1,
+        /*arg lp*/     s_ArgInfo
+        };
+
+        // 命令实现函数
+        void fnSetPrintInf (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            CUDataSource* pUDataSource = (CUDataSource*)GetWndPtr (pArgInf);
+
+            LPBYTE p = (LPBYTE)pArgInf [1].m_pCompoundData;
+
+            CMPrintInfo info;
+            const CMPrintInfo* pInfo = pUDataSource->m_src.GetPrintInfo ();
+            if (pInfo != NULL)
+                info.CopyFrom (pInfo);
+
+            INT nPaperType = *(LPINT)p;
+            info.m_shtPaperType = nPaperType >= 0 && nPaperType < sizeof (s_shtaryPaperType) /
+                    sizeof (s_shtaryPaperType [0]) ? s_shtaryPaperType [nPaperType] : 0;
+            p += sizeof (INT);
+
+            info.m_shtOrientation = *(LPINT)p == 1 ? DMORIENT_LANDSCAPE : DMORIENT_PORTRAIT;
+            p += sizeof (INT);
+
+            info.m_rtMargin.left = max (0, *(LPINT)p);
+            p += sizeof (INT);
+            info.m_rtMargin.top = max (0, *(LPINT)p);
+            p += sizeof (INT);
+            info.m_rtMargin.right = max (0, *(LPINT)p);
+            p += sizeof (INT);
+            info.m_rtMargin.bottom = max (0, *(LPINT)p);
+            p += sizeof (INT);
+
+            info.m_nPageNumPlace = max (PN_NULL, min (PN_BOTTOMRIGHT, *(LPINT)p));
+            p += sizeof (INT);
+
+            info.m_nPrintCopies = max (0, *(LPINT)p);
+            p += sizeof (INT);
+
+            info.m_nFirstPageNO = max (0, *(LPINT)p);
+            p += sizeof (INT);
+
+            info.m_blIsPrintIntoFile = *(PBOOL)p != FALSE;
+            p += sizeof (BOOL);
+
+            char* ps = *(char**)p;
+            info.m_strPrintIntoFileName = (ps == NULL ? "" : ps);
+            p += sizeof (DWORD);
+
+            info.m_blAutoFillLastPage = *(PBOOL)p != FALSE;
+            p += sizeof (BOOL);
+
+            info.m_blAutoAddHidedSide = *(PBOOL)p != FALSE;
+            p += sizeof (BOOL);
+
+            info.m_nPagePrintMode = max (PPM_NULL, min (PPM_EVEN_PAGE, *(LPINT)p));
+            p += sizeof (INT);
+
+            info.m_nPrintRangeMode = max (PR_ALL, min (PR_SPEC_ROW_RANGE, *(LPINT)p));
+            p += sizeof (INT);
+
+            info.m_nBeginIndex = max (1, *(LPINT)p);
+            p += sizeof (INT);
+            info.m_nEndIndex = max (0, *(LPINT)p);
+            p += sizeof (INT);
+
+            info.m_nLinesPrePage = max (0, *(LPINT)p);
+            p += sizeof (INT);
+
+            info.m_nPrintScale = *(LPINT)p;
+
+            pRetData->m_bool = pUDataSource->m_src.SetPrintInfo (&info);
+        }
+
+    ///////////////////
+
+    14、具有窗口单元数据类型参数的命令例子：
+
+        // 复制（画板的方法）
+
+        static ARG_INFO s_ArgInfo[] =
+        {
+            {
+            /*name*/     _T("欲复制区域的左边"),
+            /*explain*/  _T("如果本参数被省略，默认值为 0 。使用源画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("欲复制区域的顶边"),
+            /*explain*/  _T("如果本参数被省略，默认值为 0 。使用源画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("欲复制区域的宽度"),
+            /*explain*/  _T("如果本参数被省略，默认等同于源画板的宽度。使用源画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("欲复制区域的高度"),
+            /*explain*/  _T("如果本参数被省略，默认等同于源画板的高度。使用源画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("复制到的目的画板"),
+            /*explain*/  _T("如果本参数被省略，默认为复制到源画板对象"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     DTP_DRAW_PANEL,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("欲复制到位置左边"),
+            /*explain*/  _T("如果本参数被省略，默认值为 0 。使用目的画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("欲复制到位置顶边"),
+            /*explain*/  _T("如果本参数被省略，默认值为 0 。使用目的画板的当前绘画单位"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }, {
+            /*name*/     _T("复制方法"),
+            /*explain*/  _T("本参数定义在将画板内容复制到目的画板上时对图像执行的位操作。"
+                    "可以为以下常量值之一或者其它自定义操作码：\r\n"
+                    "   1、#拷贝； 2、#翻转拷贝； 3、#位异或； 4、#位或； 5、#位与。 \r\n"
+                    "如果省略本参数，默认为“#拷贝”"),
+            /*bmp inx*/  0,
+            /*bmp num*/  0,
+            /*type*/     SDT_INT,
+            /*default*/  0,
+            /*state*/    AS_DEFAULT_VALUE_IS_EMPTY,
+            }
+        };
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/     _T("复制"),
+        /*egname*/     _T("copy"),
+        /*explain*/    _T("将源画板（本命令的调用画板对象）中指定区域的内容快速复制到目的画板"
+                  "中的指定位置，使用源和目的画板各自的当前绘画单位。如果源画板当前不可视，"
+                  "其“自动重画”属性必须为真"),
+        /*category*/   -1,
+        /*state*/      NULL,
+        /*ret*/        _SDT_NULL,
+        /*reserved*/   0,
+        /*level*/      LVL_SIMPLE,
+        /*bmp inx*/    0,
+        /*bmp num*/    0,
+        /*ArgCount*/   8,
+        /*arg lp*/     s_ArgInfo
+        };
+
+        // 命令实现函数
+        void fnCopy (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            CUDrawPanel* pSrcUnit = (CUDrawPanel*)GetWndPtr (pArgInf);
+            ASSERT (pSrcUnit != NULL);
+
+            CUDrawPanel* pUnit;
+            if (pArgInf [5].m_dtDataType == _SDT_NULL)
+            {
+                pUnit = pSrcUnit;
+            }
+            else
+            {
+                // 注意此处获取窗口单元数据类型对象指针的方法。
+                pUnit = (CUDrawPanel*)NotifySys (NRS_GET_AND_CHECK_UNIT_PTR,
+                        pArgInf [5].m_unit.m_dwFormID, pArgInf [5].m_unit.m_dwUnitID);
+                ASSERT (pUnit != NULL);
+            }
+
+            .
+            .
+            .
+            .
+            .
+            .
+
+        }
+
+
+/*****************************************************************/
+
+9、m_pDataType成员说明：
+
+    m_pDataType 用作提供支持库自定义数据类型，包含窗口单元。其声明定义如下：
+
+	typedef struct  // 库定义数据类型结构
+	{
+		LPTSTR m_szName;  // 数据类型的中文名称（如：“整数”，“高精度数”等等）。
+		LPTSTR m_szEgName;
+			// 数据类型的英文名称（如：“int”，“double”等等），可为空或NULL。
+		LPTSTR m_szExplain;   // 数据类型的详细解释，如无则可为NULL。
+
+		INT m_nCmdCount;
+			// 本类型中提供的成员命令的数目（可为0）。
+		LPINT m_pnCmdsIndex;	// 顺序记录本类型中所有成员命令在库的命令表中的索引值，可为NULL。
+
+	//   本类型是否为隐含类型（即不能由用户直接用作定义的类型，如被废弃
+	// 但为了保持兼容性又要存在的类型）。
+		#define		LDT_IS_HIDED				(1 << 0)
+	// 本类型在本库中不能使用，具有此标志一定隐含。
+	// 即使具有此标志，本类型的类型数据也必须完整定义。
+		#define		LDT_IS_ERROR				(1 << 1)
+	//   是否为窗口或可在窗口内使用的组件，如此标志置位则m_nElementCount必为0，
+		#define		LDT_WIN_UNIT				(1 << 6)
+	// 是否为容器组件，如有此标志，LDT_WIN_UNIT必置位。
+		#define		LDT_IS_CONTAINER			(1 << 7)
+	//是否为TAB控件(选择夹) 4.0新增
+		#define		LDT_IS_TAB_UNIT				(1 << 8)
+	// 仅用作提供功能的窗口组件（如时钟），如此标志置位则LDT_WIN_UNIT必置位。
+	// 具有此标志的组件尺寸固定为32*32，并且在运行时无可视外形。
+		#define		LDT_IS_FUNCTION_PROVIDER	(1 << 15)
+	// 仅用作窗口组件，如此标志置位则表示此组件不能接收输入焦点，不能TAB键停留。
+		#define		LDT_CANNOT_GET_FOCUS		(1 << 16)
+	// 仅用作窗口组件，如此标志置位则表示此组件默认不停留TAB键，使用本标志必须上标志置位。
+		#define		LDT_DEFAULT_NO_TABSTOP		(1 << 17)
+	// 是否为枚举数据类型。
+		#define		LDT_ENUM				    (1 << 22)   // 3.7新增。
+	// 是否为消息过滤组件。
+		#define		LDT_MSG_FILTER_CONTROL		(1 << 5)
+	    //!!! 注意高位包含 __OS_xxxx 宏用于指定本数据类型所支持的操作系统。
+	    #define _DT_OS(os)     (os)  // 用作转换os类型以便加入到m_dwState。
+	    #define _TEST_DT_OS(m_dwState,os)    ((_DT_OS (os) & m_dwState) != 0) // 用作测试指定数据类型是否支持指定操作系统。
+		DWORD m_dwState;
+
+	////////////////////////////////////////////
+	// 以下变量只有在为窗口、菜单组件且不为枚举数据类型时才有效。
+
+		DWORD m_dwUnitBmpID;		// 指定在库中的组件图像资源ID，0为无。
+	                                // 在OCX包装库中，m_dwUnitBmpID指定备用图像资源ID。
+
+		INT m_nEventCount;
+		PEVENT_INFO2 m_pEventBegin;	// 定义本组件的所有事件。
+
+		INT m_nPropertyCount;
+		PUNIT_PROPERTY m_pPropertyBegin;
+
+		PFN_GET_INTERFACE m_pfnGetInterface;
+
+	////////////////////////////////////////////
+	// 以下变量只有在不为窗口、菜单组件或为枚举数据类型时才有效。
+
+		// 本数据类型中子数据组件的数目。如为窗口、菜单组件，此变量值必为0。
+		INT	m_nElementCount;
+		PLIB_DATA_TYPE_ELEMENT m_pElementBegin;  // 指向子数据成员数组。
+	} LIB_DATA_TYPE_INFO;
+	typedef LIB_DATA_TYPE_INFO* PLIB_DATA_TYPE_INFO;
+
+/*****************************************************************/
+
+10、如何定义库定义数据类型的所属方法：
+
+        基本上与定义全局命令相同，只是 CMD_INFO 的 m_shtCategory 成员必须为 -1 ，另外定义后
+    必须将其索引值加入到其所在数据类型的 m_pnCmdsIndex 表中。
+
+        编写方法的实现代码时要注意，此时第一个参数始终为指向其所在数据类型的对象指针，例子如：
+
+        // 取设备句柄（画板的方法）
+
+        static CMD_INFO s_CmdInfo =
+        {
+        /*ccname*/       _T("取设备句柄"),
+        /*egname*/       _T("GetHDC"),
+        /*explain*/      _T("如当前用户程序正在处理本画板所产生的“绘画”事件，则返回画板所对应"
+                    "的设备句柄（即HDC），否则返回 0"),
+        /*category*/     -1, // 必须为 -1 。
+        /*state*/        NULL,
+        /*ret*/          SDT_INT,
+        /*reserved*/     0,
+        /*level*/        LVL_HIGH,
+        /*bmp inx*/      0,
+        /*bmp num*/      0,
+        /*ArgCount*/     0,
+        /*arg lp*/       NULL,
+        };
+
+        // 其实现代码：
+        void fnGetHDC (PMDATA_INF pRetData, INT nArgCount, PMDATA_INF pArgInf)
+        {
+            // 取回第一个参数所记录的所属数据类型的对象指针。
+            CUDrawPanel* pUnit = (CUDrawPanel*)GetWndPtr (pArgInf);
+            ASSERT (pUnit != NULL);
+            pRetData->m_int = pUnit->m_pPaintDC != NULL ? (INT)pUnit->m_pPaintDC->m_hDC : 0;
+        }
+
+        当然上面的例子是用于窗口单元数据类型的，其他一般数据类型可以直接从首参数的
+    m_pCompoundData成员获得对象指针。
+
+/*****************************************************************/
+
+11、如何定义普通数据类型（即非窗口单元、菜单）。
+
+    需要使用 m_pElementBegin 来定义其中的每个成员，LIB_DATA_TYPE_ELEMENT的定义为：
+
+	typedef struct
+	{
+	    // !!! 如果位于枚举数据类型中，则本成员必须为SDT_INT。
+		DATA_TYPE m_dtType;
+			//   子数据组件的数据类型
+	    // !!! 如果位于枚举数据类型中，则本成员必须为NULL。
+		LPBYTE m_pArySpec;
+			// 数组指定串，如果不为数组，此值为NULL。注意绝对不能指定某维数上限为0的数组。
+		LPTSTR m_szName;
+			//     子数据组件的中文变量名称，如果所属的数据类型只有一个子数据组件，
+			// 则此值应该为NULL。
+		LPTSTR m_szEgName;
+			// 子数据组件的英文变量名称，可以为空或NULL。
+		LPTSTR m_szExplain;
+
+	    // !!! 如果位于枚举数据类型中，则本成员默认具有LES_HAS_DEFAULT_VALUE标记。
+		// 本子数据成员有默认值，默认值在m_nDefault中说明。
+		#define		LES_HAS_DEFAULT_VALUE		(1 << 0)
+		// 本子数据成员被隐藏。
+		#define		LES_HIDED				    (1 << 1)
+		DWORD m_dwState;
+
+	    // !!! 如果位于枚举数据类型中，则本成员为具体的枚举数值。
+		INT m_nDefault;
+			// 系统基本类型子数据组件（非数组）的默认指定值：
+			//     1、数字型：直接为数字值（如为小数，只能指定其整数部分，
+			//		  如为长整数，只能指定不超过INT限值的部分）；
+			//     2、逻辑型：1等于真，0等于假；
+			//     3、文本型：本变量此时为LPTSTR指针，指向默认文本串；
+			//     4、其它所有类型参数（包括自定义类型）一律无默认指定值。
+	} LIB_DATA_TYPE_ELEMENT;
+	typedef LIB_DATA_TYPE_ELEMENT* PLIB_DATA_TYPE_ELEMENT;
+
+    实际定义例子如下：
+
+    LIB_DATA_TYPE_ELEMENT g_FontElement [] =
+    {
+        {
+        /*m_dtType*/            SDT_INT,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("角度"),
+        /*m_szEgName*/          _T("orient"),
+        /*m_szExplain*/         _T("以 1 / 10 度为单位"),
+        /*m_dwState*/           NULL,
+        /*m_nDefault*/          0,
+        }, {
+        /*m_dtType*/            SDT_BOOL,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("加粗"),
+        /*m_szEgName*/          _T("FontBold"),
+        /*m_szExplain*/         NULL,
+        /*m_dwState*/           NULL,
+        /*m_nDefault*/          0,
+        }, {
+        /*m_dtType*/            SDT_BOOL,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("倾斜"),
+        /*m_szEgName*/          _T("FontItalic"),
+        /*m_szExplain*/         NULL,
+        /*m_dwState*/           NULL,
+        /*m_nDefault*/          0,
+        }, {
+        /*m_dtType*/            SDT_BOOL,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("删除线"),
+        /*m_szEgName*/          _T("StrikeOut"),
+        /*m_szExplain*/         NULL,
+        /*m_dwState*/           NULL,
+        /*m_nDefault*/          0,
+        }, {
+        /*m_dtType*/            SDT_BOOL,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("下划线"),
+        /*m_szEgName*/          _T("UnderLine"),
+        /*m_szExplain*/         NULL,
+        /*m_dwState*/           NULL,
+        /*m_nDefault*/          0,
+        }, {
+        /*m_dtType*/            SDT_INT,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("字体大小"),
+        /*m_szEgName*/          _T("FontSize"),
+        /*m_szExplain*/         _T("单位为点（1 / 72 英寸）"),
+        /*m_dwState*/           LES_HAS_DEFAULT_VALUE,
+        /*m_nDefault*/          9,
+        }, {
+        /*m_dtType*/            SDT_TEXT,
+        /*m_pArySpec*/          NULL,
+        /*m_szName*/            _T("字体名称"),
+        /*m_szEgName*/          _T("FontName"),
+        /*m_szExplain*/         NULL,
+        /*m_dwState*/           LES_HAS_DEFAULT_VALUE,
+        /*m_nDefault*/          (INT)"宋体",
+        },
+    };
+
+    static LIB_DATA_TYPE_INFO s_DataType[] = 
+    {
+    /*m_szName*/                _T("字体"),
+    /*m_szEgName*/              _T("font"),
+    /*m_szExplain*/             NULL,
+    /*m_nCmdCount*/             0,      // 没有成员方法
+    /*m_pnCmdsIndex*/           NULL,
+    /*m_dwState*/               NULL,
+    /*m_dwUnitBmpID*/           0,
+    /*m_nEventCount*/           0,      // 必须为 0 。
+    /*m_pEventBegin*/           NULL,
+    /*m_nPropertyCount*/        0,      // 必须为 0 。
+    /*m_pPropertyBegin*/        NULL,
+    /*m_pfnGetInterface*/       NULL,   // 必须为 NULL 。
+    /*m_nElementCount*/         sizeof (g_FontElement) / sizeof (g_FontElement [0]),
+    /*m_pElementBegin*/         g_FontElement,
+    };
+
+/*****************************************************************/
+
+12、如何定义窗口单元数据类型。
+
+    说明：
+
+        在定义窗口单元接口时，为了方便快速开发和利用已有资源，使用 MFC 中的 CWnd 作为
+    所有窗口单元的基类，因此如果需要在支持库中加入窗口单元型数据类型，就必须使用 MFC 。
+
+        以后将易语言运行时环境移植到其他操作系统时，将改用能够描述目标操作系统GDI的基类。
+
+        改变窗口单元的基类对于用户程序来说是透明的，没有关联影响，用户程序不需重新编译。
+
+    ///////////////////
+
+    相关的C++数据类型和定义：
+
+    ////////
+
+    1、窗口单元创建后句柄的C++数据类型为：
+
+        typedef DWORD  HUNIT;
+
+        根据前面的说明，HUNIT 句柄实际上是一个 CWnd* 指针。
+
+    ////////
+
+    2、用作定义窗口单元某个属性：
+
+	typedef struct
+	{
+		LPTSTR m_szName;
+			// 属性名称，注意为利于在属性表中同时设置多对象的属性，属性名称必须高度一致。
+		LPTSTR m_szEgName;
+		LPTSTR m_szExplain;		// 属性解释。
+
+	// 注意：数据格式仅在PFN_NOTIFY_PROPERTY_CHANGED中用作通知。
+		#define		UD_PICK_SPEC_INT    1000	// 数据为INT值，用户只能选择，不能编辑。
+
+		#define		UD_INT			1001	// 数据为INT值
+		#define		UD_DOUBLE		1002	// 数据为DOUBLE值
+		#define		UD_BOOL			1003	// 数据为BOOL值
+		#define		UD_DATE_TIME	1004	// 数据为DATE值
+		#define		UD_TEXT			1005	// 数据为字符串
+
+		#define		UD_PICK_INT			1006	// 数据为INT值，用户只能选择，不能编辑。
+		#define		UD_PICK_TEXT		1007	// 数据为字符串，用户只能选择，不能编辑。
+		#define		UD_EDIT_PICK_TEXT	1008	// 数据为字符串，用户可以编辑。
+
+		#define		UD_PIC			1009	// 为图片文件内容
+		#define		UD_ICON			1010	// 为图标文件内容
+		#define		UD_CURSOR		1011
+			//   第一个INT记录鼠标指针类型，具体值见LoadCursor函数。如为-1，则
+			// 为自定义鼠标指针，此时后跟相应长度的鼠标指针文件内容。
+		#define		UD_MUSIC		1012	// 为声音文件内容
+
+		#define		UD_FONT			1013
+			//   为一个LOGFONT数据结构，不能再改。
+		#define		UD_COLOR		1014
+			// 数据为COLORREF值。
+		#define		UD_COLOR_TRANS	1015
+			// 数据为COLORREF值，允许透明颜色(用CLR_DEFAULT代表)。
+		#define		UD_FILE_NAME	1016
+			// 数据为文件名字符串。此时m_szzPickStr中的数据为：
+			//   对话框标题\0 + 文件过滤器串\0 + 默认后缀\0 +
+			//   "1"（取保存文件名）或"0"（取读入文件名）\0
+		#define		UD_COLOR_BACK	1017
+			// 数据为COLORREF值，允许系统默认背景颜色(用CLR_DEFAULT代表)。
+		#define		UD_IMAGE_LIST		1023
+			// 图片组，数据结构为：
+			#define	IMAGE_LIST_DATA_MARK	(MAKELONG ('IM', 'LT'))
+			/*
+			DWORD: 标志数据：为 IMAGE_LIST_DATA_MARK
+			COLORREF: 透明颜色（可以为CLR_DEFAULT）
+			后面为图片组数据.用CImageList::Read和CImageList::Write读写。
+			*/
+		#define		UD_CUSTOMIZE		1024
+
+	#define	UD_BEGIN	UD_PICK_SPEC_INT
+	#define	UD_END		UD_CUSTOMIZE
+
+		SHORT m_shtType;	// 属性的数据类型。
+
+		#define	UW_HAS_INDENT		(1 << 0)	// 在属性表中显示时向外缩进一段，一般用于子属性。
+		#define	UW_GROUP_LINE		(1 << 1)	// 在属性表中本属性下显示分组底封线。
+		#define	UW_ONLY_READ		(1 << 2)
+			// 只读属性，设计时不可用，运行时不能写。
+		#define	UW_CANNOT_INIT		(1 << 3)
+			// 设计时不可用，但运行时可以正常读写。与上标志互斥。
+	    #define UW_IS_HIDED         (1 << 4)    // 3.2 新增
+	        // 隐藏但可用。
+	    //!!! 注意高位包含 __OS_xxxx 宏用于指定本属性所支持的操作系统。
+	    #define _PROP_OS(os)     ((os) >> 16)  // 用作转换os类型以便加入到m_wState。
+	    #define _TEST_PROP_OS(m_wState,os)    ((_PROP_OS (os) & m_wState) != 0) // 用作测试指定属性是否支持指定操作系统。
+		WORD m_wState;
+
+		LPTSTR m_szzPickStr;
+			// 顺序记录所有的备选文本（除开UD_FILE_NAME），以一个空串结束。
+			// 当m_nType为UP_PICK_INT、UP_PICK_TEXT、UD_EDIT_PICK_TEXT、UD_FILE_NAME时不为NULL。
+	        // 当m_nType为UD_PICK_SPEC_INT时，每一项备选文本的格式为 数值文本 + "\0" + 说明文本 + "\0" 。
+	} UNIT_PROPERTY;
+	typedef UNIT_PROPERTY* PUNIT_PROPERTY;
+
+    ////////
+
+    3、用作记录某属性的具体属性值：
+
+    union UNIT_PROPERTY_VALUE
+    {
+        INT         m_int;           // 对应的属性类别：UD_INT、UD_PICK_INT，下同。
+        DOUBLE      m_double;        // UD_DOUBLE
+        BOOL        m_bool;          // UD_BOOL
+        DATE        m_dtDateTime;    // UD_DATE_TIME
+        COLORREF    m_clr;           // UD_COLOR、UD_COLOR_TRANS、UD_COLOR_BACK
+
+        LPTSTR      m_szText;        //   UD_TEXT、UD_PICK_TEXT、UD_EDIT_PICK_TEXT、
+                                     // UD_ODBC_CONNECT_STR、UD_ODBC_SELECT_STR
+
+        LPTSTR      m_szFileName;    // UD_FILE_NAME
+
+        // UD_PIC、UD_ICON、UD_CURSOR、UD_MUSIC、UD_FONT、UD_CUSTOMIZE、UD_IMAGE_LIST
+        struct
+        {
+            LPBYTE  m_pData;
+            INT     m_nDataSize;
+        } m_data;
+
+        UNIT_PROPERTY_VALUE ()
+        {
+            memset ((LPBYTE)this, 0, sizeof (UNIT_PROPERTY_VALUE));
+        }
+    };
+    typedef UNIT_PROPERTY_VALUE* PUNIT_PROPERTY_VALUE;
+
+    ////////
+
+    4、定义窗口单元事件参数：
+
+	typedef struct
+	{
+		LPTSTR       m_szName;       // 参数名称
+		LPTSTR       m_szExplain;    // 参数详细解释
+
+		#define EAS_IS_BOOL_ARG     (1 << 0)    // 为逻辑型参数，如无此标志，则认为是整数型参数
+		DWORD        m_dwState;
+	}
+	EVENT_ARG_INFO, *PEVENT_ARG_INFO;
+
+    另外新增了EVENT_ARG_INFO2，用于支持功能更丰富的事件：
+
+	typedef struct
+	{
+		LPTSTR		m_szName;       // 参数名称
+		LPTSTR		m_szExplain;    // 参数详细解释
+
+	    // 是否需要以参考方式传值，如果置位，则支持库中抛出事件的代码必须确保其能够被系统所访问
+	    // （即分配内存的方法和数据的格式必须符合要求）。
+		#define     EAS_BY_REF      (1 << 1)    // 不使用 (1 << 0)
+		DWORD		m_dwState;		// 参数MASK
+
+		DATA_TYPE	m_dtDataType;
+	}
+	EVENT_ARG_INFO2, *PEVENT_ARG_INFO2;
+
+    ////////
+
+    5、定义窗口单元事件：
+
+	typedef struct
+	{
+		LPTSTR		m_szName;			// 事件名称
+		LPTSTR		m_szExplain;		// 事件详细解释
+
+		// 本事件是否为隐含事件（即不能被一般用户所使用或被废弃但为了保持兼容性又要存在的事件）。
+		#define		EV_IS_HIDED			(1 << 0)
+
+		// #define		EV_IS_MOUSE_EVENT	(1 << 1)    // 3.2被废弃。
+		#define		EV_IS_KEY_EVENT		(1 << 2)
+
+		#define		EV_RETURN_INT		(1 << 3)	// 返回一个整数
+		#define		EV_RETURN_BOOL		(1 << 4)	// 返回一个逻辑值，与上标志互斥。
+	    //!!! 注意高位包含 __OS_xxxx 宏用于指定本事件所支持的操作系统。
+	    #define _EVENT_OS(os)     ((os) >> 1)  // 用作转换os类型以便加入到m_dwState。
+	    #define _TEST_EVENT_OS(m_dwState,os)    ((_EVENT_OS (os) & m_dwState) != 0) // 用作测试指定事件是否支持指定操作系统。
+		DWORD		m_dwState;  // 绝对不能定义成返回文本、字节集、复合类型等需要空间释放代码的数据类型。
+
+		INT             m_nArgCount;		// 事件的参数数目
+		PEVENT_ARG_INFO m_pEventArgInfo;	// 事件参数
+	}
+	EVENT_INFO, *PEVENT_INFO;
+
+    另外新增了类型EVENT_INFO2，用于支持功能更丰富的事件：
+
+	typedef struct
+	{
+		LPTSTR		m_szName;			// 事件名称
+		LPTSTR		m_szExplain;		// 事件详细解释
+
+	    // 以下基本状态值宏与 EVENT_INFO 中的定义相同。
+		// #define		EV_IS_HIDED			(1 << 0)    // 本事件是否为隐含事件（即不能被一般用户所使用或被废弃但为了保持兼容性又要存在的事件）。
+	    // #define		EV_IS_KEY_EVENT		(1 << 2)
+	    #define     EV_IS_VER2  (1 << 31)   // 表示本结构为EVENT_INFO2，!!!使用本结构时必须加上此状态值。
+	    //!!! 注意高位包含 __OS_xxxx 宏用于指定本事件所支持的操作系统。
+	    // #define _EVENT_OS(os)     ((os) >> 1)  // 用作转换os类型以便加入到m_dwState。
+	    // #define _TEST_EVENT_OS(m_dwState,os)    ((_EVENT_OS (os) & m_dwState) != 0) // 用作测试指定事件是否支持指定操作系统。
+		DWORD		m_dwState;
+
+		INT				    m_nArgCount;		// 事件的参数数目
+		PEVENT_ARG_INFO2    m_pEventArgInfo;	// 事件参数
+
+	    //!!! 如果该数据类型有额外的数据需要释放，需要由支持库中抛出事件的代码负责将其释放。
+	    DATA_TYPE m_dtRetDataType;
+	}
+	EVENT_INFO2, *PEVENT_INFO2;
+
+    /////////////////// 窗口单元的对外接口定义：
+
+    窗口单元实现代码需要提供返回所有对外接口的函数，即：
+
+        PFN_GET_INTERFACE m_pfnGetInterface;
+
+    PFN_GET_INTERFACE 的定义如下：
+
+        typedef PFN_INTERFACE (WINAPI *PFN_GET_INTERFACE) (INT nInterfaceNO);
+
+    PFN_INTERFACE为通用接口指针，定义如下：
+
+        typedef void (WINAPI *PFN_INTERFACE) ();
+
+    目前已有的 Interface 码有如下：
+
+    #define    ITF_CREATE_UNIT                    1    // 创建单元
+    // 下面两个接口仅在可视化设计窗口界面时使用。
+    #define    ITF_PROPERTY_UPDATE_UI             2    // 说明属性目前可否被修改
+    #define    ITF_DLG_INIT_CUSTOMIZE_DATA        3    // 使用对话框设置自定义数据
+    #define    ITF_NOTIFY_PROPERTY_CHANGED        4    // 通知某属性数据被修改
+    #define    ITF_GET_ALL_PROPERTY_DATA          5    // 取全部属性数据
+    #define    ITF_GET_PROPERTY_DATA              6    // 取某属性数据
+    #define    ITF_IS_NEED_THIS_KEY               8    //   询问单元是否需要指定的按键信息，用作窗口单元
+                                                       // 截获处理默认为运行时环境处理的按键，如TAB、
+                                                       // SHIFT+TAB、UP、DOWN等。
+    ///////////////////
+
+    对应于每个 interface 的接口定义和说明为：
+
+    ITF_CREATE_UNIT 接口：
+
+        // 创建单元，成功时返回HUNIT，失败返回NULL。
+        typedef HUNIT (WINAPI *PFN_CREATE_UNIT) (
+                LPBYTE pAllPropertyData,            //   指向本窗口单元的已有属性数据，由本窗口单元的
+                                                    // ITF_GET_PROPERTY_DATA接口产生，如果没有数据则为NULL。
+                INT nAllPropertyDataSize,           //   提供pAllPropertyData所指向数据的尺寸，如果没有则为0。
+                DWORD dwStyle,                      //   预先设置的窗口风格。
+                HWND hParentWnd,                    //   父窗口句柄。
+                UINT uID,                           //   在父窗口中的ID。
+                HMENU hMenu,                        //   未使用。
+                INT x, INT y, INT cx, INT cy,       //   指定位置及尺寸。
+                DWORD dwWinFormID, DWORD dwUnitID,  //   本窗口单元所在窗口及本身的ID，用作通知到系统。
+                HWND hDesignWnd = 0,                //   如果blInDesignMode为真，则hDesignWnd提供所设计窗口的窗口句柄。
+                BOOL blInDesignMode = FALSE);       //   说明是否被易语言IDE调用以进行可视化设计，运行时为假。
+
+        例子如：
+
+        HUNIT WINAPI Create_Label (LPBYTE pAllData, INT nAllDataSize,
+                DWORD dwStyle, HWND hParentWnd, UINT uID, HMENU hMenu, INT x, INT y, INT cx, INT cy,
+                DWORD dwWinFormID, DWORD dwUnitID, HWND hDesignWnd, BOOL blInDesignMode)
+        {
+            CULabel* pUnit = new CULabel;
+
+            if (pUnit->m_info.LoadData (pAllData, nAllDataSize) == FALSE)
+            {
+                delete pUnit;
+                return NULL;
+            }
+            pUnit->m_dwWinFormID = dwWinFormID;
+            pUnit->m_dwUnitID = dwUnitID;
+
+            dwStyle |= WS_CHILD;
+
+            pUnit->m_blInDesignMode = blInDesignMode;
+
+            if (pUnit->CreateEx (NULL,
+                    AfxRegisterWndClass (CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW,
+                    ::LoadCursor (NULL, IDC_ARROW), HBRUSH (::GetStockObject (NULL_BRUSH))),
+                    pUnit->m_info.m_strContext, dwStyle | WS_CLIPSIBLINGS,
+                    x, y, cx, cy, hParentWnd, (HMENU)uID, NULL) == TRUE)
+            {
+                ChangeBorder (pUnit, pUnit->m_info.m_nBorderType);
+                return (HUNIT)pUnit;
+            }
+            else
+                return NULL;
+        }
+
+    ////////
+
+    ITF_PROPERTY_UPDATE_UI 接口：
+
+        // 如果指定属性目前可以被操作，返回真，否则返回假。
+        typedef BOOL (WINAPI *PFN_PROPERTY_UPDATE_UI) (
+                HUNIT hUnit,            // 由PFN_CREATE_UNIT返回的已创建窗口单元的句柄，下同。
+                INT nPropertyIndex);    // 所需要查询属性的索引值，下同。
+
+        例子如：
+
+        BOOL WINAPI PropertyUpdateUI_Label (HUNIT hUnit, INT nPropertyIndex)
+        {
+            CULabel* pUnit = (CULabel*)hUnit;
+
+            switch (nPropertyIndex)
+            {
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return pUnit->m_info.m_nBorderType == 6;
+            case 11:
+                return pUnit->m_info.m_memPicData.IsEmpty () == FALSE;
+            case 12:
+                return pUnit->m_info.m_memPicData.IsEmpty () == TRUE;
+            case 13:
+            case 14:
+            case 15:
+                return pUnit->m_info.m_memPicData.IsEmpty () == TRUE &&
+                        pUnit->m_info.m_nJBBackWay != 0;
+            case 18:
+                return pUnit->m_info.m_blAllowMutiLines == FALSE;
+            case 20:
+                return pUnit->m_info.m_strDataSourceUnit.IsEmpty () == FALSE;
+            }
+
+            return TRUE;
+        }
+
+    ////////
+
+    ITF_DLG_INIT_CUSTOMIZE_DATA 接口：
+
+        // 用作设置类型为UD_CUSTOMIZE的单元属性。
+        // 如果需要重新创建该单元才能修改单元外形，请返回真。
+        typedef BOOL (WINAPI *PFN_DLG_INIT_CUSTOMIZE_DATA) (
+                HUNIT hUnit,
+                INT nPropertyIndex,
+                BOOL* pblModified = NULL,   //   如果pblModified不为NULL，请在其中返回是否
+                                            // 被用户真正修改（便于易语言IDE建立UNDO记录）。
+                LPVOID pReserved = NULL);   // 保留未用。
+
+        例子如：
+
+        BOOL WINAPI DlgInitCustomizeData_ComboBox (HUNIT hUnit, INT nPropertyIndex,
+                    BOOL* pblModified, LPVOID pResultExtraData)
+        {
+            ASSERT (nPropertyIndex == 12 || nPropertyIndex == 13);
+
+            CUComboBox* pUnit = (CUComboBox*)hUnit;
+            ASSERT (pUnit->GetSafeHwnd () != NULL);
+
+            *pblModified = FALSE;
+
+            CTabDialog dlg;
+
+            if (nPropertyIndex == 12)
+            {
+                dlg.m_strCaption = _T("列表项管理对话框");
+                dlg.m_straryItem.Copy (pUnit->m_info.m_straryListItemName);
+
+                if (dlg.DoModal () == IDOK)
+                {
+                    pUnit->m_info.m_straryListItemName.Copy (dlg.m_straryItem);
+                    *pblModified = TRUE;
+                }
+            }
+            else
+            {
+                ASSERT (nPropertyIndex == 13);
+
+                dlg.m_blMustIsNum = TRUE;
+                dlg.m_strCaption = _T("列表项数据管理对话框");
+
+                TCHAR buf [100];
+                INT nMaxIndex = pUnit->m_info.m_dwaryListItemData.GetUpperBound ();
+                for (INT i = 0; i <= nMaxIndex; i++)
+                {
+                    wsprintf (buf, _T("%d"), (INT)pUnit->m_info.m_dwaryListItemData [i]);
+                    dlg.m_straryItem.Add (buf);
+                }
+
+                if (dlg.DoModal () == IDOK)
+                {
+                    pUnit->m_info.m_dwaryListItemData.RemoveAll ();
+
+                    nMaxIndex = dlg.m_straryItem.GetUpperBound ();
+                    for (i = 0; i <= nMaxIndex; i++)
+                        pUnit->m_info.m_dwaryListItemData.Add ((DWORD)atoi (dlg.m_straryItem [i]));
+
+                    *pblModified = TRUE;
+                }
+            }
+
+            return *pblModified;
+        }
+
+
+    ////////
+
+    ITF_NOTIFY_PROPERTY_CHANGED 接口：
+
+        //   通知某属性（非UD_CUSTOMIZE类别属性）数据被用户修改，需要根据该修改相应更改
+        // 内部数据及外形，如果确实需要重新创建才能修改单元外形，请返回真。
+        //   注意：必须进行所传入值的合法性校验。
+        typedef BOOL (WINAPI *PFN_NOTIFY_PROPERTY_CHANGED) (
+                HUNIT hUnit,
+                INT nPropertyIndex,
+                PUNIT_PROPERTY_VALUE pPropertyValue,    // 用作修改的相应属性数据。
+                LPTSTR* ppszTipText = NULL);    // 目前尚未使用。
+
+        例子如：
+
+        BOOL WINAPI NotifyPropertyChanged_Edit (HUNIT hUnit, INT nPropertyIndex,
+                                                PUNIT_PROPERTY_VAULE pPropertyVaule,
+                                                LPTSTR* ppszTipText)
+        {
+            ASSERT (hUnit != NULL);
+            if (hUnit == NULL)  return FALSE;
+            CUEdit* pUnit = (CUEdit*)hUnit;
+            ASSERT (pUnit->GetSafeHwnd () != NULL);
+
+            if (ppszTipText != NULL)
+                *ppszTipText = NULL;
+
+            BOOL blNeedReCreate = FALSE;
+
+            // 注意此处的属性索引必须与属性表完全一致。
+            switch (nPropertyIndex)
+            {
+            case 0:
+                SetStr (pUnit->m_info.m_strContext, pPropertyVaule->m_szText);
+                pUnit->SetWindowText (pUnit->m_info.m_strContext);
+                break;
+
+                .
+                .
+                .
+                .
+                .
+                .
+
+            }
+
+            return blNeedReCreate;
+        }
+
+
+    ////////
+
+    ITF_GET_ALL_PROPERTY_DATA 接口：
+
+        // 取某属性数据到pPropertyValue中，成功返回真，否则返回假。
+        typedef BOOL (WINAPI *PFN_GET_PROPERTY_DATA) (
+                HUNIT hUnit,
+                INT nPropertyIndex,
+                PUNIT_PROPERTY_VALUE pPropertyValue);   // 用作接收欲读取属性的数据。
+
+            注意：如果在设计时（由调用PFN_CREATE_UNIT时的blInDesignMode参数决定），
+        pPropertyValue必须返回所存储的值。如果在运行时（blInDesignMode为假），必须
+        返回实际的当前实时值。
+            比如说，编辑框窗口单元的“内容”属性，设计时必须返回内部所保存的值，而
+        运行时就必须调用 GetWindowText 去实时获取。
+
+        例子如：
+
+        BOOL WINAPI GetPropertyData_Edit (HUNIT hUnit, INT nPropertyIndex,
+                                          PUNIT_PROPERTY_VAULE pPropertyVaule)
+        {
+            ASSERT (hUnit != NULL);
+            if (hUnit == NULL)  return FALSE;
+            CUEdit* pUnit = (CUEdit*)hUnit;
+            ASSERT (pUnit->GetSafeHwnd () != NULL);
+
+            // 注意此处的属性索引必须与属性表完全一致。
+            switch (nPropertyIndex)
+            {
+            case 0:
+                if (pUnit->m_blInDesignMode == FALSE)
+                {
+                    // 注意此处在非设计环境下进行的处理。
+                    pUnit->GetWindowText (pUnit->m_info.m_strContext);
+                }
+                pPropertyVaule->m_szText = (LPTSTR)(LPCTSTR)pUnit->m_info.m_strContext;
+                break;
+
+                .
+                .
+                .
+                .
+                .
+                .
+
+            }
+
+            return TRUE;
+        }
+
+
+    ////////
+
+    ITF_GET_PROPERTY_DATA 接口：
+
+        //   返回本窗口单元的全部属性数据，由该窗口单元的实现代码自行设计格式将
+        // 所有属性数据组合到一起。此窗口单元的PFN_CREATE_UNIT接口必须能够正确解
+        // 读此数据。
+        typedef HGLOBAL (WINAPI *PFN_GET_ALL_PROPERTY_DATA) (HUNIT hUnit);
+
+        例子如：
+
+        HGLOBAL WINAPI GetAllPropertyData_Edit (HUNIT hUnit)
+        {
+            return ((CUEdit*)hUnit)->m_info.SaveData ();
+        }
+
+    ////////
+
+    ITF_IS_NEED_THIS_KEY 接口：
+
+        // 询问单元是否需要指定的按键信息，如果需要，返回真，否则返回假。
+        typedef BOOL (WINAPI *PFN_IS_NEED_THIS_KEY) (
+                HUNIT hUnit,
+                WORD wKey); // 可能的值见下。
+
+        例子如：
+
+        BOOL WINAPI AskWantThisKey_Edit (HUNIT hUnit, WORD wKey)
+        {
+            ASSERT (hUnit != NULL);
+            if (hUnit == NULL)  return FALSE;
+            CUEdit* pUnit = (CUEdit*)hUnit;
+            ASSERT (pUnit->m_hWnd != NULL);
+
+            if (wKey == KYV_ENTER && pUnit->m_info.m_blMutiLine == TRUE &&
+                    pUnit->m_info.m_nInputWay != 1)
+                return TRUE;
+
+            return FALSE;
+        }
+
+
+        按键代码表头文件 key.h 的内容为：
+
+        #ifndef __KYV_H
+
+            #define    KYS_CONTROL             (1 << 13)
+            #define    KYS_SHIFT               (1 << 14)
+            #define    KYS_ALT                 (1 << 15)
+
+            #define KYM_MASK                   0xFF
+
+            #define    KYV_NULL                0
+
+            #define KYV_BREAK                  0x03
+            #define KYV_BACKSPACE              0x08
+            #define KYV_TAB                    0x09
+            #define KYV_PAD_CENTER             0x0c
+            #define KYV_ENTER                  0x0d
+
+            #define KYV_SHIFT                  0x10
+            #define KYV_CTRL                   0x11
+            #define KYV_ALT                    0x12
+            #define KYV_PAUSE                  0x13
+            #define KYV_CAPS_LOCK              0x14
+            #define KYV_ESC                    0x1b
+
+            #define KYV_SPACE                  0x20
+            #define KYV_PAGEUP                 0x21
+            #define KYV_PAGEDOWN               0x22
+            #define KYV_END                    0x23
+            #define KYV_HOME                   0x24
+            #define KYV_LEFT                   0x25
+            #define KYV_UP                     0x26
+            #define KYV_RIGHT                  0x27
+            #define KYV_DOWN                   0x28
+            #define KYV_INS                    0x2d
+            #define KYV_DEL                    0x2e
+
+            #define KYV_0                      0x30
+            #define KYV_1                      0x31
+            #define KYV_2                      0x32
+            #define KYV_3                      0x33
+            #define KYV_4                      0x34
+            #define KYV_5                      0x35
+            #define KYV_6                      0x36
+            #define KYV_7                      0x37
+            #define KYV_8                      0x38
+            #define KYV_9                      0x39
+
+            #define KYV_A                      0x41
+            #define KYV_B                      0x42
+            #define KYV_C                      0x43
+            #define KYV_D                      0x44
+            #define KYV_E                      0x45
+            #define KYV_F                      0x46
+            #define KYV_G                      0x47
+            #define KYV_H                      0x48
+            #define KYV_I                      0x49
+            #define KYV_J                      0x4a
+            #define KYV_K                      0x4b
+            #define KYV_L                      0x4c
+            #define KYV_M                      0x4d
+            #define KYV_N                      0x4e
+            #define KYV_O                      0x4f
+            #define KYV_P                      0x50
+            #define KYV_Q                      0x51
+            #define KYV_R                      0x52
+            #define KYV_S                      0x53
+            #define KYV_T                      0x54
+            #define KYV_U                      0x55
+            #define KYV_V                      0x56
+            #define KYV_W                      0x57
+            #define KYV_X                      0x58
+            #define KYV_Y                      0x59
+            #define KYV_Z                      0x5a
+
+            #define KYV_PAD_MUL                0x6a
+            #define KYV_PAD_PLUS               0x6b
+
+            #define KYV_F1                     0x70
+            #define KYV_F2                     0x71
+            #define KYV_F3                     0x72
+            #define KYV_F4                     0x73
+            #define KYV_F5                     0x74
+            #define KYV_F6                     0x75
+            #define KYV_F7                     0x76
+            #define KYV_F8                     0x77
+            #define KYV_F9                     0x78
+            #define KYV_F10                    0x79
+            #define KYV_F11                    0x7a
+            #define KYV_F12                    0x7b
+            #define KYV_F13                    0x7c
+            #define KYV_F14                    0x7d
+            #define KYV_F15                    0x7e
+            #define KYV_F16                    0x7f
+
+            #define KYV_NUM_LOCK               0x90
+            #define KYV_SCROLL_LOCK            0x91
+
+            #define KYV_SEMICOLON              0xba        // ';'
+            #define KYV_EQUAL                  0xbb        // '='
+            #define KYV_COMMA                  0xbc        // ','
+            #define KYV_MINUS                  0xbd        // '-'
+            #define KYV_DECIMAL                0xbe        // '.'
+            #define KYV_DIV                    0xbf        // '/'
+            #define KYV_REVERSE_SINGLE_QUOTES  0xc0        // '`'
+            #define KYV_LEFT_SQUARE_BRACKETS   0xdb        // '['
+            #define KYV_SLASH                  0xdc        // '\'
+            #define KYV_RIGHT_SQUARE_BRACKETS  0xdd        // ']'
+            #define KYV_SINGLE_QUOTES          0xde        // '''
+
+        #endif
+
+        由上可见，wKey 携带有 CONTROL、SHIFT、ALT 等辅助键的状态信息，如：
+
+            KYS_CONTROL + KYV_F1  代表 Ctrl+F1 组合键。
+            KYS_CONTROL + KYS_ALT + KYV_F1  代表 Ctrl+Alt+F1 组合键。
+
+
+    /////////////////// 窗口单元如何触发自身事件：
+
+    请使用 NRS_EVENT_NOTIFY 通知，其说明如下：
+
+        通知系统（运行时环境）产生了事件。
+        dwParam1为PEVENT_NOTIFY指针。
+            如果返回 0 ，表示此事件已被系统抛弃，否则表示系统已经成功
+        传递此事件到用户事件处理子程序。
+
+    EVENT_NOTIFY 的定义如下：
+
+        struct EVENT_NOTIFY
+        {
+            // 记录事件的来源
+            DWORD    m_dwFormID;      // 调用ITF_CREATE_UNIT接口所传递过来的所处窗口ID（dwWinFormID参数）
+            DWORD    m_dwUnitID;      // 调用ITF_CREATE_UNIT接口所传递过来的窗口单元ID（dwUnitID参数）
+            INT      m_nEventIndex;   //   事件索引（在窗口单元定义信息LIB_DATA_TYPE_INFO中m_pPropertyBegin
+                                      // 成员中的位置）
+
+            INT      m_nArgCount;     // 本事件所传递的参数数目，最多 5 个。
+            INT      m_nArgValue [5]; // 记录各参数值，SDT_BOOL 型参数值为 1 或 0。
+
+            //!!! 注意下面两个成员在没有定义返回值的事件中无效，其值可能为任意值。
+            BOOL     m_blHasReturnValue; // 用户事件处理子程序处理完毕事件后是否提供了返回值。
+            INT      m_nReturnValue; // 用户事件处理子程序处理完毕事件后的返回值，逻辑值用数值 0（假） 和 1（真） 返回。
+        };
+        typedef EVENT_NOTIFY* PEVENT_NOTIFY;
+
+    另外新增了类型EVENT_NOTIFY2，用作提供功能更丰富的事件：
+
+	struct EVENT_NOTIFY2
+	{
+		// 记录事件的来源
+		DWORD m_dwFormID;  // 窗口 ID
+		DWORD m_dwUnitID;  // 窗口组件 ID
+		INT m_nEventIndex;  // 事件索引
+
+	    #define MAX_EVENT2_ARG_COUNT    12
+		INT m_nArgCount;  // 事件所传递的参数数目，最多 MAX_EVENT2_ARG_COUNT 个。
+		EVENT_ARG_VALUE m_arg [MAX_EVENT2_ARG_COUNT];  // 记录各参数值。
+
+	    //!!! 注意下面成员在没有定义返回值的事件处理中无效。
+		// 用户事件处理子程序处理完毕事件后是否有返回值
+		BOOL m_blHasRetVal;
+	    // 记录用户事件处理子程序处理完毕事件后的返回值，注意其中的m_infRetData.m_dtDataType成员未被使用。
+	    MDATA_INF m_infRetData;
+	};
+	typedef EVENT_NOTIFY2* PEVENT_NOTIFY2;
+
+    带有参数的事件通知代码实例：
+
+        void CUSpin::OnDeltapos(NMHDR* pNMHDR, LRESULT* pResult) 
+        {
+            NM_UPDOWN* pNMUpDown = (NM_UPDOWN*)pNMHDR;
+
+            EVENT_NOTIFY event (m_dwWinFormID, m_dwUnitID, 0);
+            event.m_nArgCount = 1;  // 一个参数。
+            event.m_nArgVaule [0] = pNMUpDown->iDelta < 0 ? 1 : -1;
+            NotifySys (NRS_EVENT_NOTIFY, (DWORD)&event);
+
+            *pResult = 0;
+        }
+
+    处理了用户事件处理子程序返回值的通知代码实例：
+
+        void CUTab::OnSelchanging(NMHDR* pNMHDR, LRESULT* pResult) 
+        {
+            EVENT_NOTIFY event (m_dwWinFormID, m_dwUnitID, 1);
+            // 判断用户事件处理子程序是否返回了假。
+            if (NotifySys (NRS_EVENT_NOTIFY, (DWORD)&event) != 0 && // 是否成功传递？
+                    event.m_blHasReturnVaule == TRUE && // 是否有返回值？
+                    event.m_nReturnVaule == 0)  // 返回值是否为假？
+                *pResult = TRUE;
+            else
+                *pResult = FALSE;
+        }
+
+    /////////////////// 编写窗口单元实现代码时所必须注意的地方：
+
+   1、所有单元都必须是CWnd的继承类，如：
+
+        class CUEdit : public CEdit  // 间接继承
+        class CULabel : public CWnd  // 直接继承
+
+
+   2、所有单元的析构函数都必须为 virtual 函数，以支持通过删除 CWnd* 指针释放，如：
+
+        virtual ~CULabel();
+
+        因为只有当把析构函数定义为 virtual 时才支持类似如下的删除操作：
+
+        CWnd* pLabel = GetWndPtr (pArgInf); // pLabel 为指向 CULabel 对象的指针。
+        delete pLabel;
+
+   3、所有单元都必须在 PostNcDestroy 中通知系统已经销毁且进行自删除，如：
+        void CULabel::PostNcDestroy()
+        {
+            CWnd::PostNcDestroy();
+            // 通知运行时环境本窗口单元对象已被销毁。
+            NotifySys (NRS_UNIT_DESTROIED, m_dwWinFormID, m_dwUnitID);
+            // 删除自身。
+            delete this;
+        }
+
+   4、所有单元都创建时都必须有 WS_CHILD | WS_CLIPSIBLINGS 属性，如：
+
+        pUnit->CreateEx (NULL, _T("EDIT"),
+                pUnit->m_info.m_strContext, dwStyle | WS_CHILD | WS_CLIPSIBLINGS,
+                x, y, cx, cy, hParentWnd, (HMENU)uID, NULL);
+
+   5、所有具有 LDT_IS_CONTAINER 标志(即可以作为容器单元)的窗口单元,都必须按类似
+      以下方式覆盖OnNotify虚拟函数以支持跨DLL库事件反馈功能:
+
+        BOOL CUTab::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+        {
+            return ProcessOnNotify (this, wParam, lParam, pResult);
+        }
+
+        注明：这是因为 MFC 的缺陷所造成的（多个DLL中创建的窗口被分别登记在不同的表中）。
+
+        ProcessOnNotify 的实现代码：
+
+        extern CHandleMap* PASCAL afxMapHWND(BOOL bCreate = FALSE);
+        #include <../src/winhand_.h>
+
+        // 用作支持对其他支持库中的窗口单元进行通知反馈。
+        BOOL MReflectLastMsg(HWND hWndChild, LRESULT* pResult)
+        {
+            // get the map, and if no map, then this message does not need reflection
+            CHandleMap* pMap = afxMapHWND();
+            if (pMap == NULL)
+                return FALSE;
+
+            // check if in permanent map, if it is reflect it (could be OLE control)
+            CWnd* pWnd = (CWnd*)pMap->LookupPermanent(hWndChild);
+            ASSERT(pWnd == NULL || pWnd->m_hWnd == hWndChild);
+            if (pWnd == NULL)
+            {
+                // 发送信息去获取 CWnd* 指针。
+                pWnd = (CWnd*)::SendMessage (hWndChild, WU_GET_WND_PTR, 0, 0);
+                if (pWnd == NULL)
+                    return FALSE;
+                ASSERT (pWnd->m_hWnd == hWndChild);
+            }
+
+            // only OLE controls and permanent windows will get reflected msgs
+            ASSERT(pWnd != NULL);
+            return pWnd->SendChildNotifyLastMsg(pResult);
+        }
+
+        BOOL ProcessOnNotify (CWnd* pWnd, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+        {
+            ASSERT(pResult != NULL);
+            NMHDR* pNMHDR = (NMHDR*)lParam;
+            HWND hWndCtrl = pNMHDR->hwndFrom;
+
+            // get the child ID from the window itself
+            UINT nID = ::GetDlgCtrlID (hWndCtrl);
+            int nCode = pNMHDR->code;
+
+            ASSERT(hWndCtrl != NULL);
+            ASSERT(::IsWindow(hWndCtrl));
+
+            if (_afxThreadState->m_hLockoutNotifyWindow == pWnd->m_hWnd)
+                return TRUE;        // locked out - ignore control notification
+
+            // reflect notification to child window control
+            if (MReflectLastMsg(hWndCtrl, pResult))     // 修改点
+                return TRUE;        // eaten by child
+
+            AFX_NOTIFY notify;
+            notify.pResult = pResult;
+            notify.pNMHDR = pNMHDR;
+            return pWnd->OnCmdMsg(nID, MAKELONG(nCode, WM_NOTIFY), &notify, NULL);
+        }
+
+    6、窗口单元如果使用了反馈通知，则该单元必须支持WU_GET_WND_PTR事件。
+
+        此问题是由上面所述 MFC 的缺陷造成的，例子如下：
+
+        BEGIN_MESSAGE_MAP(CUTreeBox, CTreeCtrl)
+            //{{AFX_MSG_MAP(CUTreeBox)
+            ON_NOTIFY_REFLECT(NM_SETFOCUS, OnSelchanged)  // 在此处使用了反馈通知。
+            ON_MESSAGE(WU_GET_WND_PTR, OnGetWndPtr)
+            //}}AFX_MSG_MAP
+        END_MESSAGE_MAP()
+
+        // 窗口单元如果使用了反馈通知（即上面的ON_NOTIFY_REFLECT），则必须支持此WU_GET_WND_PTR事件。
+        LRESULT CUTreeBox::OnGetWndPtr (WPARAM, LPARAM)
+        {
+            // 将自身的指针返回。
+            return (LRESULT)this;
+        }
+
+        // 如果不提供对WU_GET_WND_PTR事件的处理，本函数将不会和NM_SETFOCUS事件关联。
+        void CUTreeBox::OnSelchanged(NMHDR* pNMHDR, LRESULT* pResult) 
+        {
+            NMTREEVIEW* pInf = (NMTREEVIEW*)pNMHDR;
+
+            EVENT_NOTIFY event (m_dwWinFormID, m_dwUnitID, 0);
+            event.m_nArgCount = 1;
+            event.m_nArgVaule [0] = pInf->action == TVC_BYKEYBOARD ? 0 :
+                    pInf->action == TVC_BYMOUSE ? 1 : 2;
+            NotifySys (NRS_EVENT_NOTIFY, (DWORD)&event);
+            *pResult = 0;
+        }
+
+    7、对于条状窗口单元（如工具条和状态条），需要处理WU_SIZE_CHANGED事件，如：
+
+        BEGIN_MESSAGE_MAP(CUToolBar, CToolBarCtrl)
+            //{{AFX_MSG_MAP(CUToolBar)
+            ON_MESSAGE_VOID(WU_SIZE_CHANGED, OnWinSizeChanged)
+            //}}AFX_MSG_MAP
+        END_MESSAGE_MAP()
+
+        void CUToolBar::OnWinSizeChanged ()
+        {
+            // 重新根据父窗口的位置和尺寸调整自身的位置和尺寸。
+            AutoSize ();
+        }
+
+    8、如果条状窗口单元（如工具条和状态条）的某属性被改变导致需要重新在父窗口中布局，
+       可以给父窗口发送 WU_PARENT_RELAYOUT_BAR 事件，如：
+
+        pUnit->GetParent ()->SendMessage (WU_PARENT_RELAYOUT_BAR, 0, 0);
+
+    9、定义窗口单元的属性时，前面必须使用 FIXED_WIN_UNIT_PROPERTY 宏加上固定属性，如：
+
+        UNIT_PROPERTY g_VScrollBarProperty [] =
+        {
+            FIXED_WIN_UNIT_PROPERTY,    // 必须加上此宏。
+
+            {
+            /*m_szName*/        _T("最小位置"),
+            /*m_szEgName*/      _T("MinPos"),
+            /*m_szExplain*/     NULL,
+            /*m_shtType*/       UD_INT,
+            /*m_wState*/        NULL,
+            /*m_szzPickStr*/    NULL,
+            },
+
+            .
+            .
+            .
+            .
+            .
+            .
+        };
+
+
+
+/*****************************************************************/
+
+13、窗口单元数据类型定义和实现实例：
+
+    请参见随本文档附带的 HtmlView 支持库的源代码。
+
+/*****************************************************************/
+
+14、如何制作支持库的 .fnr 版本。
+
+    到目前为止，上面所讲述的都适用于生成 .fne 支持库文件，但是由于 .fne 包含大量的说明和
+声明信息，所以可能并不适合用户程序在运行时携带使用。
+
+    如果您发现 .fne 中所携带的编辑信息过多，您可以选择同时生成一个 .fnr 版本，具体实例如下：
+
+    #ifdef __COMPILE_FNR
+        #define	_WT(text)	                    _T("")
+        #define _CMDS_COUNT(CmdsCount)          0
+        #define _CMDS_PTR(CmdsPtr)              NULL
+        #define _EVENTS_COUNT(EventsCount)      0
+        #define _EVENTS_PTR(EventsPtr)          NULL
+        #define _ELEMENTS_COUNT(ElementsCount)  0
+        #define _ELEMENTS_PTR(ElementsPtr)      NULL
+    #else
+        #define	_WT(text)	                    _T(text)
+        #define _CMDS_COUNT(CmdsCount)          CmdsCount
+        #define _CMDS_PTR(CmdsPtr)              CmdsPtr
+        #define _EVENTS_COUNT(EventsCount)      EventsCount
+        #define _EVENTS_PTR(EventsPtr)          EventsPtr
+        #define _ELEMENTS_COUNT(ElementsCount)  ElementsCount
+        #define _ELEMENTS_PTR(ElementsPtr)      ElementsPtr
+    #endif
+
+
+    static LIB_INFO s_LibInfo =
+    {
+        LIB_FORMAT_VER,
+
+        // guid: { 0xd09f2340, 0x8185, 0x11d3, { 0x96, 0xf6, 0xaa, 0xf8, 0x44, 0xc7, 0xe3, 0x25 } }
+        #define        LI_LIB_GUID_STR    "d09f2340818511d396f6aaf844c7e325"
+        _T (LI_LIB_GUID_STR),
+
+        3,
+        0,
+
+        33,
+
+        3,
+        0,
+        3,
+        0,
+
+        _T ("系统核心支持库"),
+        LT_CHINESE,
+        _WT("本支持库是易语言的核心库，为系统本身和每个易程序提供必需的功能支持"),
+
+    #ifdef __COMPILE_FNR
+        LBS_NO_EDIT_INFO,
+    #else
+        0,
+    #endif
+
+        _WT("飞扬软件工作室吴涛"),
+        _WT("443200"),
+        _WT("湖北省枝江市鑫源村六栋严文芳转"),
+        _WT("(0717)4222233"),
+        _WT("(0717)4222233"),
+        _WT("fly@eyuyan.com"),
+        _WT("http://eyuyan.com"),
+        _WT("祝您一帆风顺，心想事成！"),
+
+        sizeof (s_DataType) / sizeof (s_DataType[0]),
+        s_DataType,
+
+    #ifndef __COMPILE_FNR
+        21,
+        _T("0001流程控制\0"
+            "0014算术运算\0"
+            "0005逻辑比较\0"
+            "0015位运算\0"
+            "0002容器操作\0"
+            "0000数组操作\0"
+            "0000环境存取\0"
+            "0000拼音处理\0"
+            "0000文本操作\0"
+            "0000字节集操作\0"
+            "0000数值转换\0"
+            "0000时间操作\0"
+            "0000磁盘操作\0"
+            "0000文件读写\0"
+            "0000系统处理\0"
+            "0000媒体播放\0"
+            "0000程序调试\0"
+            "0000其他\0"
+            "0021数据库\0"
+            "0000网络通信\0"
+            "0000易向导\0"
+            "\0"),
+        sizeof (s_CmdInfo) / sizeof (s_CmdInfo [0]),
+        s_CmdInfo,
+    #else
+        0,
+        NULL,
+        0,
+        NULL,
+    #endif
+
+        s_RunFunc,
+
+        NULL,
+        NULL,
+
+        ProcessNotifyLib,
+
+        NULL,
+        NULL,
+
+    #ifndef __COMPILE_FNR
+        sizeof (s_ConstInfo) / sizeof (s_ConstInfo [0]),
+        s_ConstInfo,
+    #else
+        0,
+        NULL,
+    #endif
+
+        NULL
+    };
+
+    部分数据类型定义：
+
+    static LIB_DATA_TYPE_INFO s_DataType[] = 
+    {
+        {
+        /*m_szName*/			_WT("字体"),
+        /*m_szEgName*/			_WT("font"),
+        /*m_szExplain*/			NULL,
+        /*m_nCmdCount*/			_CMDS_COUNT (0),
+        /*m_pnCmdsIndex*/		_CMDS_PTR (NULL),
+        /*m_dwState*/			NULL,
+        /*m_dwUnitBmpID*/		0,
+        /*m_nEventCount*/		_EVENTS_COUNT (0),
+        /*m_pEventBegin*/		_EVENTS_PTR (NULL),
+        /*m_nPropertyCount*/	0,
+        /*m_pPropertyBegin*/	NULL,
+        /*m_pfnGetInterface*/	NULL,
+        /*m_nElementCount*/		_ELEMENTS_COUNT (sizeof (g_FontElement) / sizeof (g_FontElement [0])),
+        /*m_pElementBegin*/		_ELEMENTS_PTR (g_FontElement),
+        },
+
+/////////////
+
+        {
+        /*m_szName*/			_WT("编辑框"),
+        /*m_szEgName*/			_WT("EditBox"),
+        /*m_szExplain*/			NULL,
+        /*m_nCmdCount*/			_CMDS_COUNT (sizeof (s_nEditBoxElementCmdIndex) / sizeof (s_nEditBoxElementCmdIndex [0])),
+        /*m_pnCmdsIndex*/		_CMDS_PTR (s_nEditBoxElementCmdIndex),
+        /*m_dwState*/			LDT_WIN_UNIT,
+        /*m_dwUnitBmpID*/		IDB_EDITBOX_BITMAP,
+        /*m_nEventCount*/		_EVENTS_COUNT (sizeof (g_EditEvent) / sizeof (g_EditEvent [0])),
+        /*m_pEventBegin*/		_EVENTS_PTR (g_EditEvent),
+        /*m_nPropertyCount*/	sizeof (g_EditProperty) / sizeof (g_EditProperty [0]),
+        /*m_pPropertyBegin*/	g_EditProperty,
+        /*m_pfnGetInterface*/	GetInterface_Edit,
+        /*m_nElementCount*/		_ELEMENTS_COUNT (0),
+        /*m_pElementBegin*/		_ELEMENTS_PTR (NULL),
+        }
+
+    };
+
+    请留意上面所有使用了 __COMPILE_FNR 宏的地方，编译 .fnr 时，只需要在编译选项中加上
+__COMPILE_FNR 宏定义即可。
+
+    由此可见， .fnr 不需要绝大部分的声明信息（除了由于运行时需要获取窗口单元接口而
+无法省略窗口单元数据类型定义），不需要所有的说明性文本信息，这将减少支持库的尺寸。
+请比较一下 krnln.fne 和 krnln.fnr 文件的尺寸。
+
+/*****************************************************************/
+
+15、有关支持库升级。
+
+    当您在制作支持库的升级版本时，请千万记住“如非必要，不要更改”的原则，
+以前的各种定义信息不要轻易删除或更改，以免对已经使用了该支持库的易程序造
+成影响。
+
+    升级可以通过添加来安全实现，对于在新版本中已经被放弃的功能，可以通过
+前面所说明的 xxx_IS_HIDED 系列宏来屏蔽。
+
+/*****************************************************************/
+
+16、如何调试您的支持库。
+
+    编译出 .fne 文件后，直接将其拷贝到易语言安装目录的 lib 目录中，并通过主菜单
+“工具 -> 支持库配置”选择该加载支持库，然后启动易语言，即可查看该支持库中的定义信息。
+启动“帮助->易语言知识库”菜单功能可以查看系统自动生成的有关该库的帮助信息。
+为了方便，可配置C++编译器编译选项，直接将编译后的支持库文件生成到易语言安装目录的lib子目录内。
+
+    也可使用易语言程序调试该支持库。用易语言写一个使用了该支持库功能的程序（以下称之为
+“被调用程序”），在支持库源代码的C++中下断点，用C++调试器调试“被调试程序”，程序将在
+遇到断点时被中断。调试易语言支持库的方式，与调试其它任何普通DLL相同。
+
+/*****************************************************************/
+
+17、最后当您的支持库制作调试完毕后，直接将支持库文件（*.fne 或 *.fnr）发布给用户即可。
+用户欲使用此支持库，需将此文件复制到易语言安装目录下的lib子目录中，并通过主菜单
+“工具 -> 支持库配置”选择该加载支持库。
+
+/*****************************************************************/
+
+18、有关易语言程序跨平台运行的说明：
+
+    如下面的子程序：
+
+        子程序：_按钮1_被单击
+
+        信息框 (“祖国您好!”, 0, )
+
+    编译后的机器代码为：
+
+        push        ebp
+        mov         ebp,esp
+
+        // 下面的代码调用支持库中“信息框”命令的实现函数。
+        push        0
+        push        0
+        push        0
+        push        80000301h
+        push        0
+        push        0
+        push        80000004h
+        push        0
+        push        4030CBh
+        push        3
+        mov         ebx,300h
+        call        00403350    // 跳到支持库中“信息框”命令的实现函数。
+        add         esp,28h
+
+        mov         esp,ebp
+        pop         ebp
+        ret
+
+    由此可见，易语言程序编译后的结果是与操作系统无关的，所有的外部支持均来自支持库，
+由支持库负责屏蔽各种操作系统之间的差异。这种机制对于实现用户程序跨平台运行非常有利，
+即：
+
+    编译后的用户程序无需作任何更改，只要目的操作系统上具有相同功能的易语言支持库即
+可正常运行。
+
+    大家可能会提出这样一个问题，即不同操作系统上可执行文件的格式可能不一样，这样一
+来还是需要对易语言程序进行重新编译。
+
+    易语言对此问题的解决方案为：易语言具有自己的可执行文件格式（简称易格式），该格
+式在任何操作系统上都是一致的。
+
+    当在某类操作系统上编译易语言程序时，编译器会首先建立易格式编译数据，然后使用该
+操作系统的可执行文件格式对此数据进行封装，从而得到能够在该操作系统上运行的可执行文
+件。
+
+    当需要这个编译后的易语言程序到其他操作系统平台上执行时，只需要一个简单的工具将
+其中的易格式编译数据提取出来，重新使用目的操作系统的可执行文件格式进行封装即可，不
+再需要编译器的介入。
+
+    当然，还有另外一种更便利的方案，即采用类似 java 的 .class 的方法，直接将易格式
+编译数据存为结果执行文件，再在不同的操作系统上由相应的载入工具载入运行。
+
+
+/*****************************************************************/
+
+全文完。谢谢。
