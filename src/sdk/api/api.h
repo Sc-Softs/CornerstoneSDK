@@ -814,7 +814,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    string GroupDrawRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string question, string payment_password, 可空 int32_t card_serial);
+    string GroupDrawRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string question, string payment_password,  int32_t card_serial = 0);
 
     /**
      * @brief 群聊语音红包
@@ -826,7 +826,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    string GroupAudioRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string audio_password, string payment_password, 可空 int32_t card_serial);
+    string GroupAudioRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string audio_password, string payment_password,  int32_t card_serial = 0);
 
     /**
      * @brief 群聊接龙红包
@@ -838,7 +838,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    string GroupFollowRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string follow_content, string payment_password, 可空 int32_t card_serial);
+    string GroupFollowRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string follow_content, string payment_password,  int32_t card_serial = 0);
 
     /**
      * @brief 群聊专属红包
@@ -852,7 +852,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    string GroupExclusiveRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string otherQQ, string blessing, 可空 bool is_divided, string payment_password, 可空 int32_t card_serial);
+    string GroupExclusiveRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string otherQQ, string blessing,  bool is_divided = false, string payment_password = "", int32_t card_serial = 0);
     
     /**
      * @brief 好友口令红包 不支持非好友
@@ -864,7 +864,7 @@ public:
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
-    string FriendPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string password, string payment_password, 可空 int32_t card_serial);
+    string FriendPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string password, string payment_password,  int32_t card_serial = 0);
 
 private:
     Json j;

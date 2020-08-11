@@ -460,7 +460,7 @@ size_t API::GetGroupList(int64_t thisQQ, vector<GroupInformation> &groupList)
 int32_t API::GetGroupMemberList(int64_t thisQQ, int64_t groupQQ, vector<GroupMemberInformation>& group_member_list)
 {
     int number;
-    earray* info = make_array();
+    earray* info;
     number = _f<eint(etext,elong,elong,earray**)>
                 (this->j,"取群成员列表")
                 (this->key,thisQQ,groupQQ,&info);
@@ -866,7 +866,7 @@ void API::ProcessFriendVerificationEvent(int64_t thisQQ, int64_t triggerQQ, int6
   */
 void API::ReadForwardedChatHistory(int64_t thisQQ, string resID, vector<GroupMessageData>& message_content)
 {
-    earray* info = make_array();
+    earray* info;
     _f<void(etext,elong,etext,earray**)>
                 (this->j,"查看转发聊天记录内容")
                 (this->key,thisQQ,s2e(resID),&info);
@@ -1226,5 +1226,95 @@ string API::GroupPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32
  */
 string API::GroupRandomRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string blessing,  int32_t skinID, string payment_password,int32_t card_serial)
 {
-    
+    return e2s(_f<etext(etext,elong,eint,eint,elong,etext,eint,etext,eint)>
+                (this->j,"群聊拼手气红包")
+                (this->key,thisQQ,total_number,total_amount,groupQQ,s2e(blessing),skinID,s2e(payment_password),card_serial));
+}
+
+
+/**
+ * @brief 群聊画图红包
+ * @param thisQQ 框架QQ
+ * @param total_number 总数量
+ * @param total_amount 总金额 单位分
+ * @param groupQQ 群号
+ * @param question 题目名 只能填手Q有的，如：庄周
+ * @param payment_password 支付密码
+ * @param card_serial 银行卡序列 大于0时使用银行卡支付
+ */
+string API::GroupDrawRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string question, string payment_password, int32_t card_serial)
+{
+    return e2s(_f<etext(etext,elong,eint,eint,elong,etext,etext,eint)>
+                (this->j,"群聊画图红包")
+                (this->key,thisQQ,total_number,total_amount,groupQQ,s2e(question),s2e(payment_password),card_serial));
+}
+
+/**
+ * @brief 群聊语音红包
+ * @param thisQQ 框架QQ
+ * @param total_number 总数量
+ * @param total_amount 总金额 单位分
+ * @param groupQQ 群号
+ * @param audio_password 语音口令
+ * @param payment_password 支付密码
+ * @param card_serial 银行卡序列 大于0时使用银行卡支付
+ */
+string API::GroupAudioRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string audio_password, string payment_password,  int32_t card_serial)
+{
+    return e2s(_f<etext(etext,elong,eint,eint,elong,etext,etext,eint)>
+                (this->j,"群聊语音红包")
+                (this->key,thisQQ,total_number,total_amount,groupQQ,s2e(audio_password),s2e(payment_password),card_serial));
+}
+
+/**
+ * @brief 群聊接龙红包
+ * @param thisQQ 框架QQ
+ * @param total_number 总数量
+ * @param total_amount 总金额 单位分
+ * @param groupQQ 群号
+ * @param follow_content 接龙内容
+ * @param payment_password 支付密码
+ * @param card_serial 银行卡序列 大于0时使用银行卡支付
+ */
+string API::GroupFollowRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string follow_content, string payment_password,  int32_t card_serial)
+{
+    return e2s(_f<etext(etext,elong,eint,eint,elong,etext,etext,eint)>
+                (this->j,"群聊接龙红包")
+                (this->key,thisQQ,total_number,total_amount,groupQQ,s2e(follow_content),s2e(payment_password),card_serial));
+}
+
+/**
+ * @brief 群聊专属红包
+ * @param thisQQ 框架QQ
+ * @param total_number 总数量
+ * @param total_amount 总金额 单位分
+ * @param groupQQ 群号
+ * @param otherQQ 领取人 多个领取人QQ用|分隔
+ * @param blessing 祝福语
+ * @param is_divided 是否均分 默认不均分(拼手气)
+ * @param payment_password 支付密码
+ * @param card_serial 银行卡序列 大于0时使用银行卡支付
+ */
+string API::GroupExclusiveRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string otherQQ, string blessing,  bool is_divided, string payment_password,  int32_t card_serial)
+{
+    return  e2s(_f<etext(etext,elong,eint,eint,elong,etext,etext,bool,etext,eint)>
+                (this->j,"群聊接龙红包")
+                (this->key,thisQQ,total_number,total_amount,groupQQ,s2e(otherQQ),s2e(blessing),is_divided,s2e(payment_password),card_serial));
+}
+
+/**
+ * @brief 好友口令红包 不支持非好友
+ * @param thisQQ 框架QQ
+ * @param total_number 总数量
+ * @param total_amount 总金额 单位分
+ * @param otherQQ 对方QQ
+ * @param password 口令
+ * @param payment_password 支付密码
+ * @param card_serial 银行卡序列 大于0时使用银行卡支付
+ */
+string API::FriendPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string password, string payment_password,  int32_t card_serial)
+{
+    return e2s(_f<etext(etext,elong,eint,eint,elong,etext,etext,eint)>
+                (this->j,"好友口令红包")
+                (this->key,thisQQ,total_number,total_amount,otherQQ,s2e(password),s2e(payment_password),card_serial));
 }
