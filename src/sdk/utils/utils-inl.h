@@ -46,8 +46,6 @@ private:
     int offset = 0;
 };
 
-//模板放上面方便
-//template <class EStructT>
 class earray1D
 {
 public:

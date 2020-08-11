@@ -20,6 +20,7 @@ def efunc2cpp(func_text):
         '子程序指针': 'uintptr_t',
         '文本型': 'string',
         '字节集': 'const uint8_t*',
+        '': 'void',
     }
     
     for l in func_text.splitlines(False):
@@ -69,10 +70,10 @@ def efunc2cpp(func_text):
 def e2cpp(text):
     func_text = ''
     for l in text.splitlines(False):
-        func_text += l + '\n'
-        if l == '返回 (ret)':
+        if l.startswith('.子程序') and func_text != '':
             yield efunc2cpp(func_text)
             func_text = ''
+        func_text += l + '\n'
 
 if __name__ == "__main__":
     with open('e.txt', 'r', encoding='utf8') as f:

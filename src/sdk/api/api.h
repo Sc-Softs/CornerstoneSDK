@@ -38,7 +38,7 @@ public:
      * @param apidata 系统回调函数指针JSON
      * @param pluginkey 插件关键字
      */
-    API(etext apidata, etext pluginkey);
+    API(etext api_data, etext plugin_key);
 
     ~API();
 
@@ -189,7 +189,8 @@ public:
                              const uint8_t *audio, size_t size,
                              int32_t audio_type, const string &audio_text);
 
-    /*
+    /**
+     * @brief 上传群好友语音
      * @param audio 语音数据
      * @param size 数据大小
      * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
@@ -206,8 +207,19 @@ public:
      * @param picture 图片数据
      * @param size 数据大小
      */
-    string UploadAvatar(int64_t thisQQ,
-                        const uint8_t *picture, size_t size);
+    string UploadAvatar(int64_t thisQQ, const uint8_t *picture, size_t size);
+    
+    /**
+     * @brief silk解码 无权限要求 尚未实现！
+     * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
+     */
+    const uint8_t* SilkDecode(string audio_file_path);
+
+    /**
+     * @brief silk编码 无权限要求 尚未实现！
+     * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
+     */
+    const uint8_t* SilkEncode(string audio_file_path);
 
     /**
      * @brief 设置群名片
@@ -278,7 +290,8 @@ public:
     /**
      * @brief 获取群列表
      * @param thisQQ 框架QQ
-     * @param friendList 群信息列表
+     * @param friendList 
+        群信息列表
      * @return 成功返回群数量，失败或无权限返回0
      */
     size_t GetGroupList(int64_t thisQQ, vector<GroupInformation> &groupList);
@@ -555,25 +568,25 @@ public:
      * @param resID resID 可在xml消息代码中取到
      * @param message_content 消息内容 私聊消息也可从该结构取信息
      */
-    void ReadForwardedChatHistory(int64_t thisQQ, string resID, vector<GroupMessageData>& message_content)
+    void ReadForwardedChatHistory(int64_t thisQQ, string resID, vector<GroupMessageData>& message_content);
 
     /**
      * @brief 上传群文件 本命令为耗时操作，请另开线程执行，本命令不支持上百mb的文件，无权限时不执行
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param path 文件路径 本地文件路径
-     * @param directory 文件夹 该空保留，暂时无效
+     * @param folder 文件夹 该空保留，暂时无效
      */
-    void ProcessFriendVerificationEvent(int64_t thisQQ, int64_t groupQQ, string path, string directory);
+    void UploadGroupFile(int64_t thisQQ, int64_t groupQQ, string path, string folder = "");
 
     /**
      * @brief 创建群文件夹
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param directory 文件夹名
+     * @param folder 文件夹名
      * @return 失败或无权限返回假
      */
-    bool CreateGroupDirectory(int64_t thisQQ, int64_t groupQQ, string directory);
+    bool CreateGroupFolder(int64_t thisQQ, int64_t groupQQ, string folder);
 
     /**
     * @brief 设置在线状态
@@ -593,17 +606,21 @@ public:
     bool CheckPermission(int32_t permission);
 
     /**
-     * @brief 取插件数据目录
+     * @brief 重载自身 没有权限限制，请勿将新的插件文件下载至plugin文件夹，请确保新旧文件appname一致
      * @param new_file_path 新文件路径 若要更新插件，可将插件文件下载后在此填写新文件路径
-     * @return 没有权限限制，建议将设置文件之类的都写这里面，结果结尾带\
-     */
-    string GetPluginDataDirectory(可空 string new_file_path);
+    */
+    void ReloadPlugin(string new_file_path = "");
 
     /**
-     * @brief QQ点赞
+     * @brief 取插件数据目录 没有权限限制，建议将设置文件之类的都写这里面
+     * @return 插件数据目录 结果结尾带\
+     */
+    string GetPluginDataDirectory();
+
+    /**
+     * @brief QQ点赞 注意，非好友情况下进行点赞时返回成功，但不一定真正点上了
      * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
-     * @return 注意，非好友情况下进行点赞时返回成功，但不一定真正点上了
      */
     string QQLike(int64_t thisQQ, int64_t otherQQ);
 
@@ -613,11 +630,245 @@ public:
      * @param thisQQ 框架QQ 群聊图片必填，私聊图片必空
      * @param groupQQ 群号 群聊图片必填，私聊图片必空
      */
-    string GetImageDownloadLink(string image_code, 可空 int64_t thisQQ, 可空 int64_t groupQQ);
+    string GetImageDownloadLink(string image_code, int64_t thisQQ = 0, int64_t groupQQ = 0);
 
-protected:
+    /**
+     * @brief 查询好友信息
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @param data 数据
+     * @return 支持陌生人查询
+     */
+    bool QueryFriendInformation(int64_t thisQQ, int64_t otherQQ, FriendInformation* data);
+
+    /**
+     * @brief 查询群信息
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param data 数据
+     */
+    bool QueryGroupInformation(int64_t thisQQ, int64_t groupQQ, GroupCardInformation* data);
+
+    /**
+     * @brief 框架重启
+     * @return 有权限限制，建议使用前检查是否具有权限
+     */
+    void Reboot();
+
+    /**
+     * @brief 群文件转发至群
+     * @param thisQQ 框架QQ
+     * @param source_groupQQ 来源群号
+     * @param target_groupQQ 目标群号
+     * @param fileID FileId
+     * @return 失败或无权限返回假
+     */
+    bool GroupFileForwardToGroup(int64_t thisQQ, int64_t source_groupQQ, int64_t target_groupQQ, string fileID);
+
+    /**
+     * @brief 群文件转发至好友
+     * @param thisQQ 框架QQ
+     * @param souce_groupQQ 来源群号
+     * @param otherQQ 目标QQ
+     * @param fileID FileId
+     * @param file_name Filename
+     * @param req Req 撤回消息用 可空
+     * @param random Random 撤回消息用 可空
+     * @param time time 撤回消息用 可空
+     * @return 失败或无权限返回假
+     */
+    bool GroupFileForwardToFriend(int64_t thisQQ, int64_t souce_groupQQ, int64_t otherQQ, string fileID, string file_name,  int32_t *req, int64_t *random, int32_t *time);
+
+    /**
+     * @brief 好友文件转发至好友
+     * @param thisQQ 框架QQ
+     * @param sourceQQ 来源QQ
+     * @param targetQQ 目标QQ
+     * @param fileID FileId
+     * @param file_name Filename
+     * @param req Req 撤回消息用
+     * @param random Random 撤回消息用
+     * @param time time 撤回消息用
+     * @return 失败或无权限返回假
+     */
+    bool FriendFileForwardToFriend(int64_t thisQQ, int64_t sourceQQ, int64_t targetQQ, string fileID, string file_name,  int32_t *req = nullptr, int32_t *random = nullptr, int32_t *time = nullptr);
+
+    /**
+     * @brief 设置群消息接收
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param set_type 设置类型 1接收并提醒 2收进群助手 3屏蔽群消息 4接收不提醒
+     * @return 失败或无权限返回假，此API未对返回结果进行分析，返回真不一定成功
+     */
+    bool SetGroupMessageReceive(int64_t thisQQ, int64_t groupQQ, int32_t set_type);
+
+    /**
+     * @brief 发送免费礼物
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 对方QQ
+     * @param packageID packageID 299卡布奇诺;302猫咪手表;280牵你的手;281可爱猫咪;284神秘面具;285甜wink;286我超忙的;289快乐肥宅水;290幸运手链;313坚强;307绒绒手套; 312爱心口罩;308彩虹糖果
+     * @return 绕过广告发送免费礼物
+     */
+    string SendFreeGift(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ, int32_t packageID);
+
+    /**
+     * @brief 获取好友在线状态
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @return 失败或无权限返回空，支持查询陌生人
+     */
+    string GetFriendStatus(int64_t thisQQ, int64_t otherQQ);
+
+    
+    /**
+     * @brief 获取QQ钱包个人信息
+     * @param thisQQ 框架QQ
+     * @param data 数据 取银行卡信息时注意不要数组越界
+     * @return 包括余额、名字、银行卡等
+     */
+    string GetQQWalletPersonalInformation(int64_t thisQQ, QQWalletInformation* data);
+
+    /**
+     * @brief 获取订单详情
+     * @param thisQQ 框架QQ
+     * @param orderID 订单号 或者称之为listid
+     * @param data 数据
+     * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
+     */
+    string GetOrderDetail(int64_t thisQQ, string orderID, OrderDetail* data);
+
+    /**
+     * @brief 提交支付验证码
+     * @param thisQQ 框架QQ
+     * @param captcha_information 验证码信息 银行卡发红包时传回的
+     * @param captcha 验证码 手机收到的短信验证码
+     * @param payment_password 支付密码 用于验证并支付
+     * @return 用银行卡支付时需要验证，只需要验证一次
+     */
+    string SubmitPaymentCaptcha(int64_t thisQQ, CaptchaInformation* captcha_information, string captcha, string payment_password);
+
+    /**
+     * @brief 分享音乐
+     * @param thisQQ 框架QQ
+     * @param otherQQ 分享对象 分享的群或分享的好友QQ
+     * @param music_name 歌曲名
+     * @param artist_name 歌手名
+     * @param redirect_link 跳转地址 点击音乐json后跳转的地址
+     * @param cover_link 封面地址 音乐的封面图片地址
+     * @param file_path 文件地址 音乐源文件地址，如https://xxx.com/xxx.mp3
+     * @param application_type 应用类型 0QQ音乐 1虾米音乐 2酷我音乐 3酷狗音乐 4网易云音乐  默认0
+     * @param share_type 分享类型 0私聊 1群聊  默认0
+     * @return 失败或无权限返回假
+     */
+    bool ShareMusic(int64_t thisQQ, int64_t otherQQ, string music_name, string artist_name, string redirect_link, string cover_link, string file_path,  int32_t app_type = 0, int32_t share_type = 0);
+
+    /**
+     * @brief 更改群聊消息内容
+     * @param data_pointer 数据指针
+     * @param new_message_content 新消息内容
+     * @return 使用此命令可以更改当前群聊消息内容，并使更改后的内容投递给之后的插件，无权限返回假
+     */
+    bool ModifyGroupMessageContent(int32_t data_pointer, string new_message_content);
+
+    /**
+     * @brief 更改私聊消息内容
+     * @param data_pointer 数据指针
+     * @param new_message_content 新消息内容
+     * @return 使用此命令可以更改当前私聊消息内容，并使更改后的内容投递给之后的插件，无权限返回假
+     */
+    bool ModifyPrivateMessageContent(int32_t data_pointer, string new_message_content);
+
+    /**
+     * @brief 群聊口令红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param password 口令
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string password, string payment_password,  int32_t card_serial = 0);
+
+    /**
+     * @brief 群聊拼手气红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param blessing 祝福语
+     * @param skinID 红包皮肤Id 1522光与夜之恋
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupRandomRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string blessing,  int32_t skinID = 0, string payment_password,int32_t card_serial = 0);
+
+    /**
+     * @brief 群聊画图红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param question 题目名 只能填手Q有的，如：庄周
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupDrawRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string question, string payment_password, 可空 int32_t card_serial);
+
+    /**
+     * @brief 群聊语音红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param audio_password 语音口令
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupAudioRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string audio_password, string payment_password, 可空 int32_t card_serial);
+
+    /**
+     * @brief 群聊接龙红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param follow_content 接龙内容
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupFollowRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string follow_content, string payment_password, 可空 int32_t card_serial);
+
+    /**
+     * @brief 群聊专属红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param otherQQ 领取人 多个领取人QQ用|分隔
+     * @param blessing 祝福语
+     * @param is_divided 是否均分 默认不均分(拼手气)
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string GroupExclusiveRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string otherQQ, string blessing, 可空 bool is_divided, string payment_password, 可空 int32_t card_serial);
+    
+    /**
+     * @brief 好友口令红包 不支持非好友
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param otherQQ 对方QQ
+     * @param password 口令
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     */
+    string FriendPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string password, string payment_password, 可空 int32_t card_serial);
+
+private:
     Json j;
-    string api_key;
+    char* key;
 };
 
 #endif // CORNERSTONE_HEADER_API_H_
