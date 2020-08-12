@@ -1,9 +1,8 @@
 <h1>
   <p align=center>
     <b>
-      Cornerstone
+      Cornerstone SDK
     </b>
-    SDK
   </p>
 </h1>
 
@@ -23,11 +22,9 @@
 
 [**下载地址**](https://github.com/Sc-Softs/CornerstoneSDK/releases)
 
-## **目前此SDK可能还存在一些漏洞**
+## **目前此 SDK 可能还存在一些漏洞**
 
 ## **欢迎提交 [Issue](https://github.com/Sc-Softs/CornerstoneSDK/issues) 和 [PR](https://github.com/Sc-Softs/CornerstoneSDK/pulls)，感谢您的贡献**
-
-Copyright &copy; 2020 Contributors of Cornerstone SDK
 
 此 SDK 采用 **GN(Generate Ninja)** 和 **Ninja** 作为构建工具
 
@@ -106,6 +103,12 @@ GN 和 Ninja 已经编译好并附带在 `bin` 目录下，GN 和 Ninja 构建�
   - [Path Intellisense](https://marketplace.visualstudio.com/items?itemName=christian-kohler.path-intellisense)（可选）
 
   - [TODO Highlight](https://marketplace.visualstudio.com/items?itemName=wayou.vscode-todo-highlight)（可选）
+
+## 版权
+
+Cornerstone SDK 使用 [MIT License](./LICENSE) 进行许可
+
+版权所有 &copy; 2020 Contributors of Cornerstone SDK
 
 ## 致谢
 
