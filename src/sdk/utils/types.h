@@ -107,9 +107,9 @@ string UTF8toGBK(const std::string& utf8);
 // 事件处理
 enum class EventProcess : eint
 {
-    // 阻止其他插件继续处理
+    // 阻止其他插件继续处理此事件
     Block = 1,
-    // 允许其他插件继续处理
+    // 允许其他插件继续处理此事件
     Ignore = 0
 };
 
@@ -239,93 +239,93 @@ enum class Permission : eint
     // 输出日志
     OutputLog = 0,
     // 发送好友消息
-    SendFriendMessage = 1,  
+    SendFriendMessage = 1,
     // 发送群消息
-    SendGroupMessage = 2,  
+    SendGroupMessage = 2,
     // 发送群临时消息
-    SendGroupTemporaryMessage = 3,  
+    SendGroupTemporaryMessage = 3,
     // 添加好友
-    AddFriend = 4,  
+    AddFriend = 4,
     // 添加群
-    AddGroup = 5,  
+    AddGroup = 5,
     // 删除好友！
-    RemoveFriend = 6,  
+    RemoveFriend = 6,
     // 设置屏蔽好友
-    SetBlockFriend = 7,  
+    SetBlockFriend = 7,
     // 设置特别关心好友
-    SetSpecialFriend = 8,  
+    SetSpecialFriend = 8,
     // 发送好友json消息
-    SendFriendJSONMessage = 11,  
+    SendFriendJSONMessage = 11,
     // 发送群json消息
-    SendGroupJSONMessage = 12,  
+    SendGroupJSONMessage = 12,
     // 上传好友图片
-    UploadFriendPicture = 13,  
+    UploadFriendPicture = 13,
     // 上传群图片
-    UploadGroupPicture = 14,  
+    UploadGroupPicture = 14,
     // 上传好友语音
-    UploadFriendAudio = 15,  
+    UploadFriendAudio = 15,
     // 上传群语音
-    UploadGroupAudio = 16,  
+    UploadGroupAudio = 16,
     // 上传头像！
-    UploadAvatar = 17,  
+    UploadAvatar = 17,
     // 设置群名片
-    SetGroupMemberNickname = 18,  
+    SetGroupMemberNickname = 18,
     // 从缓存获取昵称
-    GetNameFromCache = 19,  
+    GetNameFromCache = 19,
     // 强制获取昵称
-    GetNameForce = 20,  
+    GetNameForce = 20,
     // 获取skey！
-    GetSKey = 21,  
+    GetSKey = 21,
     // 获取pskey！
-    GetPSKey = 22,  
+    GetPSKey = 22,
     // 获取clientkey！
-    GetClientKey = 23,  
+    GetClientKey = 23,
     // 获取框架QQ
-    GetThisQQ = 24,  
+    GetThisQQ = 24,
     // 获取好友列表
-    GetFriendList = 25,  
+    GetFriendList = 25,
     // 取群列表
-    GetGroupList = 26,  
+    GetGroupList = 26,
     // 取群成员列表
-    GetGroupMemberList = 27,  
+    GetGroupMemberList = 27,
     // 设置管理员
-    SetAdministrator = 28,  
+    SetAdministrator = 28,
     // 取管理层列表
-    GetAdministratorList = 29,  
+    GetAdministratorList = 29,
     // 取群名片
-    GetGroupMemberNickname = 30,  
+    GetGroupMemberNickname = 30,
     // 取个性签名
-    GetSignature = 31,  
+    GetSignature = 31,
     // 修改昵称！
-    SetName = 32,  
+    SetName = 32,
     // 修改个性签名！
-    SetSignature = 33,  
+    SetSignature = 33,
     // 删除群成员
-    KickGroupMember = 34,  
+    KickGroupMember = 34,
     // 禁言群成员
-    BanGroupMember = 35,  
+    BanGroupMember = 35,
     // 退群！
-    QuitGroup = 36,  
+    QuitGroup = 36,
     // 解散群！
-    DissolveGroup = 37,  
+    DissolveGroup = 37,
     // 上传群头像
-    UploadGroupAvatar = 38,  
+    UploadGroupAvatar = 38,
     // 全员禁言
-    BanAll = 39,  
+    BanAll = 39,
     // 群权限_发起新的群聊
-    Group_Create = 40,  
+    Group_Create = 40,
     // 群权限_发起临时会话
-    Group_CreateTemporary = 41,  
+    Group_CreateTemporary = 41,
     // 群权限_上传文件
-    Group_UploadFile = 42,  
+    Group_UploadFile = 42,
     // 群权限_上传相册
-    Group_UploadPicture = 43,  
+    Group_UploadPicture = 43,
     // 群权限_邀请好友加群
-    Group_InviteFriend = 44,  
+    Group_InviteFriend = 44,
     // 群权限_匿名聊天
-    Group_Anonymous = 45,  
+    Group_Anonymous = 45,
     // 群权限_坦白说
-    Group_ChatFrankly = 46,  
+    Group_ChatFrankly = 46,
     // 群权限_新成员查看历史消息
     Group_NewMemberReadChatHistory = 47,
     // 群权限_邀请方式设置

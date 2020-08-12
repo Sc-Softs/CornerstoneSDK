@@ -43,21 +43,21 @@ SOFTWARE.
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData* data);
+EventProcess OnPrivateMessage(volatile PrivateMessageData *data);
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData* data);
+EventProcess OnGroupMessage(volatile GroupMessageData *data);
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void*);
+EventProcess OnUninstall(void *);
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void*);
+EventProcess OnSettings(void *);
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void*);
+EventProcess OnEnabled(void *);
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void*);
+EventProcess OnDisabled(void *);
 // 事件消息
-EventProcess OnEvent(volatile EventData* data);
+EventProcess OnEvent(volatile EventData *data);
 
-// 入口点
+// 插件入口点，extern "C" 防止命名重整
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);
 
 // 调试
@@ -67,8 +67,58 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);
 #define debug()
 #endif
 
-class API;
 // API对象
-extern API* api;
+class API;
+extern API *api;
 
-#endif  // CORNERSTONE_HEADER_SDK_H_
+// 其他
+#include <string>
+
+/**
+ * @brief 获取API返回的JSON文本中的返回码
+ * @param retstr API返回的JSON文本
+ */
+inline int32_t get_retcode(std::string retstr)
+{
+    return (int32_t)(Json::parse(retstr)["retcode"]);
+}
+
+inline std::string to_string(const char *value)
+{
+    return string(value);
+}
+
+inline std::string to_string(const string &value)
+{
+    return value;
+}
+
+template <class T>
+inline std::string to_string(T value)
+{
+    return std::to_string(value);
+}
+
+inline std::string sum_string()
+{
+    return "";
+}
+
+/**
+ * @brief 依次连接所有参数
+ * @return 所有参数连接后的字符串
+ */
+template <class T, class... Types>
+inline std::string sum_string(T first, Types... args)
+{
+    if (sizeof...(args) == 0)
+    {
+        return to_string(first);
+    }
+    else
+    {
+        return to_string(first) + sum_string(args...);
+    }
+}
+
+#endif // CORNERSTONE_HEADER_SDK_H_

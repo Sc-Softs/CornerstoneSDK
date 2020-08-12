@@ -1,14 +1,14 @@
 toolchain("mingw") {
   tool("cc") {
     command = "gcc {{source}} -c -static -o {{output}} {{cflags}} {{cflags_c}}"
-    outputs = [ "{{root_out_dir}}/out/{{source_name_part}}.o" ]
+    outputs = [ "{{root_out_dir}}/build/{{source_name_part}}.o" ]
     description = "CC {{source}}"
      precompiled_header_type = "gcc"
   }
 
   tool("cxx") {
     command = "g++ {{source}} -c -static -o {{output}} {{cflags}} {{cflags_cc}}"
-    outputs = [ "{{root_out_dir}}/out/{{source_name_part}}.o" ]
+    outputs = [ "{{root_out_dir}}/build/{{source_name_part}}.o" ]
     description = "CXX {{source}}"
     precompiled_header_type = "gcc"
   }
@@ -23,7 +23,7 @@ toolchain("mingw") {
   tool("solink") {
     dllname = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
     command = "g++ -shared  {{inputs}} {{libs}} -static -o {{output}} -Wl,{{ldflags}}"
-    outputs = [dllname ]
+    outputs = [ dllname ]
     description = "Link {{inputs}}"
   }
 

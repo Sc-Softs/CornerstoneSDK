@@ -1,29 +1,21 @@
+ # 插件文件名
+plugin_name = "cornerstone_demo_plugin.dll"
+
 # 定义一个动态链接库目标
-shared_library("cornerstone_demo_plugin.dll") # 在此配置插件文件名
+shared_library("../out/" + plugin_name)
 {
     # 源文件列表
     sources = [
-        # 错误示例："//src/**/*.cc"（不支持通配符）
-        # 插件事件处理源文件
+        # ==================分割线=====================
+        # TODO: 如果插件项目加入了源文件，必须在此处声明
+        # 头文件（*.h）无需添加
+        # 错误示例："//src/*.cc"（不支持通配符）
         "//src/plugin.cc",
-        # 插件配置头文件
-        "//src/config.h",
         # ==================分割线=====================
-        # TODO: 如果你的项目加入了源文件，在此处声明
-        # 头文件（*.h）非必须添加
-
-
-        # ==================分割线=====================
-        # 以下是SDK所需文件请勿随意更改
+        # 以下是SDK所需文件，请勿随意更改
         "//src/sdk/sdk.cc",
         "//src/sdk/api/api.cc",
         "//src/sdk/utils/types.cc",
-        "//src/sdk/sdk.h",
-        "//src/sdk/api/api.h",
-        "//src/sdk/utils/types.h",
-        "//src/sdk/utils/utils-inl.h",
-        # 第三方json库，为SDK所需
-        "//src/sdk/third_party/json.h",
     ]
 
     # 连接器参数（未格式化）
@@ -41,17 +33,17 @@ shared_library("cornerstone_demo_plugin.dll") # 在此配置插件文件名
     cflags = [
         "-m32",                     # 生成32位的目标文件
         "-std=c++14",               # 启用C++14特性，C++17亦可
-        "-O999999",                 # 超强优化（和-O3没区别）
+        "-O999",                    # 超强优化（和-O3没区别）
         "-ffunction-sections",      # 将每个函数单独划分为代码段，方便回收
         "-fdata-sections",          # 将每段数据单独划分为数据段，方便回收
         "-DUNICODE", "-D_UNICODE",  # 让windows.h默认使用宽字符串防止报错(*^_^*)
-        # "-DDEBUG", "-Og", "-g",   # 调试模式，请注释前面的超强优化
+        # "-DDEBUG", "-Og", "-g",   # 调试模式，若要使用请去掉前面的超强优化
     ]
 
-    #  输入的lib，支持各种MinGW能用的.a和.o
+    # 输入的lib，支持各种MinGW能用的.a和.o
     libs=[
-        def_file # .def文件，在config/config.gn有写
+        def_file    # .def文件，在config/config.gn有写
     ]
 }
 
-# TODO: 如果你会GN，可以在这里加上其他的生成配置，比如单元测试
+# TODO: 可以在这里加上其他的生成配置，比如单元测试

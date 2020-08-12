@@ -2,4 +2,6 @@
 
 echo Cleaning...
 
-del out\out\*.* /q /f
+del build\build\*.* /f /q >nul 2>&1
+
+echo Done.

@@ -6,7 +6,8 @@
         {
             "label": "清理",
             "type": "shell",
-            "command": "${workspaceFolder}\\clean.cmd"
+            "command": "${workspaceFolder}\\clean.cmd",
+            "problemMatcher": []
         },
         {
             "label": "构建",

@@ -29,20 +29,23 @@ SOFTWARE.
 
 #include "../config.h"
 #include <unordered_set>
+#include <sstream>
 
-API* api;
+API *api;
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
+    // 创建全局API对象
     api = new API(apidata, pluginkey);
     try
     {
+        // 解析插件配置
         auto config = Json::parse(Configuration);
         Json json_info = {
-            {"appname", config["名称"]},
-            {"author", config["作者"]},
-            {"appv", config["版本"]},
-            {"describe", config["说明"]},
+            {"appname", config["插件名称"]},
+            {"author", config["插件作者"]},
+            {"appv", config["插件版本"]},
+            {"describe", config["插件说明"]},
             {"sdkv", "2.6.1"},
             {"friendmsaddres", (uintptr_t)&OnPrivateMessage},
             {"groupmsaddres", (uintptr_t)&OnGroupMessage},
@@ -50,10 +53,8 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
             {"setproaddres", (uintptr_t)&OnSettings},
             {"useproaddres", (uintptr_t)&OnEnabled},
             {"banproaddres", (uintptr_t)&OnDisabled},
-            {"eventmsaddres", (uintptr_t)&OnEvent}
-        };
-        const std::unordered_set<string> dangerous_api
-        {
+            {"eventmsaddres", (uintptr_t)&OnEvent}};
+        const std::unordered_set<string> dangerous_api{
             "QQ点赞",
             "获取clientkey",
             "获取pskey",
@@ -68,43 +69,40 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
             "框架重启",
             "取QQ钱包个人信息",
             "更改群聊消息内容",
-            "更改私聊消息内容"
-        };
-        std::map<string, string> map_permission = config["权限"];
+            "更改私聊消息内容"};
+        std::map<string, string> map_permission = config["所需权限"];
         for (auto i : map_permission)
         {
-            auto is_safe = "1";  // 是否是安全的权限
-            if (dangerous_api.count(i.first) == 1)  // 如果 == 1 就算找到
+            auto is_safe = "1";                    // 是否是安全的权限
+            if (dangerous_api.count(i.first) == 1) // 如果 == 1 就算找到
             {
                 is_safe = "0";
             }
 
             json_info["data"]["needapilist"][i.first] =
-                Json(
-                    {{"state", is_safe},
-                     {"safe", is_safe},
-                     {"desc", i.second}});
+                Json({{"state", is_safe},
+                      {"safe", is_safe},
+                      {"desc", i.second}});
         }
+
         // 将插件信息提交给框架
         auto info_utf8 = json_info.dump();
         auto info = s2e_s(info_utf8);
-        auto cstr = new char[info.size() + 1];  // 如果直接返回c_str()，有时会崩溃
+        auto size = info.size();
+        auto cstr = new char[size + 1]; // 如果直接返回c_str()，有时会崩溃
         strcpy(cstr, info.c_str());
-        cstr[info.size()] = '\0';  // 确保没事
-        return cstr;  // 不知道易语言会不会回收这个内存？
+        cstr[size] = '\0'; // 确保没事
+        return cstr;              // 不知道易语言会不会回收这个内存？
     }
-    catch (std::exception e)
+    catch (Json::exception e)
     {
-        setlocale(LC_ALL,NULL);
-        wchar_t ws[256];
-        wsprintf(ws,L"JSON解析失败，请检查config.h。\r\n错误信息：\r\n%S",e.what());// 已经实现了
-       
+        std::wstringstream wss;
+        wss << L"插件信息解析失败，请检查config.h\r\n错误信息：\r\n" << e.what();
         MessageBoxW(
             nullptr,
-            ws,
+            wss.str().c_str(),
             L"Cornerstone SDK 错误",
-            MB_OK | MB_ICONERROR
-        );
+            MB_OK | MB_ICONERROR);
         return "{}";
     }
 }

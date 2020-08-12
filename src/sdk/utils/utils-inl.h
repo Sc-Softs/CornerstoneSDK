@@ -57,7 +57,7 @@ public:
     static size_t Unpack(const void* data, vector<ESimpleT>& array)
     {
         auto unpacker = Unpacker(data);
-        auto dimension = unpacker.get<eint>();  // 数组维度 
+        auto dimension = unpacker.get<eint>();  // 数组维度
         if (dimension != 1)  // 只考虑1维的情况
         {
             return -1;
@@ -78,7 +78,7 @@ public:
     static size_t UnpackStruct(const void* data, vector<EStructT>& array)
     {
         auto unpacker = Unpacker(data);
-        auto dimension = unpacker.get<eint>();  // 数组维度 
+        auto dimension = unpacker.get<eint>();  // 数组维度
         if (dimension != 1)  // 只考虑1维的情况
         {
             return -1;

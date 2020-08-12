@@ -2,62 +2,66 @@
 #include <cstdint>
 using namespace std;
 
-// 请勿在事件回调函数中执行上传文件等耗时操作，此类操作请另开线程执行
+// 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
+EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
 {
     auto content = GBKtoUTF8(data->MessageContent);
-    if(content == "测试")
+    if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("好友消息测试");
         api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
-        /*
-        app->SendFriendMessage(pm->ThisQQ, pm->SenderQQ, R"(
-            愿你在我看不到的地方安然无恙，
-            愿你的冬天永远不缺暖阳。
-            愿你的明天不再经历雨打风霜，
-            愿你的未来永远热泪盈眶。
-        )");
-        */
     }
     return EventProcess::Ignore;
 }
 
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData* data){
+EventProcess OnGroupMessage(volatile GroupMessageData *data)
+{
     auto content = GBKtoUTF8(data->MessageContent);
-    if(content == "测试"){
+    if (content == "CornerstoneSDK测试")
+    {
         api->OutputLog("群消息测试");
-        api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "群消息测试");
+        api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群消息测试");
+        auto retcode = get_retcode(api->SendGroupTemporaryMessage(data->ThisQQ, data->MessageGroupQQ, data->SenderQQ, "临时消息测试"));
+        if (retcode != 0)
+        {
+            api->OutputLog(sum_string("临时消息发送失败: ", retcode));
+        }
     }
-    return EventProcess::Ignore;    
+    return EventProcess::Ignore;
 }
 
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void*){
-    delete api;  // 清除app对象避免内存泄漏
+EventProcess OnUninstall(void *)
+{
+    delete api; // 清除全局API对象避免内存泄漏
     return EventProcess::Ignore;
 }
 
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void*){
+EventProcess OnSettings(void *)
+{
     return EventProcess::Ignore;
 }
 
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void*){
+EventProcess OnEnabled(void *)
+{
     return EventProcess::Ignore;
 }
 
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void*){
+EventProcess OnDisabled(void *)
+{
     return EventProcess::Ignore;
 }
 
 // 事件消息
-EventProcess OnEvent(volatile EventData* data){
-    if (data->SourceGroupQQ == 0)  // 非群事件
+EventProcess OnEvent(volatile EventData *data)
+{
+    if (data->SourceGroupQQ == 0) // 非群事件
     {
         switch (data->EventType)
         {
@@ -109,9 +113,12 @@ EventProcess OnEvent(volatile EventData* data){
         // 框架事件_登录成功
         case EventType::This_SignInSuccess:
             break;
-        }   
+        // 其他事件
+        default:
+            break;
+        }
     }
-    else  // 群事件
+    else // 群事件
     {
         switch (data->EventType)
         {
@@ -198,6 +205,9 @@ EventProcess OnEvent(volatile EventData* data){
             break;
         // 群事件_某人被解除禁言
         case EventType::Group_MemberNotShutUp:
+            break;
+        // 其他事件
+        default:
             break;
         }
     }

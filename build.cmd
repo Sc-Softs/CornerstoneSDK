@@ -5,10 +5,12 @@ cd %~dp0
 set path=%path%;%~dp0\bin\
 
 ::生成配置文件
-gn gen out
+gn gen build
 
 ::清理缓存
-del out\out\plugin.o /q >nul 2>&1
+::del build\build\plugin.o /q >nul 2>&1
 
-ninja -C "out" -j 5
-::TODO：在这里把插件复制到框架位置便于调试 copy out\*.dll C:\frame\main\plugin\
+ninja -C "build" -j 5
+
+::TODO: 可以在这里加上复制编译后的插件到对应插件安装目录的命令
+:: copy out\*.dll ...
