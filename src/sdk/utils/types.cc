@@ -62,14 +62,3 @@ string UTF8toGBK(const string& src_str)
         delete[] szGBK;
     return strTemp;
 }
-
-/*
-earray make_array(){
-    struct tmp{
-       int d = 0;
-       int s = 0;
-       void *member = nullptr;
-    };
-    return (void*)new tmp;
-}
-*/
