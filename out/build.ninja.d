@@ -1,1 +1,0 @@
-build.ninja: ../BUILD.gn ../config/config.gn ../config/toolchain/BUILD.gn ./args.gn ../.gn

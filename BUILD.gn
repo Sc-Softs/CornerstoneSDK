@@ -1,6 +1,6 @@
 # Cornerstone SDK
 # -- Corn SDK for Modern C++
-#  
+#
 # Licensed under the MIT License
 # SPDX-License-Identifier: MIT
 # Copyright © 2020 Contributors of Cornerstone SDK
@@ -23,36 +23,60 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# 在此配置你的DLL名称
-shared_library("cornerstone_demo_plugin.dll"){
+# 定义一个动态链接库目标
+shared_library("cornerstone_demo_plugin.dll") # 在此配置插件文件名
+{
+    # 源文件列表
     sources = [
-        # "//src/**/*.cc",
+        # 错误示例："//src/**/*.cc"（不支持通配符）
+        # 插件事件处理源文件
         "//src/plugin.cc",
+        # 插件配置头文件
+        "//src/config.h",
+        # ==================分割线=====================
+        # TODO: 如果你的项目加入了源文件，在此处声明
+        # 头文件（*.h）非必须添加
+
+
+        # ==================分割线=====================
+        # 以下是SDK所需文件请勿随意更改
         "//src/sdk/sdk.cc",
         "//src/sdk/api/api.cc",
         "//src/sdk/utils/types.cc",
-        "//src/config.h",
         "//src/sdk/sdk.h",
         "//src/sdk/api/api.h",
         "//src/sdk/utils/types.h",
         "//src/sdk/utils/utils-inl.h",
+        # 第三方json库，为SDK所需
         "//src/sdk/third_party/json.h",
     ]
 
-    ldflags= [
-        "-static,--enable-stdcall-fixup,--gc-sections"
+    # 连接器参数（未格式化）
+    ldflags_separate= [
+        "-mi386pe",                 # 生成32位的动态链接库
+        "-static",                  # 静态链接，不依赖GCC运行时库
+        "--enable-stdcall-fixup",   # 允许.def配置导出
+        "--gc-sections",            # 回收未使用的段，减小体积
     ]
 
-    # 
+    # 转化为真正的连接器参数格式："-xxx,-yyy,..."
+    ldflags = [string_join(",", ldflags_separate)]
+
+    # C/C++ 编译器参数
     cflags = [
-        "-m32",
-        "-O3",
-        "-std=c++14",
-        "-DUNICODE",
-        "-D_UNICODE",
-        "-DDEBUG",
+        "-m32",                     # 生成32位的目标文件
+        "-std=c++14",               # 启用C++14特性，C++17亦可
+        "-O999999",                 # 超强优化（和-O3没区别）
+        "-ffunction-sections",      # 将每个函数单独划分为代码段，方便回收
+        "-fdata-sections",          # 将每段数据单独划分为数据段，方便回收
+        "-DUNICODE", "-D_UNICODE",  # 让windows.h默认使用宽字符串防止报错(*^_^*)
+        # "-DDEBUG", "-Og", "-g",   # 调试模式，请注释前面的超强优化
     ]
+
+    #  输入的lib，支持各种MinGW能用的.a和.o
     libs=[
-        def_file # 在config/config.gn有写
+        def_file # .def文件，在config/config.gn有写
     ]
 }
+
+# TODO: 如果你会GN，可以在这里加上其他的生成配置，比如单元测试

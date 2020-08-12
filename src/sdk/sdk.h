@@ -43,9 +43,9 @@ SOFTWARE.
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(PrivateMessageData* data);
+EventProcess OnPrivateMessage(volatile PrivateMessageData* data);
 // 群消息事件
-EventProcess OnGroupMessage(GroupMessageData* data);
+EventProcess OnGroupMessage(volatile GroupMessageData* data);
 // 插件卸载事件（未知参数）
 EventProcess OnUninstall(void*);
 // 插件设置事件（未知参数），这里可以弹出对话框
@@ -55,7 +55,7 @@ EventProcess OnEnabled(void*);
 // 插件被禁用事件（未知参数）
 EventProcess OnDisabled(void*);
 // 事件消息
-EventProcess OnEvent(EventData* data);
+EventProcess OnEvent(volatile EventData* data);
 
 // 入口点
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);

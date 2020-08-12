@@ -8,7 +8,7 @@
 
 <p align=center>
   <a href="./todo.txt">
-    <img src="https://img.shields.io/badge/API-99%25-important.svg" />
+    <img src="https://img.shields.io/badge/API-100%25-important.svg" />
   </a>
   <a href="https://zh.cppreference.com">
     <img src="https://img.shields.io/badge/language-C++-informational.svg" />

@@ -30,20 +30,21 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-class Unpack{
+class Unpacker
+{
 public:
-    Unpack(void *data){
+    Unpacker(const void *data){
         this->data = (uint8_t *)data;
     }
+
     template <class RetT>
     RetT& get(){
-        RetT& tmp = *(RetT*)(data + offset);
-        offset += sizeof(RetT);
-        return tmp;
+        auto& ret = *((RetT*)data);
+        data += sizeof(RetT);
+        return ret;
     }
 private:
     uint8_t *data;
-    int offset = 0;
 };
 
 class earray1D
@@ -55,17 +56,17 @@ public:
     template <class ESimpleT>
     static size_t Unpack(const void* data, vector<ESimpleT>& array)
     {
-        auto unpack = Unpack(data);
-        auto dimension = unpack.get<eint>();  // 数组维度 
+        auto unpacker = Unpacker(data);
+        auto dimension = unpacker.get<eint>();  // 数组维度 
         if (dimension != 1)  // 只考虑1维的情况
         {
             return -1;
         }
-        auto size = unpack.get<eint>();
+        auto size = unpacker.get<eint>();
         array.clear();
         for (auto i = 0; i < size; i++)
         {
-            array.push_back(unpack.get<ESimpleT>());
+            array.push_back(unpacker.get<ESimpleT>());
         }
         return size;
     }
@@ -76,17 +77,19 @@ public:
     template <class EStructT>
     static size_t UnpackStruct(const void* data, vector<EStructT>& array)
     {
-        auto unpack = Unpack(data);
-        auto dimension = unpack.get<eint>();  // 数组维度 
+        auto unpacker = Unpacker(data);
+        auto dimension = unpacker.get<eint>();  // 数组维度 
         if (dimension != 1)  // 只考虑1维的情况
         {
             return -1;
         }
-        auto size = unpack.get<eint>();
+        auto size = unpacker.get<eint>();
         array.clear();
         for (auto i = 0; i < size; i++)
         {
-            array.push_back(*(unpack.get<*EStructT>()));
+            volatile EStructT* tmp = unpacker.get<volatile EStructT*>();
+            EStructT tmp_ = EStructT((const EStructT &)*tmp);
+            array.push_back(tmp_);
         }
         return size;
     }

@@ -182,7 +182,7 @@ public:
      * @param friendQQ 好友QQ
      * @param audio 语音数据
      * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
-     * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本),匹配语音填a、b、s、ss、sss，注意是小写
+     * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
     string UploadFriendAudio(int64_t thisQQ, int64_t friendQQ,
@@ -194,7 +194,7 @@ public:
      * @param audio 语音数据
      * @param size 数据大小
      * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
-     * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本),匹配语音填a、b、s、ss、sss，注意是小写
+     * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
     string UploadGroupAudio(int64_t thisQQ, int64_t groupQQ,
@@ -316,7 +316,7 @@ public:
     bool SetAdministrator(int64_t thisQQ, int64_t groupQQ, int64_t otherQQ, bool is_administrator);
 
     /**
-     * @brief 取管理层列表
+     * @brief 获取管理层列表
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @return 包括群主
@@ -487,7 +487,7 @@ public:
      * @brief 群权限_邀请方式设置
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param method 方式 1 无需审核;2 需要管理员审核;3 100人以内无需审核
+     * @param method 方式 1: 无需审核, 2: 需要管理员审核, 3: 100人以内无需审核
      * @return 失败或无权限返回假
      */
     bool GroupPermission_SetInviteMethod(int64_t thisQQ, int64_t groupQQ, int32_t method);
@@ -639,7 +639,7 @@ public:
      * @param data 数据
      * @return 支持陌生人查询
      */
-    bool QueryFriendInformation(int64_t thisQQ, int64_t otherQQ, FriendInformation* data);
+    bool QueryFriendInformation(int64_t thisQQ, int64_t otherQQ, volatile FriendInformation* data);
 
     /**
      * @brief 查询群信息
@@ -647,7 +647,7 @@ public:
      * @param groupQQ 群号
      * @param data 数据
      */
-    bool QueryGroupInformation(int64_t thisQQ, int64_t groupQQ, GroupCardInformation* data);
+    bool QueryGroupInformation(int64_t thisQQ, int64_t groupQQ, volatile GroupCardInformation* data);
 
     /**
      * @brief 框架重启
@@ -727,7 +727,7 @@ public:
      * @param data 数据 取银行卡信息时注意不要数组越界
      * @return 包括余额、名字、银行卡等
      */
-    string GetQQWalletPersonalInformation(int64_t thisQQ, QQWalletInformation* data);
+    string GetQQWalletPersonalInformation(int64_t thisQQ, volatile QQWalletInformation* data);
 
     /**
      * @brief 获取订单详情
@@ -736,7 +736,7 @@ public:
      * @param data 数据
      * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
      */
-    string GetOrderDetail(int64_t thisQQ, string orderID, OrderDetail* data);
+    string GetOrderDetail(int64_t thisQQ, string orderID, volatile OrderDetail* data);
 
     /**
      * @brief 提交支付验证码
@@ -746,7 +746,7 @@ public:
      * @param payment_password 支付密码 用于验证并支付
      * @return 用银行卡支付时需要验证，只需要验证一次
      */
-    string SubmitPaymentCaptcha(int64_t thisQQ, CaptchaInformation* captcha_information, string captcha, string payment_password);
+    string SubmitPaymentCaptcha(int64_t thisQQ, volatile CaptchaInformation* captcha_information, string captcha, string payment_password);
 
     /**
      * @brief 分享音乐
@@ -798,11 +798,24 @@ public:
      * @param total_amount 总金额 单位分
      * @param groupQQ 群号
      * @param blessing 祝福语
-     * @param skinID 红包皮肤Id 1522光与夜之恋
      * @param payment_password 支付密码
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @param skinID 红包皮肤Id 1522光与夜之恋
      */
-    string GroupRandomRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string blessing,  int32_t skinID = 0, string payment_password,int32_t card_serial = 0);
+    string GroupRandomRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string blessing, string payment_password, int32_t card_serial = 0, int32_t skinID = 0);
+
+    /**
+     * @brief 群聊普通红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param groupQQ 群号
+     * @param blessing 祝福语
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @param skinID 红包皮肤Id 1522光与夜之恋,1527代号:三国(打了一辈子仗),1525街霸:对决,1518代号:三国(俺送红包来了),1476天涯明月刀,1512一人之下。其他皮肤id自己找
+     */
+    string GroupNormalRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t groupQQ, string blessing, string payment_password, int32_t card_serial = 0, int32_t skinID = 0);
 
     /**
      * @brief 群聊画图红包
@@ -865,6 +878,59 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
     string FriendPasswordRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string password, string payment_password,  int32_t card_serial = 0);
+
+    /**
+     * @brief 好友普通红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param otherQQ 对方QQ
+     * @param blessing 祝福语
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @param skinID 红包皮肤Id 1522光与夜之恋
+     * @return 不支持非好友！
+     */
+    string FriendNormalRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string blessing, string payment_password, int32_t card_serial = 0, int32_t skinID = 0);
+
+    /**
+     * @brief 好友画图红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param otherQQ 对方QQ
+     * @param question 题目名 只能填手Q有的，如：庄周
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @return 不支持非好友！
+     */
+    string FriendDrawRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string question, string payment_password, int32_t card_serial = 0);
+
+    /**
+     * @brief 好友语音红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param otherQQ 对方QQ
+     * @param audio_password 语音口令
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @return 不支持非好友！
+     */
+    string FriendAudioRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string audio_password, string payment_password, int32_t card_serial = 0);
+
+    /**
+     * @brief 好友接龙红包
+     * @param thisQQ 框架QQ
+     * @param total_number 总数量
+     * @param total_amount 总金额 单位分
+     * @param otherQQ 对方QQ
+     * @param follow_content 接龙内容
+     * @param payment_password 支付密码
+     * @param card_serial 银行卡序列 大于0时使用银行卡支付
+     * @return 不支持非好友！
+     */
+    string FriendFollowRedEnvelope(int64_t thisQQ, int32_t total_number, int32_t total_amount, int64_t otherQQ, string follow_content, string payment_password, int32_t card_serial = 0);
 
 private:
     Json j;

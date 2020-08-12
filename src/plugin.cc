@@ -5,7 +5,7 @@ using namespace std;
 // 请勿在事件回调函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 好友消息事件
-EventProcess OnPrivateMessage(PrivateMessageData* data)
+EventProcess OnPrivateMessage(volatile PrivateMessageData* data)
 {
     auto content = GBKtoUTF8(data->MessageContent);
     if(content == "测试")
@@ -25,7 +25,7 @@ EventProcess OnPrivateMessage(PrivateMessageData* data)
 }
 
 // 群消息事件
-EventProcess OnGroupMessage(GroupMessageData* data){
+EventProcess OnGroupMessage(volatile GroupMessageData* data){
     auto content = GBKtoUTF8(data->MessageContent);
     if(content == "测试"){
         api->OutputLog("群消息测试");
@@ -56,7 +56,7 @@ EventProcess OnDisabled(void*){
 }
 
 // 事件消息
-EventProcess OnEvent(EventData* data){
+EventProcess OnEvent(volatile EventData* data){
     if (data->SourceGroupQQ == 0)  // 非群事件
     {
         switch (data->EventType)

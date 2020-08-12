@@ -418,7 +418,7 @@ enum class Permission : eint
 // 数据结构
 
 // 私聊消息数据
-using PrivateMessageData = volatile struct PrivateMessageData_
+struct PrivateMessageData
 {
     // 发送人QQ
     elong SenderQQ;
@@ -471,7 +471,7 @@ using PrivateMessageData = volatile struct PrivateMessageData_
 };
 
 // 服务信息
-using ServiceInformation = volatile struct ServiceInformation_
+struct ServiceInformation
 {
     // 服务代号 1: SVIP, 4: 视频会员, 6: 音乐包, 105: star, 102: 黄钻, 103: 绿钻, 101: 红钻, 104:yellowlove, 107: SVIP&视频会员, 109: SVIP&绿钻, 110: SVIP&音乐包
     eint ServiceCodename;
@@ -480,7 +480,7 @@ using ServiceInformation = volatile struct ServiceInformation_
 };
 
 // 好友信息
-using FriendInformation = volatile struct FriendInformation_
+struct FriendInformation
 {
     // 邮箱
     etext Email;
@@ -508,8 +508,9 @@ using FriendInformation = volatile struct FriendInformation_
     etext Province;
     // 城市 只能使用[查询好友信息]获取
     etext City;
+    // FIXME: 易语言列表需要解包而不是一个简单的指针
     // 服务列表 只能使用[查询好友信息]获取
-    ServiceInformation ServiceList;
+    ServiceInformation* ServiceList;
     // 连续在线天数 只能使用[查询好友信息]获取
     eint ContinuousOnlineTime;
     // QQ达人 只能使用[查询好友信息]获取
@@ -521,7 +522,7 @@ using FriendInformation = volatile struct FriendInformation_
 };
 
 // 群信息
-using GroupInformation = volatile struct GroupInformation_
+struct GroupInformation
 {
     // 群ID
     elong GroupID;
@@ -582,7 +583,7 @@ using GroupInformation = volatile struct GroupInformation_
 };
 
 // 群成员信息
-using GroupMemberInformation = volatile struct GroupMemberInformation_
+struct GroupMemberInformation
 {
     // 账号
     etext QQNumber;
@@ -615,7 +616,7 @@ using GroupMemberInformation = volatile struct GroupMemberInformation_
 };
 
 // 群消息数据
-using GroupMessageData = volatile struct GroupMessageData_
+struct GroupMessageData
 {
     // 发送人QQ
     elong SenderQQ;
@@ -668,7 +669,7 @@ using GroupMessageData = volatile struct GroupMessageData_
 };
 
 // 事件数据
-using EventData = volatile struct EventData_
+struct EventData
 {
     // 框架QQ
     elong ThisQQ;
@@ -697,7 +698,7 @@ using EventData = volatile struct EventData_
 };
 
 // 群卡片信息
-using GroupCardInformation = volatile struct GroupCardInformation_
+struct GroupCardInformation
 {
     // 群名称
     etext GroupName;
@@ -712,7 +713,7 @@ using GroupCardInformation = volatile struct GroupCardInformation_
 };
 
 // 银行卡信息
-using CardInformation = volatile struct CardInformation_
+struct CardInformation
 {
     // 序列
     eint Serial;
@@ -729,7 +730,7 @@ using CardInformation = volatile struct CardInformation_
 };
 
 // QQ钱包信息
-using QQWalletInformation = volatile struct QQWalletInformation_
+struct QQWalletInformation
 {
     // 余额
     etext Balance;
@@ -742,7 +743,7 @@ using QQWalletInformation = volatile struct QQWalletInformation_
 };
 
 // 订单详情
-using OrderDetail = volatile struct
+struct OrderDetail
 {
     // 订单时间
     etext OrderTime;
@@ -767,7 +768,7 @@ using OrderDetail = volatile struct
 };
 
 // 验证码信息
-using CaptchaInformation = volatile struct CaptchaInformation_
+struct CaptchaInformation
 {
     // token_id
     etext TokenID;
