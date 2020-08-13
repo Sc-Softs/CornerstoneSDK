@@ -22,7 +22,7 @@
 
 [**下载地址**](https://github.com/Sc-Softs/CornerstoneSDK/releases)
 
-## **目前此 SDK 可能还存在一些漏洞**
+## **目前此 SDK 仍存在一些漏洞**
 
 ## **欢迎提交 [Issue](https://github.com/Sc-Softs/CornerstoneSDK/issues) 和 [PR](https://github.com/Sc-Softs/CornerstoneSDK/pulls)，感谢您的贡献**
 
@@ -53,6 +53,8 @@ GN 和 Ninja 已经编译好并附带在 `bin` 目录下，GN 和 Ninja 构建�
 ## 提示
 
 - `SilkDecode`（silk解码）和 `SilkEncode`（silk编码）两个 API 尚未实现
+
+- `GetFriendList`（获取好友列表）等获取列表的API存在漏洞，调用时会报错
 
 - 请勿删除事件处理函数的参数带有的 `volatile` 修饰符
 

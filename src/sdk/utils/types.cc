@@ -27,7 +27,7 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-string GBKtoUTF8(const char* src_str)
+std::string GBKtoUTF8(const char *src_str)
 {
     auto len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, nullptr, 0);
     auto wstr = new wchar_t[len + 1];
@@ -45,7 +45,7 @@ string GBKtoUTF8(const char* src_str)
     return strTemp;
 }
 
-string UTF8toGBK(const string& src_str)
+std::string UTF8toGBK(const std::string &src_str)
 {
     auto len = MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, nullptr, 0);
     auto wszGBK = new wchar_t[len + 1];

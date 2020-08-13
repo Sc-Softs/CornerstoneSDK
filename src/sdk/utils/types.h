@@ -31,42 +31,38 @@ SOFTWARE.
 #include "../sdk.h"
 
 #include "../third_party/json.hpp"
-// 万能的json for modern c++
+// 万能的 json for modern c++
 using Json = nlohmann::json;
 
 #include <string>
-// 标准库字符串类
-using string = std::string;
-
-#include <vector>
-// 标准库向量类
-template <class T>
-using vector = std::vector<T>;
-
-// 标准库各种数据类型
-using uint8_t = std::uint8_t;
-using int8_t = std::int8_t;
-using int16_t = std::int16_t;
-using uint32_t = std::uint32_t;
-using int32_t = std::int32_t;
-using int64_t = std::int64_t;
 
 // 易语言类型
-using ebyte = uint8_t;        // 易语言字节型
-using eshort = int16_t;       // 易语言短整数型
-using eint = int32_t;         // 易语言整数型
-using elong = int64_t;        // 易语言长整数型
-using efloat = float;         // 易语言小数型
-using edouble = double;       // 易语言双精度小数型
-using edate = uint64_t;       // 易语言日期时间型
-using ebool = int32_t;        // 易语言逻辑型
-using etext = const char*;    // 易语言文本型(GBK)
-using ebin = const uint8_t*;  // 易语言字节集
-using esubptr = uintptr_t;     // 易语言子程序指针
+using ebyte = std::uint8_t;        // 易语言字节型
+using eshort = std::int16_t;       // 易语言短整数型
+using eint = std::int32_t;         // 易语言整数型
+using elong = std::int64_t;        // 易语言长整数型
+using efloat = float;              // 易语言小数型
+using edouble = double;            // 易语言双精度小数型
+using edate = std::uint64_t;       // 易语言日期时间型
+using ebool = std::int32_t;        // 易语言逻辑型
+using etext = const char *;        // 易语言文本型(GBK)
+using ebin = const std::uint8_t *; // 易语言字节集
+using esubptr = std::uintptr_t;    // 易语言子程序指针
 
-using earray = const uint8_t*;      // 易语言数组
-earray make_array();
+using earray = const std::uint8_t *; // 易语言数组
 
+inline earray make_earray()
+{
+    std::uint8_t *array = new uint8_t[4096];
+    memset(array, 0, sizeof(array));
+    *((eint *)array) = 1;
+    return array;
+}
+
+inline void free_earray(earray array)
+{
+    delete[] array;
+}
 
 class earray1D;
 
@@ -75,28 +71,28 @@ constexpr ebool etrue = 1;
 constexpr ebool efalse = 0;
 
 // 易语言类型转换
-constexpr ebool bool2ebool(const bool& b)
+constexpr ebool bool2ebool(const bool &b)
 {
     return b ? etrue : efalse;
 }
 
-constexpr bool ebool2bool(const ebool& e)
+constexpr bool ebool2bool(const ebool &e)
 {
     return e == etrue;
 }
 
-constexpr ebool b2e(const bool& b)
+constexpr ebool b2e(const bool &b)
 {
     return bool2ebool(b);
 }
 
-constexpr bool e2b(const ebool& e)
+constexpr bool e2b(const ebool &e)
 {
     return ebool2bool(e);
 }
 
-string GBKtoUTF8(const char* gbk);
-string UTF8toGBK(const std::string& utf8);
+std::string GBKtoUTF8(const char *gbk);
+std::string UTF8toGBK(const std::string &utf8);
 #define e2s_s(src_str) GBKtoUTF8(src_str)
 #define s2e_s(src_str) UTF8toGBK(src_str)
 #define e2s(src_str) e2s_s(src_str).c_str()
@@ -250,9 +246,9 @@ enum class Permission : eint
     AddGroup = 5,
     // 删除好友！
     RemoveFriend = 6,
-    // 设置屏蔽好友
+    // 置屏蔽好友！
     SetBlockFriend = 7,
-    // 设置特别关心好友
+    // 置特别关心好友
     SetSpecialFriend = 8,
     // 发送好友json消息
     SendFriendJSONMessage = 11,
@@ -270,9 +266,9 @@ enum class Permission : eint
     UploadAvatar = 17,
     // 设置群名片
     SetGroupMemberNickname = 18,
-    // 从缓存获取昵称
+    // 取昵称_从缓存
     GetNameFromCache = 19,
-    // 强制获取昵称
+    // 强制取昵称
     GetNameForce = 20,
     // 获取skey！
     GetSKey = 21,
@@ -280,9 +276,9 @@ enum class Permission : eint
     GetPSKey = 22,
     // 获取clientkey！
     GetClientKey = 23,
-    // 获取框架QQ
+    // 取框架QQ
     GetThisQQ = 24,
-    // 获取好友列表
+    // 取好友列表
     GetFriendList = 25,
     // 取群列表
     GetGroupList = 26,
@@ -331,9 +327,9 @@ enum class Permission : eint
     // 群权限_邀请方式设置
     Group_SetInviteMethod = 48,
     // 撤回消息_群聊
-    Undid_Group = 49,
+    Undo_Group = 49,
     // 撤回消息_私聊本身
-    Undid_Private = 50,
+    Undo_Private = 50,
     // 设置位置共享
     SetLocationShare = 51,
     // 上报当前位置
@@ -368,7 +364,7 @@ enum class Permission : eint
     GroupFileForwardToFriend = 67,
     // 好友文件转发至好友
     FriendFileForwardToFriend = 68,
-    // 设置群消息接收
+    // 置群消息接收
     SetGroupMessageReceive = 69,
     // 取群名称_从缓存
     GetGroupNameFromCache = 70,
@@ -413,6 +409,98 @@ enum class Permission : eint
     // 好友接龙红包
     FriendFollowRedEnvelope = 91,
 };
+
+#include <unordered_map>
+
+const std::unordered_map<Permission, std::string> PermissionMap =
+    {{Permission::OutputLog, "输出日志"},
+     {Permission::SendFriendMessage, "发送好友消息"},
+     {Permission::SendGroupMessage, "发送群消息"},
+     {Permission::SendGroupTemporaryMessage, "发送群临时消息"},
+     {Permission::AddFriend, "添加好友"},
+     {Permission::AddGroup, "添加群"},
+     {Permission::RemoveFriend, "删除好友"},
+     {Permission::SetBlockFriend, "置屏蔽好友"},
+     {Permission::SetSpecialFriend, "置特别关心好友"},
+     {Permission::SendFriendJSONMessage, "发送好友json消息"},
+     {Permission::SendGroupJSONMessage, "发送群json消息"},
+     {Permission::UploadFriendPicture, "上传好友图片"},
+     {Permission::UploadGroupPicture, "上传群图片"},
+     {Permission::UploadFriendAudio, "上传好友语音"},
+     {Permission::UploadGroupAudio, "上传群语音"},
+     {Permission::UploadAvatar, "上传头像"},
+     {Permission::SetGroupMemberNickname, "设置群名片"},
+     {Permission::GetNameFromCache, "取昵称_从缓存"},
+     {Permission::GetNameForce, "强制取昵称"},
+     {Permission::GetSKey, "获取skey"},
+     {Permission::GetPSKey, "获取pskey"},
+     {Permission::GetClientKey, "获取clientkey"},
+     {Permission::GetThisQQ, "取框架QQ"},
+     {Permission::GetFriendList, "取好友列表"},
+     {Permission::GetGroupList, "取群列表"},
+     {Permission::GetGroupMemberList, "取群成员列表"},
+     {Permission::SetAdministrator, "设置管理员"},
+     {Permission::GetAdministratorList, "取管理层列表"},
+     {Permission::GetGroupMemberNickname, "取群名片"},
+     {Permission::GetSignature, "取个性签名"},
+     {Permission::SetName, "修改昵称"},
+     {Permission::SetSignature, "修改个性签名"},
+     {Permission::KickGroupMember, "删除群成员"},
+     {Permission::BanGroupMember, "禁言群成员"},
+     {Permission::QuitGroup, "退群"},
+     {Permission::DissolveGroup, "解散群"},
+     {Permission::UploadGroupAvatar, "上传群头像"},
+     {Permission::BanAll, "全员禁言"},
+     {Permission::Group_Create, "群权限_发起新的群聊"},
+     {Permission::Group_CreateTemporary, "群权限_发起临时会话"},
+     {Permission::Group_UploadFile, "群权限_上传文件"},
+     {Permission::Group_UploadPicture, "群权限_上传相册"},
+     {Permission::Group_InviteFriend, "群权限_邀请好友加群"},
+     {Permission::Group_Anonymous, "群权限_匿名聊天"},
+     {Permission::Group_ChatFrankly, "群权限_坦白说"},
+     {Permission::Group_NewMemberReadChatHistory, "群权限_新成员查看历史消息"},
+     {Permission::Group_SetInviteMethod, "群权限_邀请方式设置"},
+     {Permission::Undo_Group, "撤回消息_群聊"},
+     {Permission::Undo_Private, "撤回消息_私聊本身"},
+     {Permission::SetLocationShare, "设置位置共享"},
+     {Permission::ReportCurrentLocation, "上报当前位置"},
+     {Permission::IsShutUp, "是否被禁言"},
+     {Permission::ProcessFriendVerification, "处理好友验证事件"},
+     {Permission::ProcessGroupVerification, "处理群验证事件"},
+     {Permission::ReadForwardedChatHistory, "查看转发聊天记录内容"},
+     {Permission::UploadGroupFile, "上传群文件"},
+     {Permission::CreateGroupFolder, "创建群文件夹"},
+     {Permission::SetStatus, "设置在线状态"},
+     {Permission::QQLike, "QQ点赞"},
+     {Permission::GetImageDownloadLink, "取图片下载地址"},
+     {Permission::QueryFriendInformation, "查询好友信息"},
+     {Permission::QueryGroupInformation, "查询群信息"},
+     {Permission::Reboot, "框架重启"},
+     {Permission::GroupFileForwardToGroup, "群文件转发至群"},
+     {Permission::GroupFileForwardToFriend, "群文件转发至好友"},
+     {Permission::FriendFileForwardToFriend, "好友文件转发至好友"},
+     {Permission::SetGroupMessageReceive, "置群消息接收"},
+     {Permission::GetGroupNameFromCache, "取群名称_从缓存"},
+     {Permission::SendFreeGift, "发送免费礼物"},
+     {Permission::GetFriendStatus, "取好友在线状态"},
+     {Permission::GetQQWalletPersonalInformation, "取QQ钱包个人信息"},
+     {Permission::GetOrderDetail, "获取订单详情"},
+     {Permission::SubmitPaymentCaptcha, "提交支付验证码"},
+     {Permission::ShareMusic, "分享音乐"},
+     {Permission::ModifyGroupMessageContent, "更改群聊消息内容"},
+     {Permission::ModifyPrivateMessageContent, "更改私聊消息内容"},
+     {Permission::GroupPasswordRedEnvelope, "群聊口令红包"},
+     {Permission::GroupRandomRedEnvelope, "群聊拼手气红包"},
+     {Permission::GroupNormalRedEnvelope, "群聊普通红包"},
+     {Permission::GroupDrawRedEnvelope, "群聊画图红包"},
+     {Permission::GroupAudioRedEnvelope, "群聊语音红包"},
+     {Permission::GroupFollowRedEnvelope, "群聊接龙红包"},
+     {Permission::GroupExclusiveRedEnvelope, "群聊专属红包"},
+     {Permission::FriendPasswordRedEnvelope, "好友口令红包"},
+     {Permission::FriendNormalRedEnvelope, "好友普通红包"},
+     {Permission::FriendDrawRedEnvelope, "好友画图红包"},
+     {Permission::FriendAudioRedEnvelope, "好友语音红包"},
+     {Permission::FriendFollowRedEnvelope, "好友接龙红包"}};
 
 #pragma pack(4)
 // 数据结构
@@ -510,7 +598,7 @@ struct FriendInformation
     etext City;
     // FIXME: 易语言列表需要解包而不是一个简单的指针
     // 服务列表 只能使用[查询好友信息]获取
-    ServiceInformation* ServiceList;
+    ServiceInformation *ServiceList;
     // 连续在线天数 只能使用[查询好友信息]获取
     eint ContinuousOnlineTime;
     // QQ达人 只能使用[查询好友信息]获取
@@ -739,7 +827,7 @@ struct QQWalletInformation
     // 实名
     etext RealName;
     // 银行卡列表
-    CardInformation* CardList;
+    CardInformation *CardList;
 };
 
 // 订单详情
@@ -793,4 +881,4 @@ struct CaptchaInformation
 };
 
 #pragma pack()
-#endif  // CORNERSTONE_HEADER_TYPES_H_
+#endif // CORNERSTONE_HEADER_TYPES_H_

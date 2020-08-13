@@ -1,5 +1,6 @@
 #include "sdk/sdk.h"
 #include <cstdint>
+#include <string>
 using namespace std;
 
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
@@ -12,6 +13,26 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
     {
         api->OutputLog("好友消息测试");
         api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
+    }
+    else if (content == "CornerstoneSDK测试好友列表")
+    {
+        vector<FriendInformation> friend_list;
+        auto size = api->GetFriendList(data->ThisQQ, friend_list);
+        if (size == 0)
+        {
+            api->OutputLog("好友列表获取失败: 返回的size为0", make_color(255, 0, 0));
+            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友列表获取失败: 返回的size为0");
+        }
+        else
+        {
+            api->OutputLog(sum_string("好友列表获取成功: 返回的size为", size));
+            string friends;
+            for (auto friend_info : friend_list)
+            {
+                friends += sum_string(friend_info.QQNumber, ": ", friend_info.Name, "\n");
+            }
+            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, friends);
+        }
     }
     return EventProcess::Ignore;
 }
