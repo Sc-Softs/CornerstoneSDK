@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
-    <img src="https://img.shields.io/badge/release-v0.2.0-important.svg" />
+    <img src="https://img.shields.io/badge/release-v0.2.1-important.svg" />
   </a>
-  <a href="https://zh.cppreference.com">
+  <a href="https://zh.cppreference.com/w/cpp/17">
     <img src="https://img.shields.io/badge/language-C++17-informational.svg" />
   </a>
   <a href="./LICENSE">
@@ -20,7 +20,7 @@
   </a>
 </p>
 <p align="center">
-  最新版 Cornerstone SDK v0.2.0 兼容 Corn SDK v2.6.5
+  最新版 Cornerstone SDK v0.2.1 兼容 Corn SDK v2.6.5
 </p>
 <p align="center">
   <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
@@ -54,17 +54,15 @@ GN 和 Ninja 已经编译好并附带在 `bin` 目录下，GN 和 Ninja 构建�
 
 - 运行 `./build.cmd` 来编译和链接
 
-  - 生成的中间文件在 `build` 目录下
+  - 生成的中间文件在 `build/` 目录下
 
-  - 生成的插件文件在 `out` 目录下
+  - 生成的插件文件在 `out/` 目录下
 
   - 也可以在 VSCode 中执行 `终端->运行生成任务`
 
 ## 提示
 
 - `SilkDecode`（silk解码）和 `SilkEncode`（silk编码）两个 API 尚未实现
-
-- `GetFriendList`（获取好友列表）等获取列表的API存在漏洞，调用时会报错
 
 - 请勿删除事件处理函数的参数带有的 `volatile` 修饰符
 
