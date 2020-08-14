@@ -32,12 +32,12 @@ shared_library("../out/" + plugin_name)
     # C/C++ 编译器参数
     cflags = [
         "-m32",                     # 生成32位的目标文件
-        "-std=c++14",               # 启用C++14特性，C++17亦可
+        "-std=c++17",               # 启用C++17特性
         "-O999",                    # 超强优化（和-O3没区别）
         "-ffunction-sections",      # 将每个函数单独划分为代码段，方便回收
         "-fdata-sections",          # 将每段数据单独划分为数据段，方便回收
         "-DUNICODE", "-D_UNICODE",  # 让windows.h默认使用宽字符串防止报错(*^_^*)
-        # "-DDEBUG", "-Og", "-g",   # 调试模式，若要使用请去掉前面的超强优化
+        # "-DDEBUG", "-O0", "-g",   # 调试模式，若要使用请去掉前面的超强优化
     ]
 
     # 输入的lib，支持各种MinGW能用的.a和.o

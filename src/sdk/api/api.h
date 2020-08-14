@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -764,7 +766,7 @@ public:
     /**
      * @brief 获取订单详情
      * @param thisQQ 框架QQ
-     * @param orderID 订单号 或者称之为listid
+     * @param orderID 订单号或者称之为listid
      * @param data 数据
      * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
      */

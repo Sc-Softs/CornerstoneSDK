@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -29,12 +31,10 @@ SOFTWARE.
 #define CORNERSTONE_HEADER_TYPES_H_
 
 #include "../sdk.h"
-
-#include "../third_party/json.hpp"
-// 万能的 json for modern c++
-using Json = nlohmann::json;
+#include "utils-inl.h"
 
 #include <string>
+#include <unordered_map>
 
 // 易语言类型
 using ebyte = std::uint8_t;        // 易语言字节型
@@ -49,22 +49,59 @@ using etext = const char *;        // 易语言文本型(GBK)
 using ebin = const std::uint8_t *; // 易语言字节集
 using esubptr = std::uintptr_t;    // 易语言子程序指针
 
-using earray = const std::uint8_t *; // 易语言数组
-
-inline earray make_earray()
+class earray // 易语言数组
 {
-    std::uint8_t *array = new uint8_t[4096];
-    memset(array, 0, sizeof(array));
-    *((eint *)array) = 1;
-    return array;
-}
+public:
+    earray() noexcept;
+    ~earray() noexcept;
+    size_t GetDimension() const noexcept;
 
-inline void free_earray(earray array)
+    void *data;
+
+private:
+    HANDLE heap;
+};
+
+template <class EType>
+class earray1D // 易语言一维数组
+    : public earray
 {
-    delete[] array;
-}
+public:
+    size_t GetSize() const noexcept
+    {
+        return ((eint *)this->data)[1];
+    }
 
-class earray1D;
+    size_t Unpack(std::vector<EType> &array) const noexcept
+    {
+        if (this->GetDimension() != 1)
+        {
+            return -1;
+        }
+        auto size = this->GetSize();
+        if constexpr (std::is_compound_v<EType>)
+        {
+            volatile EType **data = (volatile EType **)(((eint *)this->data) + 2);
+            array.clear();
+            for (auto i = 0; i < size; i++)
+            {
+                array.push_back(*(const_cast<EType *>(*data)));
+                data++;
+            }
+        }
+        else
+        {
+            EType *data = (EType *)(((eint *)this->data) + 2);
+            array.clear();
+            for (auto i = 0; i < size; i++)
+            {
+                array.push_back(*data);
+                data++;
+            }
+        }
+        return size;
+    }
+};
 
 // 易语言常量
 constexpr ebool etrue = 1;
@@ -409,8 +446,6 @@ enum class Permission : eint
     // 好友接龙红包
     FriendFollowRedEnvelope = 91,
 };
-
-#include <unordered_map>
 
 const std::unordered_map<Permission, std::string> PermissionMap =
     {{Permission::OutputLog, "输出日志"},

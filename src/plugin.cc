@@ -3,6 +3,9 @@
 #include <string>
 using namespace std;
 
+// Cornerstone SDK 的部分 API 尚未经过测试，可能仍存在漏洞
+// 欢迎前往 https://github.com/Sc-Softs/CornerstoneSDK 提交Issue和PR，感谢您的贡献
+
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 好友消息事件
@@ -20,7 +23,7 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
         auto size = api->GetFriendList(data->ThisQQ, friend_list);
         if (size == 0)
         {
-            api->OutputLog("好友列表获取失败: 返回的size为0", make_color(255, 0, 0));
+            api->OutputLog("好友列表获取失败: 返回的size为0");
             api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友列表获取失败: 返回的size为0");
         }
         else

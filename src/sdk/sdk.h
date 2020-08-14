@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -34,6 +36,7 @@ SOFTWARE.
 
 // 第三方
 #include "third_party/json.hpp"
+using Json = nlohmann::json;
 
 // 工具
 #include "utils/types.h"

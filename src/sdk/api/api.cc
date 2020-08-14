@@ -1,8 +1,10 @@
 /*
-Cornerstone SDK
--- Corn SDK for Modern C++
+Cornerstone SDK v0.2.0
+-- 面向现代 C++ 的 Corn SDK
+兼容 Corn SDK v2.6.5
+https://github.com/Sc-Softs/CornerstoneSDK
 
-Licensed under the MIT License
+使用 MIT License 进行许可
 SPDX-License-Identifier: MIT
 Copyright © 2020 Contributors of Cornerstone SDK
 
@@ -409,12 +411,9 @@ std::string API::GetThisQQ()
  */
 size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &friend_list)
 {
-    int size;
-    earray info = make_earray();
-    size = _f<eint(etext, elong, earray *)>(this->j, "取好友列表")(this->key, thisQQ, &info);
-    earray1D::UnpackStruct<FriendInformation>(info, friend_list);
-    free_earray(info);
-    return size;
+    earray1D<FriendInformation> array;
+    eint size = _f<eint(etext, elong, void **)>(this->j, "取好友列表")(this->key, thisQQ, &array.data);
+    return size == 0 ? 0 : array.Unpack(friend_list);
 }
 
 /**
@@ -425,12 +424,9 @@ size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &f
  */
 size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &group_list)
 {
-    int size;
-    earray *info;
-    size = _f<eint(etext, elong, earray **)>(this->j, "取群列表")(this->key, thisQQ, &info);
-    earray1D::UnpackStruct<GroupInformation>(info, group_list);
-    delete info;
-    return size;
+    earray1D<GroupInformation> array;
+    eint size = _f<eint(etext, elong, void **)>(this->j, "取群列表")(this->key, thisQQ, &array.data);
+    return size == 0 ? 0 : array.Unpack(group_list);
 }
 
 /**
@@ -442,12 +438,9 @@ size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &gro
  */
 int32_t API::GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::vector<GroupMemberInformation> &group_member_list)
 {
-    int size;
-    earray *info;
-    size = _f<eint(etext, elong, elong, earray **)>(this->j, "取群成员列表")(this->key, thisQQ, groupQQ, &info);
-    earray1D::UnpackStruct<GroupMemberInformation>(info, group_member_list);
-    delete info;
-    return size;
+    earray1D<GroupMemberInformation> array;
+    eint size = _f<eint(etext, elong, elong, void **)>(this->j, "取群成员列表")(this->key, thisQQ, groupQQ, &array.data);
+    return size == 0 ? 0 : array.Unpack(group_member_list);
 }
 
 /**
@@ -799,10 +792,9 @@ void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t trigg
   */
 void API::ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::vector<GroupMessageData> &message_content)
 {
-    earray *info;
-    _f<void(etext, elong, etext, earray **)>(this->j, "查看转发聊天记录内容")(this->key, thisQQ, s2e(resID), &info);
-    earray1D::UnpackStruct<GroupMessageData>(info, message_content);
-    delete info;
+    earray1D<GroupMessageData> array;
+    _f<void(etext, elong, etext, void **)>(this->j, "查看转发聊天记录内容")(this->key, thisQQ, s2e(resID), &array.data);
+    array.Unpack(message_content);
 }
 
 /**
@@ -1091,7 +1083,7 @@ std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInf
 /**
  * @brief 获取订单详情
  * @param thisQQ 框架QQ
- * @param orderID 订单号 或者称之为listid
+ * @param orderID 订单号或者称之为listid
  * @param data 数据
  * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
  */

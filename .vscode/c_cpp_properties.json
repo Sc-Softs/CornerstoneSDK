@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Debug",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
@@ -10,8 +10,20 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "cppStandard": "c++14",
-            "intelliSenseMode": "msvc-x86"
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x86"
+        },
+        {
+            "name": "Release",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x86"
         }
     ],
     "version": 4

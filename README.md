@@ -6,25 +6,35 @@
   </p>
 </h1>
 
-> Corn SDK for Modern C++
+> 面向现代 C++ 的 Corn SDK
 
-<p align=center>
-  <a href="./todo.txt">
-    <img src="https://img.shields.io/badge/API-99%25-important.svg" />
+<p align="center">
+  <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
+    <img src="https://img.shields.io/badge/release-v0.2.0-important.svg" />
   </a>
   <a href="https://zh.cppreference.com">
-    <img src="https://img.shields.io/badge/language-C++14-informational.svg" />
+    <img src="https://img.shields.io/badge/language-C++17-informational.svg" />
   </a>
   <a href="./LICENSE">
       <img src="https://img.shields.io/badge/license-MIT-success.svg" />
   </a>
 </p>
+<p align="center">
+  最新版 Cornerstone SDK v0.2.0 兼容 Corn SDK v2.6.5
+</p>
+<p align="center">
+  <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
+    下载地址
+  </a>
+</p>
 
-[**下载地址**](https://github.com/Sc-Softs/CornerstoneSDK/releases)
+---
 
-## **目前此 SDK 仍存在一些漏洞**
+## **此 SDK 的部分 API 尚未经过测试，可能仍存在漏洞**
 
 ## **欢迎提交 [Issue](https://github.com/Sc-Softs/CornerstoneSDK/issues) 和 [PR](https://github.com/Sc-Softs/CornerstoneSDK/pulls)，感谢您的贡献**
+
+---
 
 此 SDK 采用 **GN(Generate Ninja)** 和 **Ninja** 作为构建工具
 
@@ -74,7 +84,7 @@ GN 和 Ninja 已经编译好并附带在 `bin` 目录下，GN 和 Ninja 构建�
 
   - 相关API调用使用的参数和返回值（不包括 `etext` 类型）均使用 `UTF8` 编码
 
-- 需要支持 C++14 特性的编译器才能正常使用此 SDK
+- 需要支持 C++17 特性的编译器才能正常使用此 SDK
 
 - 若要修改插件文件名称，请修改 `BUILD.gn`
 
