@@ -78,7 +78,7 @@ inline std::string sum_string(Types... args)
 
 constexpr std::uint32_t make_color(std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
-    return r + g << 8 + b << 16;
+    return r + (g << 8) + (b << 16);
 }
 
 constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g, std::uint8_t &b)

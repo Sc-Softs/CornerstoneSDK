@@ -34,6 +34,24 @@ SOFTWARE.
 
 API *api;
 
+EventProcess EFun_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
+{
+    PrivateMessageData data = (PrivateMessageData)*(const_cast<_EType_PrivateMessageData *>(eData));
+    return OnPrivateMessage(&data);
+}
+
+EventProcess EFun_OnGroupMessage(volatile _EType_GroupMessageData *eData)
+{
+    GroupMessageData data = (GroupMessageData)*(const_cast<_EType_GroupMessageData *>(eData));
+    return OnGroupMessage(&data);
+}
+
+EventProcess EFun_OnEvent(volatile _EType_EventData *eData)
+{
+    EventData data = (EventData)*(const_cast<_EType_EventData *>(eData));
+    return OnEvent(&data);
+}
+
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
     // 创建全局API对象
@@ -48,13 +66,13 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
              {"appv", config["插件版本"]},
              {"describe", config["插件说明"]},
              {"sdkv", "2.6.5"},
-             {"friendmsaddres", (uintptr_t)&OnPrivateMessage},
-             {"groupmsaddres", (uintptr_t)&OnGroupMessage},
+             {"friendmsaddres", (uintptr_t)&EFun_OnPrivateMessage},
+             {"groupmsaddres", (uintptr_t)&EFun_OnGroupMessage},
              {"unitproaddres", (uintptr_t)&OnUninstall},
              {"setproaddres", (uintptr_t)&OnSettings},
              {"useproaddres", (uintptr_t)&OnEnabled},
              {"banproaddres", (uintptr_t)&OnDisabled},
-             {"eventmsaddres", (uintptr_t)&OnEvent}};
+             {"eventmsaddres", (uintptr_t)&EFun_OnEvent}};
         const std::unordered_set<std::string> dangerous_api =
             {
                 "QQ点赞",

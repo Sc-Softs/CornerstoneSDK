@@ -11,9 +11,14 @@ using namespace std;
 // 好友消息事件
 EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
 {
-    auto content = GBKtoUTF8(data->MessageContent);
+    std::string content = data->MessageContent;
     if (content == "CornerstoneSDK测试")
     {
+        CaptchaInformation *a = new CaptchaInformation;
+        a->Token = "7777";
+        _EType_CaptchaInformation b = (_EType_CaptchaInformation)*a;
+        api->OutputLog(b.Token);
+        api->OutputLog(b.TokenID);
         api->OutputLog("好友消息测试");
         api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
     }
@@ -37,13 +42,45 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
             api->SendFriendMessage(data->ThisQQ, data->SenderQQ, friends);
         }
     }
+    else if (content == "CornerstoneSDK测试群列表")
+    {
+        vector<GroupInformation> group_list;
+        auto size = api->GetGroupList(data->ThisQQ, group_list);
+        if (size == 0)
+        {
+            api->OutputLog("群列表获取失败: 返回的size为0");
+            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "群列表获取失败: 返回的size为0");
+        }
+        else
+        {
+            api->OutputLog(sum_string("群列表获取成功: 返回的size为", size));
+            string groups;
+            /*
+            for(auto i = 0; i < group_list.size(); ++i)
+            {
+                GroupInformation& info = group_list[i];
+                size_t size = std::strlen(e2s(info.GroupName));
+                char* a = new char[size + 1];
+                std::strcpy(a, e2s(info.GroupName));
+                a[size] = '\0';
+                info.GroupName = a;
+                api->OutputLog(info.GroupName);
+            }
+             */
+            for (auto group_info : group_list)
+            {
+                groups += sum_string(group_info.GroupQQ, ": ", group_info.GroupName, "\n");
+            }
+            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, groups);
+        }
+    }
     return EventProcess::Ignore;
 }
 
 // 群消息事件
 EventProcess OnGroupMessage(volatile GroupMessageData *data)
 {
-    auto content = GBKtoUTF8(data->MessageContent);
+    std::string content = data->MessageContent;
     if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("群消息测试");
@@ -52,6 +89,26 @@ EventProcess OnGroupMessage(volatile GroupMessageData *data)
         if (retcode != 0)
         {
             api->OutputLog(sum_string("临时消息发送失败: ", retcode));
+        }
+    }
+    else if (content == "CornerstoneSDK测试取群成员列表")
+    {
+        vector<GroupMemberInformation> member_list;
+        auto size = api->GetGroupMemberList(data->ThisQQ, data->MessageGroupQQ, member_list);
+        if (size == 0)
+        {
+            api->OutputLog("群成员列表获取失败: 返回的size为0");
+            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群成员列表获取失败: 返回的size为0");
+        }
+        else
+        {
+            api->OutputLog(sum_string("群成员列表获取成功: 返回的size为", size));
+            string members;
+            for (auto member_info : member_list)
+            {
+                members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");
+            }
+            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, members);
         }
     }
     return EventProcess::Ignore;
@@ -73,6 +130,7 @@ EventProcess OnSettings(void *)
 // 插件被启用事件（未知参数）
 EventProcess OnEnabled(void *)
 {
+    api->OutputLog(sum_string("插件数据目录：", api->GetPluginDataDirectory()));
     return EventProcess::Ignore;
 }
 

@@ -62,7 +62,7 @@ private:
     HANDLE heap;
 };
 
-template <class EType>
+template <class EType, class CType>
 class earray1D // 易语言一维数组
     : public earray
 {
@@ -72,7 +72,7 @@ public:
         return ((eint *)this->data)[1];
     }
 
-    size_t Unpack(std::vector<EType> &array) const noexcept
+    size_t Unpack(std::vector<CType> &array) const noexcept
     {
         if (this->GetDimension() != 1)
         {
@@ -85,7 +85,7 @@ public:
             array.clear();
             for (auto i = 0; i < size; i++)
             {
-                array.push_back(*(const_cast<EType *>(*data)));
+                array.push_back((CType)*(const_cast<EType *>(*data)));
                 data++;
             }
         }
@@ -134,6 +134,17 @@ std::string UTF8toGBK(const std::string &utf8);
 #define s2e_s(src_str) UTF8toGBK(src_str)
 #define e2s(src_str) e2s_s(src_str).c_str()
 #define s2e(src_str) s2e_s(src_str).c_str()
+
+// WARNING: 使用完后请自行delete字符串指针，否则将造成内存泄露
+inline const char* new_and_copy_str(const char* str)
+{
+    size_t size = std::strlen(str);
+    char* newStr = new char[size + 1];
+    std::strcpy(newStr, str);
+    newStr[size] = '\0';
+    return newStr;
+}
+
 
 // 枚举常量
 
@@ -540,8 +551,12 @@ const std::unordered_map<Permission, std::string> PermissionMap =
 #pragma pack(4)
 // 数据结构
 
-// 私聊消息数据
-struct PrivateMessageData
+
+#define etext_copy_new(dst, src) if ((src) != nullptr) {(dst) = new_and_copy_str((src));} else {(dst) = nullptr;}
+#define delete_str_copy(str) if ((str) != nullptr) { delete[] (str); (str) = nullptr;}
+
+// Note: _EType_开头的是内部转换用的类型，请使用普通的PrivateMessageData
+struct _EType_PrivateMessageData
 {
     // 发送人QQ
     elong SenderQQ;
@@ -566,7 +581,7 @@ struct PrivateMessageData
     // 消息分片标识
     elong MessageClipID;
     // 消息内容
-    etext MessageContent;
+    etext MessageContent = nullptr;
     // 发送人气泡ID
     eint BubbleID;
     // 消息类型
@@ -578,47 +593,88 @@ struct PrivateMessageData
     // 红包类型 2: 已转入余额, 4: 点击收款, 10: 红包
     eint RedEnvelopeType;
     // 会话Token
-    ebin SessionToken;
+    ebin SessionToken = nullptr;
     // 来源事件QQ
     elong SourceEventQQ;
     // 来源事件QQ昵称
-    etext SourceEventQQName;
+    etext SourceEventQQName = nullptr;
     // 文件ID
-    etext FileID;
+    etext FileID = nullptr;
     // 文件Md5
-    ebin FileMD5;
+    ebin FileMD5 = nullptr;
     // 文件名
-    etext FileName;
+    etext FileName = nullptr;
     // 文件大小
     elong FileSize;
 };
+// 私聊消息数据
+struct PrivateMessageData : _EType_PrivateMessageData
+{
+    PrivateMessageData(const PrivateMessageData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->MessageContent, info.MessageContent);
+        etext_copy_new(this->SourceEventQQName, info.SourceEventQQName);
+        etext_copy_new(this->FileID, info.FileID);
+        etext_copy_new(this->FileName, info.FileName);
+    }
+    PrivateMessageData(const _EType_PrivateMessageData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
+        etext_copy_new(this->SourceEventQQName, e2s(info.SourceEventQQName));
+        etext_copy_new(this->FileID, e2s(info.FileID));
+        etext_copy_new(this->FileName, e2s(info.FileName));
+    }
+    ~PrivateMessageData()
+    {
+        delete_str_copy(this->MessageContent);
+        delete_str_copy(this->SourceEventQQName);
+        delete_str_copy(this->FileID);
+        delete_str_copy(this->FileName);
+    }
+};
 
-// 服务信息
-struct ServiceInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的ServiceInformation
+struct _EType_ServiceInformation
 {
     // 服务代号 1: SVIP, 4: 视频会员, 6: 音乐包, 105: star, 102: 黄钻, 103: 绿钻, 101: 红钻, 104:yellowlove, 107: SVIP&视频会员, 109: SVIP&绿钻, 110: SVIP&音乐包
     eint ServiceCodename;
     // 服务等级
     eint ServiceLevel;
 };
+// 服务信息
+struct ServiceInformation : _EType_ServiceInformation
+{
+    ServiceInformation()
+    {}
+    ServiceInformation(const ServiceInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+    }
+    ServiceInformation(const _EType_ServiceInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+    }
+};
 
-// 好友信息
-struct FriendInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的FriendInformation
+struct _EType_FriendInformation
 {
     // 邮箱
-    etext Email;
+    etext Email = nullptr;
     // 账号
     elong QQNumber;
     // 昵称
-    etext Name;
+    etext Name = nullptr;
     // 备注
-    etext Note;
+    etext Note = nullptr;
     // 在线状态 只能使用[取好友列表]获取
-    etext Status;
+    etext Status = nullptr;
     // 赞数量 只能使用[查询好友信息]获取
     eint Likes;
     // 签名 只能使用[查询好友信息]获取
-    etext Signature;
+    etext Signature = nullptr;
     // 性别 255: 隐藏, 0: 男, 1: 女
     eint Gender;
     // Q等级 只能使用[查询好友信息]获取
@@ -626,26 +682,89 @@ struct FriendInformation
     // 年龄 只能使用[查询好友信息]获取
     eint Age;
     // 国家 只能使用[查询好友信息]获取
-    etext Nation;
+    etext Nation = nullptr;
     // 省份 只能使用[查询好友信息]获取
-    etext Province;
+    etext Province = nullptr;
     // 城市 只能使用[查询好友信息]获取
-    etext City;
-    // FIXME: 易语言列表需要解包而不是一个简单的指针
+    etext City = nullptr;
     // 服务列表 只能使用[查询好友信息]获取
-    ServiceInformation *ServiceList;
+    ServiceInformation *ServiceList = nullptr;
     // 连续在线天数 只能使用[查询好友信息]获取
     eint ContinuousOnlineTime;
     // QQ达人 只能使用[查询好友信息]获取
-    etext QQTalent;
+    etext QQTalent = nullptr;
     // 今日已赞 只能使用[查询好友信息]获取
     eint LikesToday;
     // 今日可赞数 只能使用[查询好友信息]获取
     eint LikesAvailableToday;
 };
+// 好友信息
+struct FriendInformation : _EType_FriendInformation
+{
+    FriendInformation(const FriendInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->Email, info.Email);
+        etext_copy_new(this->Name, info.Name);
+        etext_copy_new(this->Note, info.Note);
+        etext_copy_new(this->Status, info.Status);
+        etext_copy_new(this->Signature, info.Signature);
+        etext_copy_new(this->Nation, info.Nation);
+        etext_copy_new(this->Province, info.Province);
+        etext_copy_new(this->City, info.City);
+        etext_copy_new(this->QQTalent, info.QQTalent);
+    }
+    FriendInformation(const _EType_FriendInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->Email, e2s(info.Email));
+        etext_copy_new(this->Name, e2s(info.Name));
+        etext_copy_new(this->Note, e2s(info.Note));
+        etext_copy_new(this->Status, e2s(info.Status));
+        etext_copy_new(this->Signature, e2s(info.Signature));
+        etext_copy_new(this->Nation, e2s(info.Nation));
+        etext_copy_new(this->Province, e2s(info.Province));
+        etext_copy_new(this->City, e2s(info.City));
+        etext_copy_new(this->QQTalent, e2s(info.QQTalent));
 
-// 群信息
-struct GroupInformation
+        if (this->ServiceList != nullptr)
+        {
+            earray1D<_EType_ServiceInformation, ServiceInformation> array;
+            std::vector<ServiceInformation> info_list;
+            array.data = this->ServiceList;
+            size_t size = array.Unpack(info_list);
+            if (size > 0) {
+                this->ServiceList = new ServiceInformation[size];
+                for (size_t i = 0; i < info_list.size(); i++)
+                {
+                    memcpy(this->ServiceList + i, &info_list[i], sizeof(ServiceInformation));
+                }
+            }
+        }
+    }
+    ~FriendInformation()
+    {
+        delete_str_copy(this->Email);
+        delete_str_copy(this->Name);
+        delete_str_copy(this->Note);
+        delete_str_copy(this->Status);
+        delete_str_copy(this->Signature);
+        delete_str_copy(this->Nation);
+        delete_str_copy(this->Province);
+        delete_str_copy(this->City);
+        delete_str_copy(this->QQTalent);
+
+        if (this->ServiceList != nullptr)
+        {
+            delete this->ServiceList;
+            this->ServiceList = nullptr;
+        }
+
+    }
+};
+
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupInformation
+struct _EType_GroupInformation
 {
     // 群ID
     elong GroupID;
@@ -700,32 +819,53 @@ struct GroupInformation
     // dwCmduinJoinTime
     elong CmduinJoinTime;
     // 群名称
-    etext GroupName;
+    etext GroupName = nullptr;
     // strGroupMemo
-    etext GroupMemo;
+    etext GroupMemo = nullptr;
+};
+// 群信息
+struct GroupInformation : _EType_GroupInformation
+{
+    GroupInformation(const GroupInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->GroupName, info.GroupName);
+        etext_copy_new(this->GroupMemo, info.GroupMemo);
+    }
+    GroupInformation(const _EType_GroupInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->GroupName, e2s(info.GroupName));
+        etext_copy_new(this->GroupMemo, e2s(info.GroupMemo));
+    }
+    ~GroupInformation()
+    {
+        delete_str_copy(this->GroupName);
+        delete_str_copy(this->GroupMemo);
+    }
 };
 
-// 群成员信息
-struct GroupMemberInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupMemberInformation
+struct _EType_GroupMemberInformation
 {
     // 账号
-    etext QQNumber;
+    etext QQNumber = nullptr;
     // 年龄
     eint Age;
     // 性别
     eint Gender;
     // 昵称
-    etext Name;
+    etext Name = nullptr;
     // 邮箱
-    etext Email;
+    etext Email = nullptr;
     // 名片
-    etext Nickname;
+    etext Nickname = nullptr;
     // 备注
-    etext Note;
+    etext Note = nullptr;
     // 头衔
-    etext Title;
+    etext Title = nullptr;
     // 手机号
-    etext Phone;
+    etext Phone = nullptr;
     // 头衔到期时间
     elong TitleTimeout;
     // 禁言时间戳
@@ -737,9 +877,45 @@ struct GroupMemberInformation
     // 群等级
     elong Level;
 };
+// 群成员信息
+struct GroupMemberInformation : _EType_GroupMemberInformation
+{
+    GroupMemberInformation(const GroupMemberInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->QQNumber, info.QQNumber);
+        etext_copy_new(this->Name, info.Name);
+        etext_copy_new(this->Email, info.Email);
+        etext_copy_new(this->Nickname, info.Nickname);
+        etext_copy_new(this->Note, info.Note);
+        etext_copy_new(this->Title, info.Title);
+        etext_copy_new(this->Phone, info.Phone);
+    }
+    GroupMemberInformation(const _EType_GroupMemberInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->QQNumber, e2s(info.QQNumber));
+        etext_copy_new(this->Name, e2s(info.Name));
+        etext_copy_new(this->Email, e2s(info.Email));
+        etext_copy_new(this->Nickname, e2s(info.Nickname));
+        etext_copy_new(this->Note, e2s(info.Note));
+        etext_copy_new(this->Title, e2s(info.Title));
+        etext_copy_new(this->Phone, e2s(info.Phone));
+    }
+    ~GroupMemberInformation()
+    {
+        delete_str_copy(this->QQNumber);
+        delete_str_copy(this->Name);
+        delete_str_copy(this->Email);
+        delete_str_copy(this->Nickname);
+        delete_str_copy(this->Note);
+        delete_str_copy(this->Title);
+        delete_str_copy(this->Phone);
+    }
+};
 
-// 群消息数据
-struct GroupMessageData
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupMessageData
+struct _EType_GroupMessageData
 {
     // 发送人QQ
     elong SenderQQ;
@@ -752,9 +928,9 @@ struct GroupMessageData
     // 消息群号
     elong MessageGroupQQ;
     // 消息来源群名（貌似失效了）
-    etext SourceGroupName;
+    etext SourceGroupName = nullptr;
     // 发送人群名片 没有名片则为空白
-    etext SenderNickname;
+    etext SenderNickname = nullptr;
     // 消息发送时间
     eint MessageSendTime;
     // 消息Random
@@ -768,11 +944,11 @@ struct GroupMessageData
     // 消息类型
     MessageType MessageType;
     // 发送人群头衔
-    etext SenderTitle;
+    etext SenderTitle = nullptr;
     // 消息内容
-    etext MessageContent;
+    etext MessageContent = nullptr;
     // 回复对象消息内容 如果是回复消息
-    etext ReplyMessageContent;
+    etext ReplyMessageContent = nullptr;
     // 发送者气泡ID
     eint BubbleID;
     // 发送人位置经度
@@ -780,19 +956,55 @@ struct GroupMessageData
     // 发送人位置纬度
     eint SenderLatitude;
     // 文件Id
-    etext FileID;
+    etext FileID = nullptr;
     // 文件Md5
-    ebin FileMD5;
+    ebin FileMD5 = nullptr;
     // 文件名
-    etext FileName;
+    etext FileName = nullptr;
     // 文件大小
     elong FileSize;
     // 消息AppID
     eint MessageAppID;
 };
+// 群消息数据
+struct GroupMessageData : _EType_GroupMessageData
+{
+    GroupMessageData(const GroupMessageData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->SourceGroupName, info.SourceGroupName);
+        etext_copy_new(this->SenderNickname, info.SenderNickname);
+        etext_copy_new(this->SenderTitle, info.SenderTitle);
+        etext_copy_new(this->MessageContent, info.MessageContent);
+        etext_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
+        etext_copy_new(this->FileID, info.FileID);
+        etext_copy_new(this->FileName, info.FileName);
+    }
+    GroupMessageData(const _EType_GroupMessageData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->SourceGroupName, e2s(info.SourceGroupName));
+        etext_copy_new(this->SenderNickname, e2s(info.SenderNickname));
+        etext_copy_new(this->SenderTitle, e2s(info.SenderTitle));
+        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
+        etext_copy_new(this->ReplyMessageContent, e2s(info.ReplyMessageContent));
+        etext_copy_new(this->FileID, e2s(info.FileID));
+        etext_copy_new(this->FileName, e2s(info.FileName));
+    }
+    ~GroupMessageData()
+    {
+        delete_str_copy(this->SourceGroupName);
+        delete_str_copy(this->SenderNickname);
+        delete_str_copy(this->SenderTitle);
+        delete_str_copy(this->MessageContent);
+        delete_str_copy(this->ReplyMessageContent);
+        delete_str_copy(this->FileID);
+        delete_str_copy(this->FileName);
+    }
+};
 
-// 事件数据
-struct EventData
+// Note: _EType_开头的是内部转换用的类型，请使用普通的EventData
+struct _EType_EventData
 {
     // 框架QQ
     elong ThisQQ;
@@ -807,113 +1019,368 @@ struct EventData
     // 消息时间戳
     eint MessageTimestamp;
     // 来源群名
-    etext SourceGroupName;
+    etext SourceGroupName = nullptr;
     // 操作QQ昵称
-    etext OperateQQName;
+    etext OperateQQName = nullptr;
     // 触发QQ昵称
-    etext TriggerQQName;
+    etext TriggerQQName = nullptr;
     // 事件内容
-    etext MessageContent;
+    etext MessageContent = nullptr;
     // 事件类型
     EventType EventType;
     // 事件子类型
     eint EventSubType;
 };
-
-// 群卡片信息
-struct GroupCardInformation
+// 事件数据
+struct EventData : _EType_EventData
 {
-    // 群名称
-    etext GroupName;
-    // 群地点
-    etext GroupLocation;
-    // 群分类
-    etext GroupClassification;
-    // 群标签 以|分割
-    etext GroupTags;
-    // 群介绍
-    etext GroupDescription;
+    EventData(const EventData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->SourceGroupName, info.SourceGroupName);
+        etext_copy_new(this->OperateQQName, info.OperateQQName);
+        etext_copy_new(this->TriggerQQName, info.TriggerQQName);
+        etext_copy_new(this->MessageContent, info.MessageContent);
+    }
+    EventData(const _EType_EventData& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->SourceGroupName, e2s(info.SourceGroupName));
+        etext_copy_new(this->OperateQQName, e2s(info.OperateQQName));
+        etext_copy_new(this->TriggerQQName, e2s(info.TriggerQQName));
+        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
+    }
+    ~EventData()
+    {
+        delete_str_copy(this->SourceGroupName);
+        delete_str_copy(this->OperateQQName);
+        delete_str_copy(this->TriggerQQName);
+        delete_str_copy(this->MessageContent);
+    }
 };
 
-// 银行卡信息
-struct CardInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupCardInformation
+struct _EType_GroupCardInformation
+{
+    // 群名称
+    etext GroupName = nullptr;
+    // 群地点
+    etext GroupLocation = nullptr;
+    // 群分类
+    etext GroupClassification = nullptr;
+    // 群标签 以|分割
+    etext GroupTags = nullptr;
+    // 群介绍
+    etext GroupDescription = nullptr;
+};
+// 群卡片信息
+struct GroupCardInformation : _EType_GroupCardInformation
+{
+    GroupCardInformation(const GroupCardInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->GroupName, info.GroupName);
+        etext_copy_new(this->GroupLocation, info.GroupLocation);
+        etext_copy_new(this->GroupClassification, info.GroupClassification);
+        etext_copy_new(this->GroupTags, info.GroupTags);
+        etext_copy_new(this->GroupDescription, info.GroupDescription);
+    }
+    GroupCardInformation(const _EType_GroupCardInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->GroupName, e2s(info.GroupName));
+        etext_copy_new(this->GroupLocation, e2s(info.GroupLocation));
+        etext_copy_new(this->GroupClassification, e2s(info.GroupClassification));
+        etext_copy_new(this->GroupTags, e2s(info.GroupTags));
+        etext_copy_new(this->GroupDescription, e2s(info.GroupDescription));
+    }
+    ~GroupCardInformation()
+    {
+        delete_str_copy(this->GroupName);
+        delete_str_copy(this->GroupLocation);
+        delete_str_copy(this->GroupClassification);
+        delete_str_copy(this->GroupTags);
+        delete_str_copy(this->GroupDescription);
+    }
+};
+
+// Note: _EType_开头的是内部转换用的类型，请使用普通的CardInformation
+struct _EType_CardInformation
 {
     // 序列
     eint Serial;
     // 尾号
-    etext TailNumber;
+    etext TailNumber = nullptr;
     // 银行
-    etext Bank;
+    etext Bank = nullptr;
     // 绑定手机
-    etext BindPhone;
+    etext BindPhone = nullptr;
     // bind_serial
-    etext BindSerial;
+    etext BindSerial = nullptr;
     // bank_type
-    etext BankType;
+    etext BankType = nullptr;
+};
+// 银行卡信息
+struct CardInformation : _EType_CardInformation
+{
+    CardInformation()
+    {}
+    CardInformation(const CardInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->TailNumber, info.TailNumber);
+        etext_copy_new(this->Bank, info.Bank);
+        etext_copy_new(this->BindPhone, info.BindPhone);
+        etext_copy_new(this->BindSerial, info.BindSerial);
+        etext_copy_new(this->BankType, info.BankType);
+    }
+    CardInformation(const _EType_CardInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->TailNumber, e2s(info.TailNumber));
+        etext_copy_new(this->Bank, e2s(info.Bank));
+        etext_copy_new(this->BindPhone, e2s(info.BindPhone));
+        etext_copy_new(this->BindSerial, e2s(info.BindSerial));
+        etext_copy_new(this->BankType, e2s(info.BankType));
+    }
+    ~CardInformation()
+    {
+        delete_str_copy(this->TailNumber);
+        delete_str_copy(this->Bank);
+        delete_str_copy(this->BindPhone);
+        delete_str_copy(this->BindSerial);
+        delete_str_copy(this->BankType);
+    }
 };
 
-// QQ钱包信息
-struct QQWalletInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的QQWalletInformation
+struct _EType_QQWalletInformation
 {
     // 余额
-    etext Balance;
+    etext Balance = nullptr;
     // 身份证号
-    etext ID;
+    etext ID = nullptr;
     // 实名
-    etext RealName;
+    etext RealName = nullptr;
     // 银行卡列表
-    CardInformation *CardList;
+    CardInformation *CardList = nullptr;
+};
+// QQ钱包信息
+struct QQWalletInformation : _EType_QQWalletInformation
+{
+    QQWalletInformation(const QQWalletInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->Balance, info.Balance);
+        etext_copy_new(this->ID, info.ID);
+        etext_copy_new(this->RealName, info.RealName);
+    }
+    QQWalletInformation(const _EType_QQWalletInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->Balance, e2s(info.Balance));
+        etext_copy_new(this->ID, e2s(info.ID));
+        etext_copy_new(this->RealName, e2s(info.RealName));
+
+        if (this->CardList != nullptr)
+        {
+            earray1D<_EType_CardInformation, CardInformation> array;
+            std::vector<CardInformation> info_list;
+            array.data = this->CardList;
+            size_t size = array.Unpack(info_list);
+            if (size > 0) {
+                this->CardList = new CardInformation[size];
+                for (size_t i = 0; i < info_list.size(); i++)
+                {
+                    memcpy(this->CardList + i, &info_list[i], sizeof(CardInformation));
+                }
+            }
+        }
+    }
+    ~QQWalletInformation()
+    {
+        delete_str_copy(this->Balance);
+        delete_str_copy(this->ID);
+        delete_str_copy(this->RealName);
+
+        if (this->CardList != nullptr)
+        {
+            delete this->CardList;
+            this->CardList = nullptr;
+        }
+    }
 };
 
-// 订单详情
-struct OrderDetail
+// Note: _EType_开头的是内部转换用的类型，请使用普通的OrderDetail
+struct _EType_OrderDetail
 {
     // 订单时间
-    etext OrderTime;
+    etext OrderTime = nullptr;
     // 订单说明
-    etext OrderDescription;
+    etext OrderDescription = nullptr;
     // 订单类名
-    etext OrderClassification;
+    etext OrderClassification = nullptr;
     // 订单类型
-    etext OrderType;
+    etext OrderType = nullptr;
     // 订单手续费
-    etext OrderCommission;
+    etext OrderCommission = nullptr;
     // 操作人QQ
-    etext OperatorQQ;
+    etext OperatorQQ = nullptr;
     // 操作人昵称
-    etext OperatorName;
+    etext OperatorName = nullptr;
     // 接收人QQ
-    etext ReceiverQQ;
+    etext ReceiverQQ = nullptr;
     // 接收人昵称
-    etext ReceiverName;
+    etext ReceiverName = nullptr;
     // 操作金额
-    etext OperateAmount;
+    etext OperateAmount = nullptr;
+};
+// 订单详情
+struct OrderDetail : _EType_OrderDetail
+{
+    OrderDetail(const OrderDetail& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->OrderTime, info.OrderTime);
+        etext_copy_new(this->OrderDescription, info.OrderDescription);
+        etext_copy_new(this->OrderClassification, info.OrderClassification);
+        etext_copy_new(this->OrderType, info.OrderType);
+        etext_copy_new(this->OrderCommission, info.OrderCommission);
+        etext_copy_new(this->OperatorQQ, info.OperatorQQ);
+        etext_copy_new(this->OperatorName, info.OperatorName);
+        etext_copy_new(this->ReceiverQQ, info.ReceiverQQ);
+        etext_copy_new(this->ReceiverName, info.ReceiverName);
+        etext_copy_new(this->OperateAmount, info.OperateAmount);
+    }
+    OrderDetail(const _EType_OrderDetail& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->OrderTime, e2s(info.OrderTime));
+        etext_copy_new(this->OrderDescription, e2s(info.OrderDescription));
+        etext_copy_new(this->OrderClassification, e2s(info.OrderClassification));
+        etext_copy_new(this->OrderType, e2s(info.OrderType));
+        etext_copy_new(this->OrderCommission, e2s(info.OrderCommission));
+        etext_copy_new(this->OperatorQQ, e2s(info.OperatorQQ));
+        etext_copy_new(this->OperatorName, e2s(info.OperatorName));
+        etext_copy_new(this->ReceiverQQ, e2s(info.ReceiverQQ));
+        etext_copy_new(this->ReceiverName, e2s(info.ReceiverName));
+        etext_copy_new(this->OperateAmount, e2s(info.OperateAmount));
+    }
+    ~OrderDetail()
+    {
+        delete_str_copy(this->OrderTime);
+        delete_str_copy(this->OrderDescription);
+        delete_str_copy(this->OrderClassification);
+        delete_str_copy(this->OrderType);
+        delete_str_copy(this->OrderCommission);
+        delete_str_copy(this->OperatorQQ);
+        delete_str_copy(this->OperatorName);
+        delete_str_copy(this->ReceiverQQ);
+        delete_str_copy(this->ReceiverName);
+        delete_str_copy(this->OperateAmount);
+    }
 };
 
-// 验证码信息
-struct CaptchaInformation
+// Note: _EType_开头的是内部转换用的类型，请使用普通的CaptchaInformation
+struct _EType_CaptchaInformation
 {
+    _EType_CaptchaInformation() {}
+    // FIXME 需要限定类型只能为CaptchaInformation
+    // TODO 增加字符串指针为null的判断
+    template<typename T>
+    _EType_CaptchaInformation(const T& info) {
+        memcpy(this, &info, sizeof(_EType_CaptchaInformation));
+        this->TokenID = s2e(this->TokenID);
+        this->SKey = s2e(this->SKey);
+        this->BankType = s2e(this->BankType);
+        this->Mobile = s2e(this->Mobile);
+        this->BusinessType = s2e(this->BusinessType);
+        this->TransactionID = s2e(this->TransactionID);
+        this->PurchaserID = s2e(this->PurchaserID);
+        this->Token = s2e(this->Token);
+        this->AuthParams = s2e(this->AuthParams);
+    }
     // token_id
-    etext TokenID;
+    etext TokenID = nullptr;
     // skey
-    etext SKey;
+    etext SKey = nullptr;
     // bank_type
-    etext BankType;
+    etext BankType = nullptr;
     // mobile
-    etext Mobile;
+    etext Mobile = nullptr;
     // business_type
-    etext BusinessType;
+    etext BusinessType = nullptr;
     // random
     eint Random;
     // transaction_id
-    etext TransactionID;
+    etext TransactionID = nullptr;
     // purchaser_id
-    etext PurchaserID;
+    etext PurchaserID = nullptr;
     // token
-    etext Token;
+    etext Token = nullptr;
     // auth_params
-    etext AuthParams;
+    etext AuthParams = nullptr;
 };
+// 验证码信息
+struct CaptchaInformation : _EType_CaptchaInformation
+{
+    CaptchaInformation() {};
+    CaptchaInformation(const CaptchaInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->TokenID, info.TokenID);
+        etext_copy_new(this->SKey, info.SKey);
+        etext_copy_new(this->BankType, info.BankType);
+        etext_copy_new(this->Mobile, info.Mobile);
+        etext_copy_new(this->BusinessType, info.BusinessType);
+        etext_copy_new(this->TransactionID, info.TransactionID);
+        etext_copy_new(this->PurchaserID, info.PurchaserID);
+        etext_copy_new(this->Token, info.Token);
+        etext_copy_new(this->AuthParams, info.AuthParams);
+    }
+    CaptchaInformation(const _EType_CaptchaInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->TokenID, e2s(info.TokenID));
+        etext_copy_new(this->SKey, e2s(info.SKey));
+        etext_copy_new(this->BankType, e2s(info.BankType));
+        etext_copy_new(this->Mobile, e2s(info.Mobile));
+        etext_copy_new(this->BusinessType, e2s(info.BusinessType));
+        etext_copy_new(this->TransactionID, e2s(info.TransactionID));
+        etext_copy_new(this->PurchaserID, e2s(info.PurchaserID));
+        etext_copy_new(this->Token, e2s(info.Token));
+        etext_copy_new(this->AuthParams, e2s(info.AuthParams));
+    }
+    ~CaptchaInformation()
+    {
+        delete_str_copy(this->TokenID);
+        delete_str_copy(this->SKey);
+        delete_str_copy(this->BankType);
+        delete_str_copy(this->Mobile);
+        delete_str_copy(this->BusinessType);
+        delete_str_copy(this->TransactionID);
+        delete_str_copy(this->PurchaserID);
+        delete_str_copy(this->Token);
+        delete_str_copy(this->AuthParams);
+    }
+};
+
+//_EType_CaptchaInformation::_EType_CaptchaInformation(const CaptchaInformation& info)
+//{
+//    memcpy(this, &info, sizeof(*this));
+//    this->TokenID = s2e(this->TokenID);
+//    this->SKey = s2e(this->SKey);
+//    this->BankType = s2e(this->BankType);
+//    this->Mobile = s2e(this->Mobile);
+//    this->BusinessType = s2e(this->BusinessType);
+//    this->TransactionID = s2e(this->TransactionID);
+//    this->PurchaserID = s2e(this->PurchaserID);
+//    this->Token = s2e(this->Token);
+//    this->AuthParams = s2e(this->AuthParams);
+//}
+
+#undef etext_copy_new
+#undef delete_str_copy
 
 #pragma pack()
 #endif // CORNERSTONE_HEADER_TYPES_H_

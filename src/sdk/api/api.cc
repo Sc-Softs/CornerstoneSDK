@@ -402,7 +402,6 @@ std::string API::GetThisQQ()
     return e2s(_f<etext(etext)>(this->j, "取框架QQ")(this->key));
 }
 
-// FIXME: 易语言数组有未知bug
 /**
  * @brief 获取好友列表
  * @param thisQQ 框架QQ
@@ -411,7 +410,7 @@ std::string API::GetThisQQ()
  */
 size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &friend_list)
 {
-    earray1D<FriendInformation> array;
+    earray1D<_EType_FriendInformation, FriendInformation> array;
     eint size = _f<eint(etext, elong, void **)>(this->j, "取好友列表")(this->key, thisQQ, &array.data);
     return size == 0 ? 0 : array.Unpack(friend_list);
 }
@@ -424,7 +423,7 @@ size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &f
  */
 size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &group_list)
 {
-    earray1D<GroupInformation> array;
+    earray1D<_EType_GroupInformation, GroupInformation> array;
     eint size = _f<eint(etext, elong, void **)>(this->j, "取群列表")(this->key, thisQQ, &array.data);
     return size == 0 ? 0 : array.Unpack(group_list);
 }
@@ -438,7 +437,7 @@ size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &gro
  */
 int32_t API::GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::vector<GroupMemberInformation> &group_member_list)
 {
-    earray1D<GroupMemberInformation> array;
+    earray1D<_EType_GroupMemberInformation, GroupMemberInformation> array;
     eint size = _f<eint(etext, elong, elong, void **)>(this->j, "取群成员列表")(this->key, thisQQ, groupQQ, &array.data);
     return size == 0 ? 0 : array.Unpack(group_member_list);
 }
@@ -792,7 +791,7 @@ void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t trigg
   */
 void API::ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::vector<GroupMessageData> &message_content)
 {
-    earray1D<GroupMessageData> array;
+    earray1D<_EType_GroupMessageData, GroupMessageData> array;
     _f<void(etext, elong, etext, void **)>(this->j, "查看转发聊天记录内容")(this->key, thisQQ, s2e(resID), &array.data);
     array.Unpack(message_content);
 }
@@ -907,9 +906,9 @@ std::string API::GetImageDownloadLink(std::string image_code, std::int64_t thisQ
  */
 bool API::GetFriendInformation(std::int64_t thisQQ, std::int64_t otherQQ, FriendInformation &data)
 {
-    volatile FriendInformation *info;
-    auto ret = e2b(_f<ebool(etext, elong, elong, volatile FriendInformation **)>(this->j, "查询好友信息")(this->key, thisQQ, otherQQ, &info));
-    data = *(const_cast<FriendInformation *>(info));
+    volatile _EType_FriendInformation *eInfo;
+    auto ret = e2b(_f<ebool(etext, elong, elong, volatile _EType_FriendInformation **)>(this->j, "查询好友信息")(this->key, thisQQ, otherQQ, &eInfo));
+    data = (FriendInformation)*(const_cast<_EType_FriendInformation *>(eInfo));
     return ret;
 }
 
@@ -921,9 +920,9 @@ bool API::GetFriendInformation(std::int64_t thisQQ, std::int64_t otherQQ, Friend
  */
 bool API::GetGroupInformation(std::int64_t thisQQ, std::int64_t groupQQ, GroupCardInformation &data)
 {
-    volatile GroupCardInformation *info;
-    auto ret = e2b(_f<ebool(etext, elong, elong, volatile GroupCardInformation **)>(this->j, "查询群信息")(this->key, thisQQ, groupQQ, &info));
-    data = *(const_cast<GroupCardInformation *>(info));
+    volatile _EType_GroupCardInformation *eInfo;
+    auto ret = e2b(_f<ebool(etext, elong, elong, volatile _EType_GroupCardInformation **)>(this->j, "查询群信息")(this->key, thisQQ, groupQQ, &eInfo));
+    data = (GroupCardInformation)*(const_cast<_EType_GroupCardInformation *>(eInfo));
     return ret;
 }
 
@@ -1074,9 +1073,9 @@ std::string API::GetFriendStatus(std::int64_t thisQQ, std::int64_t otherQQ)
  */
 std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInformation &data)
 {
-    volatile QQWalletInformation *info;
-    auto ret = e2s(_f<etext(etext, elong, volatile QQWalletInformation **)>(this->j, "取QQ钱包个人信息")(this->key, thisQQ, &info));
-    data = *(const_cast<QQWalletInformation *>(info));
+    volatile _EType_QQWalletInformation *eInfo;
+    auto ret = e2s(_f<etext(etext, elong, volatile _EType_QQWalletInformation **)>(this->j, "取QQ钱包个人信息")(this->key, thisQQ, &eInfo));
+    data = (QQWalletInformation)*(const_cast<_EType_QQWalletInformation *>(eInfo));
     return ret;
 }
 
@@ -1089,9 +1088,9 @@ std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInf
  */
 std::string API::GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderDetail &data)
 {
-    volatile OrderDetail *info;
-    auto ret = e2s(_f<etext(etext, elong, etext, volatile OrderDetail **)>(this->j, "获取订单详情")(this->key, thisQQ, s2e(orderID), &info));
-    data = *(const_cast<OrderDetail *>(info));
+    volatile _EType_OrderDetail *eInfo;
+    auto ret = e2s(_f<etext(etext, elong, etext, volatile _EType_OrderDetail **)>(this->j, "获取订单详情")(this->key, thisQQ, s2e(orderID), &eInfo));
+    data = (OrderDetail)*(const_cast<_EType_OrderDetail *>(eInfo));
     return ret;
 }
 
@@ -1105,7 +1104,9 @@ std::string API::GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderD
  */
 std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, volatile CaptchaInformation *captcha_information, std::string captcha, std::string payment_password)
 {
-    return e2s(_f<etext(etext, elong, volatile CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, captcha_information, s2e(captcha), s2e(payment_password)));
+    return "";
+    //volatile _EType_CaptchaInformation eInfo = (_EType_CaptchaInformation)*captcha_information;
+    //return e2s(_f<etext(etext, elong, volatile _EType_CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
 }
 
 /**
