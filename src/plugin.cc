@@ -8,17 +8,12 @@ using namespace std;
 
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
-// 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
+// 私聊消息事件
+EventProcess OnPrivateMessage(PrivateMessageData *data)
 {
     std::string content = data->MessageContent;
     if (content == "CornerstoneSDK测试")
     {
-        CaptchaInformation *a = new CaptchaInformation;
-        a->Token = "7777";
-        _EType_CaptchaInformation b = (_EType_CaptchaInformation)*a;
-        api->OutputLog(b.Token);
-        api->OutputLog(b.TokenID);
         api->OutputLog("好友消息测试");
         api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
     }
@@ -55,18 +50,6 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
         {
             api->OutputLog(sum_string("群列表获取成功: 返回的size为", size));
             string groups;
-            /*
-            for(auto i = 0; i < group_list.size(); ++i)
-            {
-                GroupInformation& info = group_list[i];
-                size_t size = std::strlen(e2s(info.GroupName));
-                char* a = new char[size + 1];
-                std::strcpy(a, e2s(info.GroupName));
-                a[size] = '\0';
-                info.GroupName = a;
-                api->OutputLog(info.GroupName);
-            }
-             */
             for (auto group_info : group_list)
             {
                 groups += sum_string(group_info.GroupQQ, ": ", group_info.GroupName, "\n");
@@ -78,7 +61,7 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
 }
 
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData *data)
+EventProcess OnGroupMessage(GroupMessageData *data)
 {
     std::string content = data->MessageContent;
     if (content == "CornerstoneSDK测试")
@@ -141,7 +124,7 @@ EventProcess OnDisabled(void *)
 }
 
 // 事件消息
-EventProcess OnEvent(volatile EventData *data)
+EventProcess OnEvent(EventData *data)
 {
     if (data->SourceGroupQQ == 0) // 非群事件
     {

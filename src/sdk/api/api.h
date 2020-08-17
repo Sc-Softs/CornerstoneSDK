@@ -108,8 +108,9 @@ public:
      * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
      * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
+     * @param comment 自定义给对方的备注
      */
-    std::string AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification);
+    std::string AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification, const std::string &comment);
 
     /**
      * @brief 添加群（你在群内或需要付费入群也会直接发送验证消息）
@@ -362,9 +363,10 @@ public:
      * @brief 修改个性签名
      * @param thisQQ 框架QQ
      * @param signature 签名
+     * @param location 可自定义签名地点
      * @return 失败或无权限返回false
      */
-    bool SetSignature(std::int64_t thisQQ, std::string signature);
+    bool SetSignature(std::int64_t thisQQ, std::string signature, std::string location = "");
 
     /**
      * @brief 删除群成员
@@ -381,7 +383,7 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param otherQQ 群成员QQ
-     * @param time 禁言时长 单位：秒
+     * @param time 禁言时长 单位：秒，为0时解除禁言
      * @return 失败或无权限返回false
      */
     bool ShutUpGroupMember(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t time);
@@ -558,9 +560,10 @@ public:
      * @param triggerQQ 触发QQ
      * @param message_seq 消息Seq
      * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
-     * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited);
+     * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
+     * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
      */
-    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type);
+    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type, std::string refuse_reason = "");
 
     /**
      * @brief 处理好友验证事件 在好友验证事件下使用，无权限时不执行
@@ -584,9 +587,9 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param path 文件路径 本地文件路径
-     * @param folder 文件夹 该空保留，暂时无效
+     * @param folder 文件夹名 上传到哪个文件夹，填文件夹名，根目录留空或填/
      */
-    void UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder = "");
+    std::string UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder = "");
 
     /**
      * @brief 创建群文件夹
@@ -595,7 +598,7 @@ public:
      * @param folder 文件夹名
      * @return 失败或无权限返回false
      */
-    bool CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder);
+    std::string CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder);
 
     /**
     * @brief 设置在线状态
@@ -682,27 +685,29 @@ public:
     /**
      * @brief 转发群文件至好友
      * @param thisQQ 框架QQ
-     * @param souce_groupQQ 来源群号
+     * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name FileName
+     * @param file_size 文件大小
      * @param req Req 撤回消息用
      * @param random Random 撤回消息用
      * @param time time 撤回消息用
      * @return 失败或无权限返回false
      */
-    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int64_t &random, std::int32_t &time);
+    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
 
     /**
      * @brief 转发群文件至好友（若要撤回消息请使用另一重载）
      * @param thisQQ 框架QQ
-     * @param souce_groupQQ 来源群号
+     * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
      * @param file_name Filename
+     * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
-    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name);
+    bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size);
 
     /**
      * @brief 转发好友文件至好友
@@ -711,12 +716,13 @@ public:
      * @param targetQQ 目标QQ
      * @param fileID FileId
      * @param file_name Filename
+     * @param file_size 文件大小
      * @param req Req 撤回消息用
      * @param random Random 撤回消息用
      * @param time time 撤回消息用
      * @return 失败或无权限返回false
      */
-    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int32_t &random, std::int32_t &time);
+    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
 
     /**
      * @brief 转发好友文件至好友（若要撤回消息请使用另一重载）
@@ -725,9 +731,10 @@ public:
      * @param targetQQ 目标QQ
      * @param fileID FileId
      * @param file_name Filename
+     * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
-    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name);
+    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size);
 
     /**
      * @brief 设置群消息接收
@@ -743,7 +750,7 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param otherQQ 对方QQ
-     * @param packageID packageID 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+     * @param packageID 礼物ID 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
      */
     std::string SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t packageID);
 
@@ -780,7 +787,7 @@ public:
      * @param payment_password 支付密码 用于验证并支付
      * @return 用银行卡支付时需要验证，只需要验证一次
      */
-    std::string SubmitPaymentCaptcha(std::int64_t thisQQ, volatile CaptchaInformation *captcha_information, std::string captcha, std::string payment_password);
+    std::string SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, std::string captcha, std::string payment_password);
 
     /**
      * @brief 分享音乐

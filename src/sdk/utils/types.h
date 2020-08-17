@@ -1365,20 +1365,6 @@ struct CaptchaInformation : _EType_CaptchaInformation
     }
 };
 
-//_EType_CaptchaInformation::_EType_CaptchaInformation(const CaptchaInformation& info)
-//{
-//    memcpy(this, &info, sizeof(*this));
-//    this->TokenID = s2e(this->TokenID);
-//    this->SKey = s2e(this->SKey);
-//    this->BankType = s2e(this->BankType);
-//    this->Mobile = s2e(this->Mobile);
-//    this->BusinessType = s2e(this->BusinessType);
-//    this->TransactionID = s2e(this->TransactionID);
-//    this->PurchaserID = s2e(this->PurchaserID);
-//    this->Token = s2e(this->Token);
-//    this->AuthParams = s2e(this->AuthParams);
-//}
-
 #undef etext_copy_new
 #undef delete_str_copy
 

@@ -144,10 +144,11 @@ std::string API::SendGroupTemporaryMessage(std::int64_t thisQQ, std::int64_t gro
  * @param thisQQ 框架QQ
  * @param otherQQ 对方QQ
  * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
+ * @param comment 自定义给对方的备注
  */
-std::string API::AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification)
+std::string API::AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification, const std::string &comment)
 {
-    return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "添加好友")(this->key, thisQQ, otherQQ, s2e(verification.c_str())));
+    return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "添加好友")(this->key, thisQQ, otherQQ, s2e(verification.c_str()), s2e(comment.c_str())));
 }
 
 /**
@@ -504,11 +505,12 @@ bool API::SetName(std::int64_t thisQQ, std::string name)
  * @brief 修改个性签名
  * @param thisQQ 框架QQ
  * @param signature 签名
+ * @param location 可自定义签名地点
  * @return 失败或无权限返回false
  */
-bool API::SetSignature(std::int64_t thisQQ, std::string signature)
+bool API::SetSignature(std::int64_t thisQQ, std::string signature, std::string location)
 {
-    return e2b(_f<ebool(etext, elong, etext)>(this->j, "修改个性签名")(this->key, thisQQ, s2e(signature)));
+    return e2b(_f<ebool(etext, elong, etext, etext)>(this->j, "修改个性签名")(this->key, thisQQ, s2e(signature), s2e(location)));
 }
 
 /**
@@ -529,7 +531,7 @@ bool API::RemoveGroupMember(std::int64_t thisQQ, std::int64_t groupQQ, std::int6
  * @param thisQQ 框架QQ
  * @param groupQQ 群号
  * @param otherQQ 群成员QQ
- * @param time 禁言时长 单位：秒
+ * @param time 禁言时长 单位：秒，为0时解除禁言
  * @return 失败或无权限返回false
  */
 bool API::ShutUpGroupMember(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t time)
@@ -765,10 +767,11 @@ int64_t API::IsShuttedUp(std::int64_t thisQQ, std::int64_t groupQQ)
  * @param message_seq 消息Seq
  * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
  * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
+ * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
  */
-void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type)
+void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type, std::string refuse_reason)
 {
-    return _f<void(etext, elong, elong, elong, elong, eint, eint)>(this->j, "处理群验证事件")(this->key, thisQQ, source_groupQQ, triggerQQ, message_seq, operate_type, event_type);
+    return _f<void(etext, elong, elong, elong, elong, eint, eint, etext)>(this->j, "处理群验证事件")(this->key, thisQQ, source_groupQQ, triggerQQ, message_seq, operate_type, event_type, s2e(refuse_reason));
 }
 
 /**
@@ -801,11 +804,11 @@ void API::ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::
  * @param thisQQ 框架QQ
  * @param groupQQ 群号
  * @param path 文件路径 本地文件路径
- * @param folder 文件夹 该空保留，暂时无效
+ * @param folder 文件夹名 上传到哪个文件夹，填文件夹名，根目录留空或填/
  */
-void API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder)
+std::string API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder)
 {
-    return _f<void(etext, elong, elong, etext, etext)>(this->j, "上传群文件")(this->key, thisQQ, groupQQ, s2e(path), s2e(folder));
+    return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "上传群文件")(this->key, thisQQ, groupQQ, s2e(path), s2e(folder)));
 }
 
 /**
@@ -815,9 +818,9 @@ void API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string
  * @param folder 文件夹名
  * @return 失败或无权限返回false
  */
-bool API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder)
+std::string API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder)
 {
-    return e2b(_f<ebool(etext, elong, elong, etext)>(this->j, "创建群文件夹")(this->key, thisQQ, groupQQ, s2e(folder)));
+    return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "创建群文件夹")(this->key, thisQQ, groupQQ, s2e(folder)));
 }
 
 /**
@@ -951,21 +954,22 @@ bool API::ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_group
 /**
  * @brief 转发群文件至好友
  * @param thisQQ 框架QQ
- * @param souce_groupQQ 来源群号
+ * @param source_groupQQ 来源群号
  * @param otherQQ 目标QQ
  * @param fileID FileId
- * @param file_name Filename
+ * @param file_name FileName
+ * @param file_size 文件大小
  * @param req Req 撤回消息用
  * @param random Random 撤回消息用
  * @param time time 撤回消息用
  * @return 失败或无权限返回false
  */
-bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int64_t &random, std::int32_t &time)
+bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
 {
     eint *req_p;
     elong *random_p;
     eint *time_p;
-    auto ret = e2b(_f<ebool(etext, elong, elong, elong, etext, etext, eint **, elong **, eint **)>(this->j, "群文件转发至好友")(this->key, thisQQ, souce_groupQQ, otherQQ, s2e(fileID), s2e(file_name), &req_p, &random_p, &time_p));
+    auto ret = e2b(_f<ebool(etext, elong, elong, elong, etext, etext, elong, eint **, elong **, eint **)>(this->j, "群文件转发至好友")(this->key, thisQQ, source_groupQQ, otherQQ, s2e(fileID), s2e(file_name), file_size, &req_p, &random_p, &time_p));
     req = *req_p;
     random = *random_p;
     time = *time_p;
@@ -975,18 +979,19 @@ bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_group
 /**
  * @brief 转发群文件至好友（若要撤回消息请使用另一重载）
  * @param thisQQ 框架QQ
- * @param souce_groupQQ 来源群号
+ * @param source_groupQQ 来源群号
  * @param otherQQ 目标QQ
  * @param fileID FileId
  * @param file_name Filename
+ * @param file_size 文件大小
  * @return 失败或无权限返回false
  */
-bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name)
+bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size)
 {
-    eint *req_p;
-    elong *random_p;
-    eint *time_p;
-    return e2b(_f<ebool(etext, elong, elong, elong, etext, etext, eint **, elong **, eint **)>(this->j, "群文件转发至好友")(this->key, thisQQ, souce_groupQQ, otherQQ, s2e(fileID), s2e(file_name), &req_p, &random_p, &time_p));
+    std::int32_t req;
+    std::int64_t random;
+    std::int32_t time;
+    return this->ForwardGroupFileToFriend(thisQQ, source_groupQQ, otherQQ, fileID, file_name, file_size, req, random, time);
 }
 
 /**
@@ -996,17 +1001,18 @@ bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t souce_group
  * @param targetQQ 目标QQ
  * @param fileID FileId
  * @param file_name Filename
+ * @param file_size 文件大小
  * @param req Req 撤回消息用
  * @param random Random 撤回消息用
  * @param time time 撤回消息用
  * @return 失败或无权限返回false
  */
-bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int32_t &random, std::int32_t &time)
+bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
 {
     eint *req_p;
     elong *random_p;
     eint *time_p;
-    auto ret = e2b(_f<ebool(etext, elong, elong, elong, etext, etext, eint **, elong **, eint **)>(this->j, "好友文件转发至好友")(this->key, thisQQ, sourceQQ, targetQQ, s2e(fileID), s2e(file_name), &req_p, &random_p, &time_p));
+    auto ret = e2b(_f<ebool(etext, elong, elong, elong, etext, etext, elong, eint **, elong **, eint **)>(this->j, "好友文件转发至好友")(this->key, thisQQ, sourceQQ, targetQQ, s2e(fileID), s2e(file_name), file_size, &req_p, &random_p, &time_p));
     req = *req_p;
     random = *random_p;
     time = *time_p;
@@ -1020,14 +1026,15 @@ bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, 
  * @param targetQQ 目标QQ
  * @param fileID FileId
  * @param file_name Filename
+ * @param file_size 文件大小
  * @return 失败或无权限返回false
  */
-bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name)
+bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size)
 {
-    eint *req_p;
-    elong *random_p;
-    eint *time_p;
-    return e2b(_f<ebool(etext, elong, elong, elong, etext, etext, eint **, elong **, eint **)>(this->j, "好友文件转发至好友")(this->key, thisQQ, sourceQQ, targetQQ, s2e(fileID), s2e(file_name), &req_p, &random_p, &time_p));
+    std::int32_t req;
+    std::int64_t random;
+    std::int32_t time;
+    return this->ForwardFriendFileToFriend(thisQQ, sourceQQ, targetQQ, fileID, file_name, file_size, req, random, time);
 }
 
 /**
@@ -1047,7 +1054,7 @@ bool API::SetGroupMessageReceive(std::int64_t thisQQ, std::int64_t groupQQ, std:
  * @param thisQQ 框架QQ
  * @param groupQQ 群号
  * @param otherQQ 对方QQ
- * @param packageID packageID 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+ * @param packageID 礼物ID 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
  */
 std::string API::SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t packageID)
 {
@@ -1102,11 +1109,10 @@ std::string API::GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderD
  * @param payment_password 支付密码 用于验证并支付
  * @return 用银行卡支付时需要验证，只需要验证一次
  */
-std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, volatile CaptchaInformation *captcha_information, std::string captcha, std::string payment_password)
+std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, std::string captcha, std::string payment_password)
 {
-    return "";
-    //volatile _EType_CaptchaInformation eInfo = (_EType_CaptchaInformation)*captcha_information;
-    //return e2s(_f<etext(etext, elong, volatile _EType_CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
+    volatile _EType_CaptchaInformation eInfo = (_EType_CaptchaInformation)*captcha_information;
+    return e2s(_f<etext(etext, elong, volatile _EType_CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
 }
 
 /**
