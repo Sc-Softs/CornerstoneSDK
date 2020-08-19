@@ -310,6 +310,7 @@ std::string API::UploadAvatar(std::int64_t thisQQ, const std::uint8_t *picture, 
  */
 const std::uint8_t *API::SilkDecode(std::string audio_file_path)
 {
+    // FIXME 实现该方法
     return nullptr;
 }
 
@@ -319,6 +320,7 @@ const std::uint8_t *API::SilkDecode(std::string audio_file_path)
  */
 const std::uint8_t *API::SilkEncode(std::string audio_file_path)
 {
+    // FIXME 实现该方法
     return nullptr;
 }
 
@@ -840,7 +842,7 @@ bool API::SetStatus(std::int64_t thisQQ, std::int32_t main, std::int32_t sun, st
  * @brief 判断某api是否有权限
  * @param permission 权限
  */
-bool API::CheckPermission(Permission permission)
+bool API::CheckPermission(PermissionEnum permission)
 {
     return e2b(_f<ebool(etext, etext)>(this->j, "api是否有权限")(this->key, s2e(PermissionMap.at(permission))));
 }

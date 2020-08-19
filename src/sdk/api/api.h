@@ -614,7 +614,7 @@ public:
      * @brief 判断某api是否有权限
      * @param permission 权限
      */
-    bool CheckPermission(Permission permission);
+    bool CheckPermission(PermissionEnum permission);
 
     /**
      * @brief 判断某api是否有权限

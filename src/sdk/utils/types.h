@@ -149,7 +149,7 @@ inline const char* new_and_copy_str(const char* str)
 // 枚举常量
 
 // 事件处理
-enum class EventProcess : eint
+enum class EventProcessEnum : eint
 {
     // 阻止其他插件继续处理此事件
     Block = 1,
@@ -158,16 +158,10 @@ enum class EventProcess : eint
 };
 
 // 消息类型
-enum class MessageType : eint
+enum class MessageTypeEnum : eint
 {
     // 临时会话
     Temporary = 141,
-    // 临时会话_群
-    Temporary_Group = 0,
-    // 临时会话_公众号
-    Temporary_PublicAccount = 129,
-    // 临时会话_网页QQ咨询
-    Temporary_WebQQConsultation = 201,
     // 好友通常消息
     FriendUsualMessage = 166,
     // 好友文件
@@ -179,9 +173,19 @@ enum class MessageType : eint
     // 群聊通常消息
     GroupUsualMessage = 134
 };
+// 消息子类型
+enum class MessageSubTypeEnum : eint
+{
+    // 临时会话_群
+    Temporary_Group = 0,
+    // 临时会话_公众号
+    Temporary_PublicAccount = 129,
+    // 临时会话_网页QQ咨询
+    Temporary_WebQQConsultation = 201,
+};
 
 // 事件类型
-enum class EventType : eint
+enum class EventTypeEnum : eint
 {
     // 好友事件_被好友删除
     Friend_Removed = 15,
@@ -278,7 +282,7 @@ enum class EventType : eint
 
 // 某些API中可能会用
 // 权限（有感叹号的是危险权限！）
-enum class Permission : eint
+enum class PermissionEnum : eint
 {
     // 输出日志
     OutputLog = 0,
@@ -458,95 +462,95 @@ enum class Permission : eint
     FriendFollowRedEnvelope = 91,
 };
 
-const std::unordered_map<Permission, std::string> PermissionMap =
-    {{Permission::OutputLog, "输出日志"},
-     {Permission::SendFriendMessage, "发送好友消息"},
-     {Permission::SendGroupMessage, "发送群消息"},
-     {Permission::SendGroupTemporaryMessage, "发送群临时消息"},
-     {Permission::AddFriend, "添加好友"},
-     {Permission::AddGroup, "添加群"},
-     {Permission::RemoveFriend, "删除好友"},
-     {Permission::SetBlockFriend, "置屏蔽好友"},
-     {Permission::SetSpecialFriend, "置特别关心好友"},
-     {Permission::SendFriendJSONMessage, "发送好友json消息"},
-     {Permission::SendGroupJSONMessage, "发送群json消息"},
-     {Permission::UploadFriendPicture, "上传好友图片"},
-     {Permission::UploadGroupPicture, "上传群图片"},
-     {Permission::UploadFriendAudio, "上传好友语音"},
-     {Permission::UploadGroupAudio, "上传群语音"},
-     {Permission::UploadAvatar, "上传头像"},
-     {Permission::SetGroupMemberNickname, "设置群名片"},
-     {Permission::GetNameFromCache, "取昵称_从缓存"},
-     {Permission::GetNameForce, "强制取昵称"},
-     {Permission::GetSKey, "获取skey"},
-     {Permission::GetPSKey, "获取pskey"},
-     {Permission::GetClientKey, "获取clientkey"},
-     {Permission::GetThisQQ, "取框架QQ"},
-     {Permission::GetFriendList, "取好友列表"},
-     {Permission::GetGroupList, "取群列表"},
-     {Permission::GetGroupMemberList, "取群成员列表"},
-     {Permission::SetAdministrator, "设置管理员"},
-     {Permission::GetAdministratorList, "取管理层列表"},
-     {Permission::GetGroupMemberNickname, "取群名片"},
-     {Permission::GetSignature, "取个性签名"},
-     {Permission::SetName, "修改昵称"},
-     {Permission::SetSignature, "修改个性签名"},
-     {Permission::KickGroupMember, "删除群成员"},
-     {Permission::BanGroupMember, "禁言群成员"},
-     {Permission::QuitGroup, "退群"},
-     {Permission::DissolveGroup, "解散群"},
-     {Permission::UploadGroupAvatar, "上传群头像"},
-     {Permission::BanAll, "全员禁言"},
-     {Permission::Group_Create, "群权限_发起新的群聊"},
-     {Permission::Group_CreateTemporary, "群权限_发起临时会话"},
-     {Permission::Group_UploadFile, "群权限_上传文件"},
-     {Permission::Group_UploadPicture, "群权限_上传相册"},
-     {Permission::Group_InviteFriend, "群权限_邀请好友加群"},
-     {Permission::Group_Anonymous, "群权限_匿名聊天"},
-     {Permission::Group_ChatFrankly, "群权限_坦白说"},
-     {Permission::Group_NewMemberReadChatHistory, "群权限_新成员查看历史消息"},
-     {Permission::Group_SetInviteMethod, "群权限_邀请方式设置"},
-     {Permission::Undo_Group, "撤回消息_群聊"},
-     {Permission::Undo_Private, "撤回消息_私聊本身"},
-     {Permission::SetLocationShare, "设置位置共享"},
-     {Permission::ReportCurrentLocation, "上报当前位置"},
-     {Permission::IsShutUp, "是否被禁言"},
-     {Permission::ProcessFriendVerification, "处理好友验证事件"},
-     {Permission::ProcessGroupVerification, "处理群验证事件"},
-     {Permission::ReadForwardedChatHistory, "查看转发聊天记录内容"},
-     {Permission::UploadGroupFile, "上传群文件"},
-     {Permission::CreateGroupFolder, "创建群文件夹"},
-     {Permission::SetStatus, "设置在线状态"},
-     {Permission::QQLike, "QQ点赞"},
-     {Permission::GetImageDownloadLink, "取图片下载地址"},
-     {Permission::QueryFriendInformation, "查询好友信息"},
-     {Permission::QueryGroupInformation, "查询群信息"},
-     {Permission::Reboot, "框架重启"},
-     {Permission::GroupFileForwardToGroup, "群文件转发至群"},
-     {Permission::GroupFileForwardToFriend, "群文件转发至好友"},
-     {Permission::FriendFileForwardToFriend, "好友文件转发至好友"},
-     {Permission::SetGroupMessageReceive, "置群消息接收"},
-     {Permission::GetGroupNameFromCache, "取群名称_从缓存"},
-     {Permission::SendFreeGift, "发送免费礼物"},
-     {Permission::GetFriendStatus, "取好友在线状态"},
-     {Permission::GetQQWalletPersonalInformation, "取QQ钱包个人信息"},
-     {Permission::GetOrderDetail, "获取订单详情"},
-     {Permission::SubmitPaymentCaptcha, "提交支付验证码"},
-     {Permission::ShareMusic, "分享音乐"},
-     {Permission::ModifyGroupMessageContent, "更改群聊消息内容"},
-     {Permission::ModifyPrivateMessageContent, "更改私聊消息内容"},
-     {Permission::GroupPasswordRedEnvelope, "群聊口令红包"},
-     {Permission::GroupRandomRedEnvelope, "群聊拼手气红包"},
-     {Permission::GroupNormalRedEnvelope, "群聊普通红包"},
-     {Permission::GroupDrawRedEnvelope, "群聊画图红包"},
-     {Permission::GroupAudioRedEnvelope, "群聊语音红包"},
-     {Permission::GroupFollowRedEnvelope, "群聊接龙红包"},
-     {Permission::GroupExclusiveRedEnvelope, "群聊专属红包"},
-     {Permission::FriendPasswordRedEnvelope, "好友口令红包"},
-     {Permission::FriendNormalRedEnvelope, "好友普通红包"},
-     {Permission::FriendDrawRedEnvelope, "好友画图红包"},
-     {Permission::FriendAudioRedEnvelope, "好友语音红包"},
-     {Permission::FriendFollowRedEnvelope, "好友接龙红包"}};
+const std::unordered_map<PermissionEnum, std::string> PermissionMap =
+    {{PermissionEnum::OutputLog, "输出日志"},
+     {PermissionEnum::SendFriendMessage, "发送好友消息"},
+     {PermissionEnum::SendGroupMessage, "发送群消息"},
+     {PermissionEnum::SendGroupTemporaryMessage, "发送群临时消息"},
+     {PermissionEnum::AddFriend, "添加好友"},
+     {PermissionEnum::AddGroup, "添加群"},
+     {PermissionEnum::RemoveFriend, "删除好友"},
+     {PermissionEnum::SetBlockFriend, "置屏蔽好友"},
+     {PermissionEnum::SetSpecialFriend, "置特别关心好友"},
+     {PermissionEnum::SendFriendJSONMessage, "发送好友json消息"},
+     {PermissionEnum::SendGroupJSONMessage, "发送群json消息"},
+     {PermissionEnum::UploadFriendPicture, "上传好友图片"},
+     {PermissionEnum::UploadGroupPicture, "上传群图片"},
+     {PermissionEnum::UploadFriendAudio, "上传好友语音"},
+     {PermissionEnum::UploadGroupAudio, "上传群语音"},
+     {PermissionEnum::UploadAvatar, "上传头像"},
+     {PermissionEnum::SetGroupMemberNickname, "设置群名片"},
+     {PermissionEnum::GetNameFromCache, "取昵称_从缓存"},
+     {PermissionEnum::GetNameForce, "强制取昵称"},
+     {PermissionEnum::GetSKey, "获取skey"},
+     {PermissionEnum::GetPSKey, "获取pskey"},
+     {PermissionEnum::GetClientKey, "获取clientkey"},
+     {PermissionEnum::GetThisQQ, "取框架QQ"},
+     {PermissionEnum::GetFriendList, "取好友列表"},
+     {PermissionEnum::GetGroupList, "取群列表"},
+     {PermissionEnum::GetGroupMemberList, "取群成员列表"},
+     {PermissionEnum::SetAdministrator, "设置管理员"},
+     {PermissionEnum::GetAdministratorList, "取管理层列表"},
+     {PermissionEnum::GetGroupMemberNickname, "取群名片"},
+     {PermissionEnum::GetSignature, "取个性签名"},
+     {PermissionEnum::SetName, "修改昵称"},
+     {PermissionEnum::SetSignature, "修改个性签名"},
+     {PermissionEnum::KickGroupMember, "删除群成员"},
+     {PermissionEnum::BanGroupMember, "禁言群成员"},
+     {PermissionEnum::QuitGroup, "退群"},
+     {PermissionEnum::DissolveGroup, "解散群"},
+     {PermissionEnum::UploadGroupAvatar, "上传群头像"},
+     {PermissionEnum::BanAll, "全员禁言"},
+     {PermissionEnum::Group_Create, "群权限_发起新的群聊"},
+     {PermissionEnum::Group_CreateTemporary, "群权限_发起临时会话"},
+     {PermissionEnum::Group_UploadFile, "群权限_上传文件"},
+     {PermissionEnum::Group_UploadPicture, "群权限_上传相册"},
+     {PermissionEnum::Group_InviteFriend, "群权限_邀请好友加群"},
+     {PermissionEnum::Group_Anonymous, "群权限_匿名聊天"},
+     {PermissionEnum::Group_ChatFrankly, "群权限_坦白说"},
+     {PermissionEnum::Group_NewMemberReadChatHistory, "群权限_新成员查看历史消息"},
+     {PermissionEnum::Group_SetInviteMethod, "群权限_邀请方式设置"},
+     {PermissionEnum::Undo_Group, "撤回消息_群聊"},
+     {PermissionEnum::Undo_Private, "撤回消息_私聊本身"},
+     {PermissionEnum::SetLocationShare, "设置位置共享"},
+     {PermissionEnum::ReportCurrentLocation, "上报当前位置"},
+     {PermissionEnum::IsShutUp, "是否被禁言"},
+     {PermissionEnum::ProcessFriendVerification, "处理好友验证事件"},
+     {PermissionEnum::ProcessGroupVerification, "处理群验证事件"},
+     {PermissionEnum::ReadForwardedChatHistory, "查看转发聊天记录内容"},
+     {PermissionEnum::UploadGroupFile, "上传群文件"},
+     {PermissionEnum::CreateGroupFolder, "创建群文件夹"},
+     {PermissionEnum::SetStatus, "设置在线状态"},
+     {PermissionEnum::QQLike, "QQ点赞"},
+     {PermissionEnum::GetImageDownloadLink, "取图片下载地址"},
+     {PermissionEnum::QueryFriendInformation, "查询好友信息"},
+     {PermissionEnum::QueryGroupInformation, "查询群信息"},
+     {PermissionEnum::Reboot, "框架重启"},
+     {PermissionEnum::GroupFileForwardToGroup, "群文件转发至群"},
+     {PermissionEnum::GroupFileForwardToFriend, "群文件转发至好友"},
+     {PermissionEnum::FriendFileForwardToFriend, "好友文件转发至好友"},
+     {PermissionEnum::SetGroupMessageReceive, "置群消息接收"},
+     {PermissionEnum::GetGroupNameFromCache, "取群名称_从缓存"},
+     {PermissionEnum::SendFreeGift, "发送免费礼物"},
+     {PermissionEnum::GetFriendStatus, "取好友在线状态"},
+     {PermissionEnum::GetQQWalletPersonalInformation, "取QQ钱包个人信息"},
+     {PermissionEnum::GetOrderDetail, "获取订单详情"},
+     {PermissionEnum::SubmitPaymentCaptcha, "提交支付验证码"},
+     {PermissionEnum::ShareMusic, "分享音乐"},
+     {PermissionEnum::ModifyGroupMessageContent, "更改群聊消息内容"},
+     {PermissionEnum::ModifyPrivateMessageContent, "更改私聊消息内容"},
+     {PermissionEnum::GroupPasswordRedEnvelope, "群聊口令红包"},
+     {PermissionEnum::GroupRandomRedEnvelope, "群聊拼手气红包"},
+     {PermissionEnum::GroupNormalRedEnvelope, "群聊普通红包"},
+     {PermissionEnum::GroupDrawRedEnvelope, "群聊画图红包"},
+     {PermissionEnum::GroupAudioRedEnvelope, "群聊语音红包"},
+     {PermissionEnum::GroupFollowRedEnvelope, "群聊接龙红包"},
+     {PermissionEnum::GroupExclusiveRedEnvelope, "群聊专属红包"},
+     {PermissionEnum::FriendPasswordRedEnvelope, "好友口令红包"},
+     {PermissionEnum::FriendNormalRedEnvelope, "好友普通红包"},
+     {PermissionEnum::FriendDrawRedEnvelope, "好友画图红包"},
+     {PermissionEnum::FriendAudioRedEnvelope, "好友语音红包"},
+     {PermissionEnum::FriendFollowRedEnvelope, "好友接龙红包"}};
 
 #pragma pack(4)
 // 数据结构
@@ -585,12 +589,12 @@ struct _EType_PrivateMessageData
     // 发送人气泡ID
     eint BubbleID;
     // 消息类型
-    MessageType MessageType;
+    MessageTypeEnum MessageType;
     // 消息子类型
-    eint MessageSubType;
+    MessageSubTypeEnum MessageSubType;
     // 消息子临时类型 0: 群, 1: 讨论组, 129: 腾讯公众号, 201: QQ咨询
-    eint MessageSubTemporaryType;
-    // 红包类型 2: 已转入余额, 4: 点击收款, 10: 红包
+    MessageSubTypeEnum MessageSubTemporaryType;
+    // 红包类型 0: 非红包的普通消息, 2: 已转入余额, 4: 点击收款, 10: 红包
     eint RedEnvelopeType;
     // 会话Token
     ebin SessionToken = nullptr;
@@ -942,7 +946,7 @@ struct _EType_GroupMessageData
     // 消息分片标识
     elong MessageClipID;
     // 消息类型
-    MessageType MessageType;
+    MessageTypeEnum MessageType;
     // 发送人群头衔
     etext SenderTitle = nullptr;
     // 消息内容
@@ -1027,7 +1031,7 @@ struct _EType_EventData
     // 事件内容
     etext MessageContent = nullptr;
     // 事件类型
-    EventType EventType;
+    EventTypeEnum EventType;
     // 事件子类型
     eint EventSubType;
 };

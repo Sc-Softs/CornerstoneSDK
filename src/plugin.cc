@@ -9,13 +9,47 @@ using namespace std;
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 私聊消息事件
-EventProcess OnPrivateMessage(PrivateMessageData *data)
+EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
 {
+    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里获取分片片段内容
+    if (data->MessageClipID > 0 && data->MessageClip + 1 != data->MessageClipCount)
+    {
+        return EventProcessEnum::Ignore;
+    }
+    // 不处理自己发送的消息
+    if (data->ThisQQ == data->SenderQQ)
+    {
+        return EventProcessEnum::Ignore;
+    }
+
+    // 这部分判断消息类型，本例中只处理群临时消息和好友普通消息
+    bool shouldHandle = false;
+    if (data->MessageType == MessageTypeEnum::FriendUsualMessage)
+    {
+        // 消息子类型目前没有用到，判断是否为普通消息需要通过红包类型=0判断
+        if (data->RedEnvelopeType == 0)
+        {
+            shouldHandle = true;
+        }
+    }
+    else if (data->MessageType == MessageTypeEnum::Temporary)
+    {
+        if (data->MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
+        {
+            shouldHandle = true;
+        }
+    }
+    if (!shouldHandle)
+    {
+        return EventProcessEnum::Ignore;
+    }
+
     std::string content = data->MessageContent;
+    std::string ret;
     if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("好友消息测试");
-        api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
+        ret = "好友消息测试";
     }
     else if (content == "CornerstoneSDK测试好友列表")
     {
@@ -24,7 +58,7 @@ EventProcess OnPrivateMessage(PrivateMessageData *data)
         if (size == 0)
         {
             api->OutputLog("好友列表获取失败: 返回的size为0");
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友列表获取失败: 返回的size为0");
+            ret = "好友列表获取失败: 返回的size为0";
         }
         else
         {
@@ -34,7 +68,7 @@ EventProcess OnPrivateMessage(PrivateMessageData *data)
             {
                 friends += sum_string(friend_info.QQNumber, ": ", friend_info.Name, "\n");
             }
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, friends);
+            ret = friends;
         }
     }
     else if (content == "CornerstoneSDK测试群列表")
@@ -44,7 +78,7 @@ EventProcess OnPrivateMessage(PrivateMessageData *data)
         if (size == 0)
         {
             api->OutputLog("群列表获取失败: 返回的size为0");
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "群列表获取失败: 返回的size为0");
+            ret = "群列表获取失败: 返回的size为0";
         }
         else
         {
@@ -54,15 +88,43 @@ EventProcess OnPrivateMessage(PrivateMessageData *data)
             {
                 groups += sum_string(group_info.GroupQQ, ": ", group_info.GroupName, "\n");
             }
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, groups);
+            ret = groups;
         }
     }
-    return EventProcess::Ignore;
+
+    // 根据不同的消息来源调用不同的发送信息api
+    if (data->MessageType == MessageTypeEnum::FriendUsualMessage)
+    {
+        api->SendFriendMessage(data->ThisQQ, data->SenderQQ, ret);
+    }
+    else if (data->MessageType == MessageTypeEnum::Temporary && data->MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
+    {
+        api->SendGroupTemporaryMessage(data->ThisQQ, data->MessageGroupQQ, data->SenderQQ, ret);
+    }
+
+    // 已经处理过的消息返回Block阻止其他插件继续处理
+    return EventProcessEnum::Block;
 }
 
 // 群消息事件
-EventProcess OnGroupMessage(GroupMessageData *data)
+EventProcessEnum OnGroupMessage(GroupMessageData *data)
 {
+    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里获取分片片段内容
+    if (data->MessageClipID > 0 && data->MessageClip + 1 != data->MessageClipCount)
+    {
+        return EventProcessEnum::Ignore;
+    }
+    // 不处理自己发送的消息
+    if (data->ThisQQ == data->SenderQQ)
+    {
+        return EventProcessEnum::Ignore;
+    }
+    // 只处理普通群聊信息
+    if (data->MessageType != MessageTypeEnum::GroupUsualMessage)
+    {
+        return EventProcessEnum::Ignore;
+    }
+
     std::string content = data->MessageContent;
     if (content == "CornerstoneSDK测试")
     {
@@ -87,96 +149,101 @@ EventProcess OnGroupMessage(GroupMessageData *data)
         {
             api->OutputLog(sum_string("群成员列表获取成功: 返回的size为", size));
             string members;
-            for (auto member_info : member_list)
+            // 最多只显示5个群成员
+            int max = std::max(member_list.size(), 5);
+            for (int i = 0; i < max; i++)
             {
+                auto member_info = member_list[i];
                 members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");
             }
             api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, members);
         }
     }
-    return EventProcess::Ignore;
+
+    // 已经处理过的消息返回Block阻止其他插件继续处理
+    return EventProcessEnum::Block;
 }
 
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void *)
+EventProcessEnum OnUninstall(void *)
 {
     delete api; // 清除全局API对象避免内存泄漏
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void *)
+EventProcessEnum OnSettings(void *)
 {
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void *)
+EventProcessEnum OnEnabled(void *)
 {
     api->OutputLog(sum_string("插件数据目录：", api->GetPluginDataDirectory()));
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void *)
+EventProcessEnum OnDisabled(void *)
 {
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }
 
 // 事件消息
-EventProcess OnEvent(EventData *data)
+EventProcessEnum OnEvent(EventData *data)
 {
     if (data->SourceGroupQQ == 0) // 非群事件
     {
         switch (data->EventType)
         {
         // 好友事件_被好友删除
-        case EventType::Friend_Removed:
+        case EventTypeEnum::Friend_Removed:
             break;
         // 好友事件_签名变更
-        case EventType::Friend_SignatureChanged:
+        case EventTypeEnum::Friend_SignatureChanged:
             break;
         // 好友事件_昵称改变
-        case EventType::Friend_NameChanged:
+        case EventTypeEnum::Friend_NameChanged:
             break;
         // 好友事件_某人撤回事件
-        case EventType::Friend_UserUndid:
+        case EventTypeEnum::Friend_UserUndid:
             break;
         // 好友事件_有新好友
-        case EventType::Friend_NewFriend:
+        case EventTypeEnum::Friend_NewFriend:
             break;
         // 好友事件_好友请求
-        case EventType::Friend_FriendRequest:
+        case EventTypeEnum::Friend_FriendRequest:
             break;
         // 好友事件_对方同意了您的好友请求
-        case EventType::Friend_FriendRequestAccepted:
+        case EventTypeEnum::Friend_FriendRequestAccepted:
             break;
         // 好友事件_对方拒绝了您的好友请求
-        case EventType::Friend_FriendRequestRefused:
+        case EventTypeEnum::Friend_FriendRequestRefused:
             break;
         // 好友事件_资料卡点赞
-        case EventType::Friend_InformationLiked:
+        case EventTypeEnum::Friend_InformationLiked:
             break;
         // 好友事件_签名点赞
-        case EventType::Friend_SignatureLiked:
+        case EventTypeEnum::Friend_SignatureLiked:
             break;
         // 好友事件_签名回复
-        case EventType::Friend_SignatureReplied:
+        case EventTypeEnum::Friend_SignatureReplied:
             break;
         // 好友事件_个性标签点赞
-        case EventType::Friend_TagLiked:
+        case EventTypeEnum::Friend_TagLiked:
             break;
         // 好友事件_随心贴回复
-        case EventType::Friend_StickerLiked:
+        case EventTypeEnum::Friend_StickerLiked:
             break;
         // 好友事件_随心贴增添
-        case EventType::Friend_StickerAdded:
+        case EventTypeEnum::Friend_StickerAdded:
             break;
         // 空间事件_与我相关
-        case EventType::QZone_Related:
+        case EventTypeEnum::QZone_Related:
             break;
         // 框架事件_登录成功
-        case EventType::This_SignInSuccess:
+        case EventTypeEnum::This_SignInSuccess:
             break;
         // 其他事件
         default:
@@ -188,93 +255,93 @@ EventProcess OnEvent(EventData *data)
         switch (data->EventType)
         {
         // 群事件_我被邀请加入群
-        case EventType::Group_Invited:
+        case EventTypeEnum::Group_Invited:
             break;
         // 群事件_某人加入了群
-        case EventType::Group_MemberJoined:
+        case EventTypeEnum::Group_MemberJoined:
             break;
         // 群事件_某人申请加群
-        case EventType::Group_MemberVerifying:
+        case EventTypeEnum::Group_MemberVerifying:
             break;
         // 群事件_群被解散
-        case EventType::Group_GroupDissolved:
+        case EventTypeEnum::Group_GroupDissolved:
             break;
         // 群事件_某人退出了群
-        case EventType::Group_MemberQuit:
+        case EventTypeEnum::Group_MemberQuit:
             break;
         // 群事件_某人被踢出群
-        case EventType::Group_MemberKicked:
+        case EventTypeEnum::Group_MemberKicked:
             break;
         // 群事件_某人被禁言
-        case EventType::Group_MemberShutUp:
+        case EventTypeEnum::Group_MemberShutUp:
             break;
         // 群事件_某人撤回事件
-        case EventType::Group_MemberUndid:
+        case EventTypeEnum::Group_MemberUndid:
             break;
         // 群事件_某人被取消管理
-        case EventType::Group_AdministratorTook:
+        case EventTypeEnum::Group_AdministratorTook:
             break;
         // 群事件_某人被赋予管理
-        case EventType::Group_AdministratorGave:
+        case EventTypeEnum::Group_AdministratorGave:
             break;
         // 群事件_开启全员禁言
-        case EventType::Group_EnableAllShutUp:
+        case EventTypeEnum::Group_EnableAllShutUp:
             break;
         // 群事件_关闭全员禁言
-        case EventType::Group_DisableAllShutUp:
+        case EventTypeEnum::Group_DisableAllShutUp:
             break;
         // 群事件_开启匿名聊天
-        case EventType::Group_EnableAnonymous:
+        case EventTypeEnum::Group_EnableAnonymous:
             break;
         // 群事件_关闭匿名聊天
-        case EventType::Group_DisableAnonymous:
+        case EventTypeEnum::Group_DisableAnonymous:
             break;
         // 群事件_开启坦白说
-        case EventType::Group_EnableChatFrankly:
+        case EventTypeEnum::Group_EnableChatFrankly:
             break;
         // 群事件_关闭坦白说
-        case EventType::Group_DisableChatFrankly:
+        case EventTypeEnum::Group_DisableChatFrankly:
             break;
         // 群事件_允许群临时会话
-        case EventType::Group_AllowGroupTemporary:
+        case EventTypeEnum::Group_AllowGroupTemporary:
             break;
         // 群事件_禁止群临时会话
-        case EventType::Group_ForbidGroupTemporary:
+        case EventTypeEnum::Group_ForbidGroupTemporary:
             break;
         // 群事件_允许发起新的群聊
-        case EventType::Group_AllowCreateGroup:
+        case EventTypeEnum::Group_AllowCreateGroup:
             break;
         // 群事件_禁止发起新的群聊
-        case EventType::Group_ForbidCreateGroup:
+        case EventTypeEnum::Group_ForbidCreateGroup:
             break;
         // 群事件_允许上传群文件
-        case EventType::Group_AllowUploadFile:
+        case EventTypeEnum::Group_AllowUploadFile:
             break;
         // 群事件_禁止上传群文件
-        case EventType::Group_ForbidUploadFile:
+        case EventTypeEnum::Group_ForbidUploadFile:
             break;
         // 群事件_允许上传相册
-        case EventType::Group_AllowUploadPicture:
+        case EventTypeEnum::Group_AllowUploadPicture:
             break;
         // 群事件_禁止上传相册
-        case EventType::Group_ForbidUploadPicture:
+        case EventTypeEnum::Group_ForbidUploadPicture:
             break;
         // 群事件_某人被邀请入群
-        case EventType::Group_MemberInvited:
+        case EventTypeEnum::Group_MemberInvited:
             break;
         // 群事件_展示成员群头衔
-        case EventType::Group_ShowMemberTitle:
+        case EventTypeEnum::Group_ShowMemberTitle:
             break;
         // 群事件_隐藏成员群头衔
-        case EventType::Group_HideMemberTitle:
+        case EventTypeEnum::Group_HideMemberTitle:
             break;
         // 群事件_某人被解除禁言
-        case EventType::Group_MemberNotShutUp:
+        case EventTypeEnum::Group_MemberNotShutUp:
             break;
         // 其他事件
         default:
             break;
         }
     }
-    return EventProcess::Ignore;
+    return EventProcessEnum::Ignore;
 }

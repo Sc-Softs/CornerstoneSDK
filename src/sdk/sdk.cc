@@ -34,19 +34,19 @@ SOFTWARE.
 
 API *api;
 
-EventProcess EFun_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
+EventProcessEnum EFun_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
 {
     PrivateMessageData data = (PrivateMessageData)*(const_cast<_EType_PrivateMessageData *>(eData));
     return OnPrivateMessage(&data);
 }
 
-EventProcess EFun_OnGroupMessage(volatile _EType_GroupMessageData *eData)
+EventProcessEnum EFun_OnGroupMessage(volatile _EType_GroupMessageData *eData)
 {
     GroupMessageData data = (GroupMessageData)*(const_cast<_EType_GroupMessageData *>(eData));
     return OnGroupMessage(&data);
 }
 
-EventProcess EFun_OnEvent(volatile _EType_EventData *eData)
+EventProcessEnum EFun_OnEvent(volatile _EType_EventData *eData)
 {
     EventData data = (EventData)*(const_cast<_EType_EventData *>(eData));
     return OnEvent(&data);

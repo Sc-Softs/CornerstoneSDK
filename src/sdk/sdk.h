@@ -46,19 +46,19 @@ using Json = nlohmann::json;
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(PrivateMessageData *data);
+EventProcessEnum OnPrivateMessage(PrivateMessageData *data);
 // 群消息事件
-EventProcess OnGroupMessage(GroupMessageData *data);
+EventProcessEnum OnGroupMessage(GroupMessageData *data);
 // 插件卸载事件（未知参数）
-EventProcess OnUninstall(void *);
+EventProcessEnum OnUninstall(void *);
 // 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void *);
+EventProcessEnum OnSettings(void *);
 // 插件被启用事件（未知参数）
-EventProcess OnEnabled(void *);
+EventProcessEnum OnEnabled(void *);
 // 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void *);
+EventProcessEnum OnDisabled(void *);
 // 事件消息
-EventProcess OnEvent(EventData *data);
+EventProcessEnum OnEvent(EventData *data);
 
 // 插件入口点，extern "C" 防止命名重整
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey);
