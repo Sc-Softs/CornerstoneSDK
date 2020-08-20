@@ -308,7 +308,7 @@ std::string API::UploadAvatar(std::int64_t thisQQ, const std::uint8_t *picture, 
  * @brief silk解码 无权限要求 尚未实现！
  * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
  */
-const std::uint8_t *API::SilkDecode(std::string audio_file_path)
+const std::uint8_t *API::SilkDecode(const std::string &audio_file_path)
 {
     // FIXME 实现该方法
     return nullptr;
@@ -318,7 +318,7 @@ const std::uint8_t *API::SilkDecode(std::string audio_file_path)
  * @brief silk编码 无权限要求 尚未实现！
  * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
  */
-const std::uint8_t *API::SilkEncode(std::string audio_file_path)
+const std::uint8_t *API::SilkEncode(const std::string &audio_file_path)
 {
     // FIXME 实现该方法
     return nullptr;
@@ -498,7 +498,7 @@ std::string API::GetSignature(std::int64_t thisQQ, std::int64_t otherQQ)
  * @param name 昵称
  * @return 失败或无权限返回false
  */
-bool API::SetName(std::int64_t thisQQ, std::string name)
+bool API::SetName(std::int64_t thisQQ, const std::string &name)
 {
     return e2b(_f<ebool(etext, elong, etext)>(this->j, "修改昵称")(this->key, thisQQ, s2e(name)));
 }
@@ -510,7 +510,7 @@ bool API::SetName(std::int64_t thisQQ, std::string name)
  * @param location 可自定义签名地点
  * @return 失败或无权限返回false
  */
-bool API::SetSignature(std::int64_t thisQQ, std::string signature, std::string location)
+bool API::SetSignature(std::int64_t thisQQ, const std::string &signature, const std::string &location)
 {
     return e2b(_f<ebool(etext, elong, etext, etext)>(this->j, "修改个性签名")(this->key, thisQQ, s2e(signature), s2e(location)));
 }
@@ -771,7 +771,7 @@ int64_t API::IsShuttedUp(std::int64_t thisQQ, std::int64_t groupQQ)
  * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
  * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
  */
-void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, GroupVerificationOperateEnum operate_type, std::int32_t event_type, std::string refuse_reason)
+void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, GroupVerificationOperateEnum operate_type, std::int32_t event_type, const std::string &refuse_reason)
 {
     return _f<void(etext, elong, elong, elong, elong, eint, eint, etext)>(this->j, "处理群验证事件")(this->key, thisQQ, source_groupQQ, triggerQQ, message_seq, (eint)operate_type, event_type, s2e(refuse_reason));
 }
@@ -794,7 +794,7 @@ void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t trigg
   * @param resID resID 可在xml消息代码中获取到
   * @param message_content 消息内容 私聊消息也可从该结构获取信息
   */
-void API::ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::vector<GroupMessageData> &message_content)
+void API::ReadForwardedChatHistory(std::int64_t thisQQ, const std::string &resID, std::vector<GroupMessageData> &message_content)
 {
     earray1D<_EType_GroupMessageData, GroupMessageData> array;
     _f<void(etext, elong, etext, void **)>(this->j, "查看转发聊天记录内容")(this->key, thisQQ, s2e(resID), &array.data);
@@ -808,7 +808,7 @@ void API::ReadForwardedChatHistory(std::int64_t thisQQ, std::string resID, std::
  * @param path 文件路径 本地文件路径
  * @param folder 文件夹名 上传到哪个文件夹，填文件夹名，根目录留空或填/
  */
-std::string API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string path, std::string folder)
+std::string API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &path, const std::string &folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "上传群文件")(this->key, thisQQ, groupQQ, s2e(path), s2e(folder)));
 }
@@ -820,7 +820,7 @@ std::string API::UploadGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std:
  * @param folder 文件夹名
  * @return 失败或无权限返回false
  */
-std::string API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder)
+std::string API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "创建群文件夹")(this->key, thisQQ, groupQQ, s2e(folder)));
 }
@@ -833,7 +833,7 @@ std::string API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, st
  * @param new_folder 新文件夹名
  * @return 失败或无权限返回false
  */
-std::string API::RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string old_folder, std::string new_folder)
+std::string API::RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &old_folder, const std::string &new_folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "重命名群文件夹")(this->key, thisQQ, groupQQ, s2e(old_folder), s2e(new_folder)));
 }
@@ -844,7 +844,7 @@ std::string API::RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, st
  * @param groupQQ 群号
  * @param folder 文件夹名
  */
-std::string API::DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder)
+std::string API::DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "删除群文件夹")(this->key, thisQQ, groupQQ, s2e(folder)));
 }
@@ -856,7 +856,7 @@ std::string API::DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, st
  * @param file_id 文件FileID
  * @param folder 文件所在的文件夹名，根目录留空或填/
  */
-std::string API::DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder)
+std::string API::DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "删除群文件")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(folder)));
 }
@@ -869,7 +869,7 @@ std::string API::DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std:
  * @param old_folder 当前所在的文件夹名，根目录留空或填/
  * @param new_folder 目标文件夹名，根目录留空或填/
  */
-std::string API::MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string old_folder, std::string new_folder)
+std::string API::MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &old_folder, const std::string &new_folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext, etext, etext)>(this->j, "移动群文件")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(old_folder), s2e(new_folder)));
 }
@@ -881,7 +881,7 @@ std::string API::MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::s
  * @param folder 欲查看的文件夹名，根目录留空或填/
  * @param group_file_list 群文件信息列表
  */
-std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder, std::vector<GroupFileInformation> &group_file_list)
+std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder, std::vector<GroupFileInformation> &group_file_list)
 {
     earray1D<_EType_GroupFileInformation, GroupFileInformation> array;
     std::string ret = e2s(_f<etext(etext, elong, elong, etext, void **)>(this->j, "取群文件列表")(this->key, thisQQ, groupQQ, s2e(folder), &array.data));
@@ -896,7 +896,7 @@ std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, std
  * @param groupQQ 群号
  * @param file_id 文件FileID
  */
-std::string API::SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder)
+std::string API::SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &file_id, const std::string &folder)
 {
     return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "保存文件到微云")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(folder)));
 }
@@ -927,7 +927,7 @@ bool API::CheckPermission(PermissionEnum permission)
  * @brief 判断某api是否有权限
  * @param permission 权限
  */
-bool API::CheckPermission(std::string permission)
+bool API::CheckPermission(const std::string &permission)
 {
     // 确保存在这个权限
     for (auto it : PermissionMap)
@@ -944,7 +944,7 @@ bool API::CheckPermission(std::string permission)
  * @brief 重载自身 [暂时无效，请勿调用]没有权限限制，请勿将新的插件文件下载至plugin文件夹，请确保新旧文件appname一致
  * @param new_file_path 新文件路径 若要更新插件，可将插件文件下载后在此填写新文件路径
 */
-void API::ReloadPlugin(std::string new_file_path)
+void API::ReloadPlugin(const std::string &new_file_path)
 {
     return _f<void(etext, etext)>(this->j, "重载自身")(this->key, s2e(new_file_path));
 }
@@ -974,7 +974,7 @@ std::string API::QQLike(std::int64_t thisQQ, std::int64_t otherQQ)
  * @param thisQQ 框架QQ 群聊图片必填，私聊图片必空
  * @param groupQQ 群号 群聊图片必填，私聊图片必空
  */
-std::string API::GetImageDownloadLink(std::string image_code, std::int64_t thisQQ, std::int64_t groupQQ)
+std::string API::GetImageDownloadLink(const std::string &image_code, std::int64_t thisQQ, std::int64_t groupQQ)
 {
     return e2s(_f<etext(etext, etext, elong, elong)>(this->j, "取图片下载地址")(this->key, s2e(image_code), thisQQ, groupQQ));
 }
@@ -1025,7 +1025,7 @@ void API::Reboot()
  * @param fileID FileId
  * @return 失败或无权限返回false
  */
-bool API::ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t target_groupQQ, std::string fileID)
+bool API::ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t target_groupQQ, const std::string &fileID)
 {
     return e2b(_f<ebool(etext, elong, elong, elong, etext)>(this->j, "群文件转发至群")(this->key, thisQQ, source_groupQQ, target_groupQQ, s2e(fileID)));
 }
@@ -1043,7 +1043,7 @@ bool API::ForwardGroupFileToGroup(std::int64_t thisQQ, std::int64_t source_group
  * @param time time 撤回消息用
  * @return 失败或无权限返回false
  */
-bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
+bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
 {
     eint *req_p;
     elong *random_p;
@@ -1065,7 +1065,7 @@ bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_grou
  * @param file_size 文件大小
  * @return 失败或无权限返回false
  */
-bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, std::string fileID, std::string file_name, std::int64_t file_size)
+bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size)
 {
     std::int32_t req;
     std::int64_t random;
@@ -1086,7 +1086,7 @@ bool API::ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_grou
  * @param time time 撤回消息用
  * @return 失败或无权限返回false
  */
-bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
+bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time)
 {
     eint *req_p;
     elong *random_p;
@@ -1108,7 +1108,7 @@ bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, 
  * @param file_size 文件大小
  * @return 失败或无权限返回false
  */
-bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int64_t file_size)
+bool API::ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size)
 {
     std::int32_t req;
     std::int64_t random;
@@ -1172,7 +1172,7 @@ std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInf
  * @param data 数据
  * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
  */
-std::string API::GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderDetail &data)
+std::string API::GetOrderDetail(std::int64_t thisQQ, const std::string &orderID, OrderDetail &data)
 {
     volatile _EType_OrderDetail *eInfo;
     auto ret = e2s(_f<etext(etext, elong, etext, volatile _EType_OrderDetail **)>(this->j, "获取订单详情")(this->key, thisQQ, s2e(orderID), &eInfo));
@@ -1188,7 +1188,7 @@ std::string API::GetOrderDetail(std::int64_t thisQQ, std::string orderID, OrderD
  * @param payment_password 支付密码 用于验证并支付
  * @return 用银行卡支付时需要验证，只需要验证一次
  */
-std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, std::string captcha, std::string payment_password)
+std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, const std::string &captcha, const std::string &payment_password)
 {
     volatile _EType_CaptchaInformation eInfo = (_EType_CaptchaInformation)*captcha_information;
     return e2s(_f<etext(etext, elong, volatile _EType_CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
@@ -1207,7 +1207,7 @@ std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *c
  * @param share_type 分享类型 0私聊 1群聊  默认0
  * @return 失败或无权限返回false
  */
-bool API::ShareMusic(std::int64_t thisQQ, std::int64_t otherQQ, std::string music_name, std::string artist_name, std::string redirect_link, std::string cover_link, std::string file_path, std::int32_t app_type, std::int32_t share_type)
+bool API::ShareMusic(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &music_name, const std::string &artist_name, const std::string &redirect_link, const std::string &cover_link, const std::string &file_path, std::int32_t app_type, std::int32_t share_type)
 {
     return e2b(_f<ebool(etext, elong, elong, etext, etext, etext, etext, etext, eint, eint)>(this->j, "分享音乐")(this->key, thisQQ, otherQQ, s2e(music_name), s2e(artist_name), s2e(redirect_link), s2e(cover_link), s2e(file_path), app_type, share_type));
 }
@@ -1218,7 +1218,7 @@ bool API::ShareMusic(std::int64_t thisQQ, std::int64_t otherQQ, std::string musi
  * @param new_message_content 新消息内容
  * @return 无权限返回false
  */
-bool API::ModifyGroupMessageContent(std::int32_t data_pointer, std::string new_message_content)
+bool API::ModifyGroupMessageContent(std::int32_t data_pointer, const std::string &new_message_content)
 {
     return e2b(_f<ebool(etext, eint, etext)>(this->j, "更改群聊消息内容")(this->key, data_pointer, s2e(new_message_content)));
 }
@@ -1229,7 +1229,7 @@ bool API::ModifyGroupMessageContent(std::int32_t data_pointer, std::string new_m
  * @param new_message_content 新消息内容
  * @return 无权限返回false
  */
-bool API::ModifyPrivateMessageContent(std::int32_t data_pointer, std::string new_message_content)
+bool API::ModifyPrivateMessageContent(std::int32_t data_pointer, const std::string &new_message_content)
 {
     return e2b(_f<ebool(etext, eint, etext)>(this->j, "更改私聊消息内容")(this->key, data_pointer, s2e(new_message_content)));
 }
@@ -1244,7 +1244,7 @@ bool API::ModifyPrivateMessageContent(std::int32_t data_pointer, std::string new
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::GroupPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string password, std::string payment_password, std::int32_t card_serial)
+std::string API::GroupPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &password, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "群聊口令红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(password), s2e(payment_password), card_serial));
 }
@@ -1260,7 +1260,7 @@ std::string API::GroupPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t tota
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  * @param skinID 红包皮肤Id 1522光与夜之恋
  */
-std::string API::GroupRandomRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string blessing, std::string payment_password, std::int32_t card_serial, std::int32_t skinID)
+std::string API::GroupRandomRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial, std::int32_t skinID)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, eint, etext, eint)>(this->j, "群聊拼手气红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(blessing), skinID, s2e(payment_password), card_serial));
 }
@@ -1276,7 +1276,7 @@ std::string API::GroupRandomRedEnvelope(std::int64_t thisQQ, std::int32_t total_
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  * @param skinID 红包皮肤Id 1522: 光与夜之恋, 1527: 代号：三国（打了一辈子仗）, 1525: 街霸：对决, 1518: 代号：三国（俺送红包来了）, 1476: 天涯明月刀, 1512: 一人之下，其他皮肤id自己找
  */
-std::string API::GroupNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string blessing, std::string payment_password, std::int32_t card_serial, std::int32_t skinID)
+std::string API::GroupNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial, std::int32_t skinID)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, eint, etext, eint)>(this->j, "群聊普通红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(blessing), skinID, s2e(payment_password), card_serial));
 }
@@ -1291,7 +1291,7 @@ std::string API::GroupNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::GroupDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string question, std::string payment_password, std::int32_t card_serial)
+std::string API::GroupDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &question, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "群聊画图红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(question), s2e(payment_password), card_serial));
 }
@@ -1306,7 +1306,7 @@ std::string API::GroupDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_nu
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::GroupAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string audio_password, std::string payment_password, std::int32_t card_serial)
+std::string API::GroupAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &audio_password, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "群聊语音红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(audio_password), s2e(payment_password), card_serial));
 }
@@ -1321,7 +1321,7 @@ std::string API::GroupAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_n
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::GroupFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string follow_content, std::string payment_password, std::int32_t card_serial)
+std::string API::GroupFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "群聊接龙红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(follow_content), s2e(payment_password), card_serial));
 }
@@ -1338,7 +1338,7 @@ std::string API::GroupFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  * @param is_equal 是否均分 默认不均分（拼手气）
  */
-std::string API::GroupExclusiveRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, std::string otherQQ, std::string blessing, std::string payment_password, std::int32_t card_serial, bool is_equal)
+std::string API::GroupExclusiveRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t groupQQ, const std::string &otherQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial, bool is_equal)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, ebool, etext, eint)>(this->j, "群聊专属红包")(this->key, thisQQ, total_number, total_amount, groupQQ, s2e(otherQQ), s2e(blessing), b2e(is_equal), s2e(payment_password), card_serial));
 }
@@ -1353,7 +1353,7 @@ std::string API::GroupExclusiveRedEnvelope(std::int64_t thisQQ, std::int32_t tot
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::FriendPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string password, std::string payment_password, std::int32_t card_serial)
+std::string API::FriendPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &password, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "好友口令红包")(this->key, thisQQ, total_number, total_amount, otherQQ, s2e(password), s2e(payment_password), card_serial));
 }
@@ -1368,7 +1368,7 @@ std::string API::FriendPasswordRedEnvelope(std::int64_t thisQQ, std::int32_t tot
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  * @param skinID 红包皮肤Id 1522: 光与夜之恋, 1527: 代号：三国（打了一辈子仗）, 1525: 街霸：对决, 1518: 代号：三国（俺送红包来了）, 1476: 天涯明月刀, 1512: 一人之下，其他皮肤id自己找
  */
-std::string API::FriendNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string blessing, std::string payment_password, std::int32_t card_serial, std::int32_t skinID)
+std::string API::FriendNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &blessing, const std::string &payment_password, std::int32_t card_serial, std::int32_t skinID)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, eint, etext, eint)>(this->j, "好友普通红包")(this->key, thisQQ, total_number, total_amount, otherQQ, s2e(blessing), skinID, s2e(payment_password), card_serial));
 }
@@ -1383,7 +1383,7 @@ std::string API::FriendNormalRedEnvelope(std::int64_t thisQQ, std::int32_t total
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::FriendDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string question, std::string payment_password, std::int32_t card_serial)
+std::string API::FriendDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &question, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "好友画图红包")(this->key, thisQQ, total_number, total_amount, otherQQ, s2e(question), s2e(payment_password), card_serial));
 }
@@ -1398,7 +1398,7 @@ std::string API::FriendDrawRedEnvelope(std::int64_t thisQQ, std::int32_t total_n
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string audio_password, std::string payment_password, std::int32_t card_serial)
+std::string API::FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &audio_password, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "好友语音红包")(this->key, thisQQ, total_number, total_amount, otherQQ, s2e(audio_password), s2e(payment_password), card_serial));
 }
@@ -1413,7 +1413,7 @@ std::string API::FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_
  * @param payment_password 支付密码
  * @param card_serial 银行卡序列 大于0时使用银行卡支付
  */
-std::string API::FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, std::string follow_content, std::string payment_password, std::int32_t card_serial)
+std::string API::FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s(_f<etext(etext, elong, eint, eint, elong, etext, etext, eint)>(this->j, "好友接龙红包")(this->key, thisQQ, total_number, total_amount, otherQQ, s2e(follow_content), s2e(payment_password), card_serial));
 }
