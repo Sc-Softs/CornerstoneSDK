@@ -9,32 +9,32 @@ using namespace std;
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 私聊消息事件
-EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
+EventProcessEnum OnPrivateMessage(PrivateMessageData &data)
 {
-    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里获取分片片段内容
-    if (data->MessageClipID > 0 && data->MessageClip + 1 != data->MessageClipCount)
+    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
+    if (data.MessageClipID > 0 && data.MessageClip + 1 != data.MessageClipCount)
     {
         return EventProcessEnum::Ignore;
     }
     // 不处理自己发送的消息
-    if (data->ThisQQ == data->SenderQQ)
+    if (data.ThisQQ == data.SenderQQ)
     {
         return EventProcessEnum::Ignore;
     }
 
     // 这部分判断消息类型，本例中只处理群临时消息和好友普通消息
     bool shouldHandle = false;
-    if (data->MessageType == MessageTypeEnum::FriendUsualMessage)
+    if (data.MessageType == MessageTypeEnum::FriendUsualMessage)
     {
         // 消息子类型目前没有用到，判断是否为普通消息需要通过红包类型=0判断
-        if (data->RedEnvelopeType == 0)
+        if (data.RedEnvelopeType == 0)
         {
             shouldHandle = true;
         }
     }
-    else if (data->MessageType == MessageTypeEnum::Temporary)
+    else if (data.MessageType == MessageTypeEnum::Temporary)
     {
-        if (data->MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
+        if (data.MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
         {
             shouldHandle = true;
         }
@@ -44,7 +44,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
         return EventProcessEnum::Ignore;
     }
 
-    std::string content = data->MessageContent;
+    std::string content = data.MessageContent;
     std::string ret;
     if (content == "CornerstoneSDK测试")
     {
@@ -54,7 +54,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
     else if (content == "CornerstoneSDK测试好友列表")
     {
         vector<FriendInformation> friend_list;
-        auto size = api->GetFriendList(data->ThisQQ, friend_list);
+        auto size = api->GetFriendList(data.ThisQQ, friend_list);
         if (size == 0)
         {
             api->OutputLog("好友列表获取失败: 返回的size为0");
@@ -74,7 +74,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
     else if (content == "CornerstoneSDK测试群列表")
     {
         vector<GroupInformation> group_list;
-        auto size = api->GetGroupList(data->ThisQQ, group_list);
+        auto size = api->GetGroupList(data.ThisQQ, group_list);
         if (size == 0)
         {
             api->OutputLog("群列表获取失败: 返回的size为0");
@@ -93,13 +93,13 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
     }
 
     // 根据不同的消息来源调用不同的发送信息api
-    if (data->MessageType == MessageTypeEnum::FriendUsualMessage)
+    if (data.MessageType == MessageTypeEnum::FriendUsualMessage)
     {
-        api->SendFriendMessage(data->ThisQQ, data->SenderQQ, ret);
+        api->SendFriendMessage(data.ThisQQ, data.SenderQQ, ret);
     }
-    else if (data->MessageType == MessageTypeEnum::Temporary && data->MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
+    else if (data.MessageType == MessageTypeEnum::Temporary && data.MessageSubTemporaryType == MessageSubTypeEnum::Temporary_Group)
     {
-        api->SendGroupTemporaryMessage(data->ThisQQ, data->MessageGroupQQ, data->SenderQQ, ret);
+        api->SendGroupTemporaryMessage(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ, ret);
     }
 
     // 已经处理过的消息返回Block阻止其他插件继续处理
@@ -107,30 +107,30 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData *data)
 }
 
 // 群消息事件
-EventProcessEnum OnGroupMessage(GroupMessageData *data)
+EventProcessEnum OnGroupMessage(GroupMessageData &data)
 {
-    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里获取分片片段内容
-    if (data->MessageClipID > 0 && data->MessageClip + 1 != data->MessageClipCount)
+    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
+    if (data.MessageClipID > 0 && data.MessageClip + 1 != data.MessageClipCount)
     {
         return EventProcessEnum::Ignore;
     }
     // 不处理自己发送的消息
-    if (data->ThisQQ == data->SenderQQ)
+    if (data.ThisQQ == data.SenderQQ)
     {
         return EventProcessEnum::Ignore;
     }
     // 只处理普通群聊信息
-    if (data->MessageType != MessageTypeEnum::GroupUsualMessage)
+    if (data.MessageType != MessageTypeEnum::GroupUsualMessage)
     {
         return EventProcessEnum::Ignore;
     }
 
-    std::string content = data->MessageContent;
+    std::string content = data.MessageContent;
     if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("群消息测试");
-        api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群消息测试");
-        auto retcode = get_retcode(api->SendGroupTemporaryMessage(data->ThisQQ, data->MessageGroupQQ, data->SenderQQ, "临时消息测试"));
+        api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, "群消息测试");
+        auto retcode = get_retcode(api->SendGroupTemporaryMessage(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ, "临时消息测试"));
         if (retcode != 0)
         {
             api->OutputLog(sum_string("临时消息发送失败: ", retcode));
@@ -139,11 +139,11 @@ EventProcessEnum OnGroupMessage(GroupMessageData *data)
     else if (content == "CornerstoneSDK测试取群成员列表")
     {
         vector<GroupMemberInformation> member_list;
-        auto size = api->GetGroupMemberList(data->ThisQQ, data->MessageGroupQQ, member_list);
+        auto size = api->GetGroupMemberList(data.ThisQQ, data.MessageGroupQQ, member_list);
         if (size == 0)
         {
             api->OutputLog("群成员列表获取失败: 返回的size为0");
-            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群成员列表获取失败: 返回的size为0");
+            api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, "群成员列表获取失败: 返回的size为0");
         }
         else
         {
@@ -156,7 +156,7 @@ EventProcessEnum OnGroupMessage(GroupMessageData *data)
                 auto member_info = member_list[i];
                 members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");
             }
-            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, members);
+            api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, members);
         }
     }
 
@@ -164,38 +164,38 @@ EventProcessEnum OnGroupMessage(GroupMessageData *data)
     return EventProcessEnum::Block;
 }
 
-// 插件卸载事件（未知参数）
-EventProcessEnum OnUninstall(void *)
+// 插件卸载事件
+EventProcessEnum OnUninstall()
 {
     delete api; // 清除全局API对象避免内存泄漏
     return EventProcessEnum::Ignore;
 }
 
-// 插件设置事件（未知参数），这里可以弹出对话框
-EventProcessEnum OnSettings(void *)
+// 插件设置事件 这里可以弹出对话框
+EventProcessEnum OnSettings()
 {
     return EventProcessEnum::Ignore;
 }
 
-// 插件被启用事件（未知参数）
-EventProcessEnum OnEnabled(void *)
+// 插件被启用事件
+EventProcessEnum OnEnabled()
 {
     api->OutputLog(sum_string("插件数据目录：", api->GetPluginDataDirectory()));
     return EventProcessEnum::Ignore;
 }
 
-// 插件被禁用事件（未知参数）
-EventProcessEnum OnDisabled(void *)
+// 插件被禁用事件
+EventProcessEnum OnDisabled()
 {
     return EventProcessEnum::Ignore;
 }
 
 // 事件消息
-EventProcessEnum OnEvent(EventData *data)
+EventProcessEnum OnEvent(EventData &data)
 {
-    if (data->SourceGroupQQ == 0) // 非群事件
+    if (data.SourceGroupQQ == 0) // 非群事件
     {
-        switch (data->EventType)
+        switch (data.EventType)
         {
         // 好友事件_被好友删除
         case EventTypeEnum::Friend_Removed:
@@ -252,7 +252,7 @@ EventProcessEnum OnEvent(EventData *data)
     }
     else // 群事件
     {
-        switch (data->EventType)
+        switch (data.EventType)
         {
         // 群事件_我被邀请加入群
         case EventTypeEnum::Group_Invited:
