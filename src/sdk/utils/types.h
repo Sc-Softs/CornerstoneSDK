@@ -83,9 +83,9 @@ public:
         {
             volatile EType **data = (volatile EType **)(((eint *)this->data) + 2);
             array.clear();
-            for (auto i = 0; i < size; i++)
+            for (decltype(size) i = 0; i < size; i++)
             {
-                array.push_back((CType)*(const_cast<EType *>(*data)));
+                array.push_back((CType)*(const_cast<EType *>(*data)));  
                 data++;
             }
         }

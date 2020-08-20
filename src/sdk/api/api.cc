@@ -288,9 +288,9 @@ std::string API::UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, c
  * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
  * @return 成功返回语音代码
  */
-std::string API::UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type, const std::string &audio_text)
+std::string API::UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type, const std::string &audio_text)
 {
-    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传群语音")(this->key, thisQQ, groupQQ, audio_type, s2e(audio_text), audio, static_cast<eint>(size)));
+    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传群语音")(this->key, thisQQ, groupQQ, static_cast<int32_t>(audio_type), s2e(audio_text), audio, static_cast<eint>(size)));
 }
 
 /**
@@ -909,9 +909,9 @@ std::string API::SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, std
  * @param battery 电量 当sun为ShowBattery(我的电量)时，可以设置上报电量，取值1到100
  * @return 失败或无权限返回false
  */
-bool API::SetStatus(std::int64_t thisQQ, std::int32_t main, std::int32_t sun, std::int32_t battery)
+bool API::SetStatus(std::int64_t thisQQ, StatusTypeEnum main, StatusOnlineTypeEnum sun, std::int32_t battery)
 {
-    return e2b(_f<ebool(etext, elong, eint, eint, eint)>(this->j, "设置在线状态")(this->key, thisQQ, main, sun, battery));
+    return e2b(_f<ebool(etext, elong, eint, eint, eint)>(this->j, "设置在线状态")(this->key, thisQQ, static_cast<int32_t>(main), static_cast<int32_t>(sun), battery));
 }
 
 /**

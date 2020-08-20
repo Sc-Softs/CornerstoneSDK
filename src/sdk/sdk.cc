@@ -52,6 +52,7 @@ EventProcessEnum EFun_OnEvent(volatile _EType_EventData *eData)
     return OnEvent(&data);
 }
 
+#pragma comment(linker,"/EXPORT:apprun=_apprun@8")
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
     // 创建全局API对象

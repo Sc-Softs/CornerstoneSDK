@@ -3,6 +3,9 @@
 #include <string>
 using namespace std;
 
+#undef min
+#undef max
+
 // Cornerstone SDK 的部分 API 尚未经过测试，可能仍存在漏洞
 // 欢迎前往 https://github.com/Sc-Softs/CornerstoneSDK 提交Issue和PR，感谢您的贡献
 
@@ -150,8 +153,8 @@ EventProcessEnum OnGroupMessage(GroupMessageData *data)
             api->OutputLog(sum_string("群成员列表获取成功: 返回的size为", size));
             string members;
             // 最多只显示5个群成员
-            size_t max = std::max((int)member_list.size(), 5);
-            for (int i = 0; i < max; i++)
+            size_t max = std::min((int)member_list.size(), 5);
+            for (decltype(max) i = 0; i < max; i++)
             {
                 auto member_info = member_list[i];
                 members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");

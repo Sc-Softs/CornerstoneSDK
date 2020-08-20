@@ -34,10 +34,20 @@ SOFTWARE.
 
 #include <string>
 
+template<typename>
+struct FuncRestruct;
+
+template<typename RetT,typename ...ArgT>
+struct FuncRestruct<RetT(ArgT...)> {
+    using stdcall_t = typename RetT(__stdcall*)(ArgT...);
+};
+
 template <class FuncT>
-inline FuncT *_f(Json api, const char *name)
+inline auto _f(Json api, const char *name)
 {
-    return (FuncT *)((uintptr_t)api[name]);
+    using stdcall_t = typename FuncRestruct<FuncT>::stdcall_t;
+    auto value = static_cast<uintptr_t>(api[name]);
+    return reinterpret_cast<stdcall_t>(value);
 }
 
 /**
