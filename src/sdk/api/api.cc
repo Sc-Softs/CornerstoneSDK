@@ -826,6 +826,82 @@ std::string API::CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, st
 }
 
 /**
+ * @brief 重命名群文件夹
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param old_folder 旧文件夹名
+ * @param new_folder 新文件夹名
+ * @return 失败或无权限返回false
+ */
+std::string API::RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string old_folder, std::string new_folder)
+{
+    return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "重命名群文件夹")(this->key, thisQQ, groupQQ, s2e(old_folder), s2e(new_folder)));
+}
+
+/**
+ * @brief 删除群文件夹
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param folder 文件夹名
+ */
+std::string API::DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder)
+{
+    return e2s(_f<etext(etext, elong, elong, etext)>(this->j, "删除群文件夹")(this->key, thisQQ, groupQQ, s2e(folder)));
+}
+
+/**
+ * @brief 删除群文件
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param file_id 文件FileID
+ * @param folder 文件所在的文件夹名，根目录留空或填/
+ */
+std::string API::DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder)
+{
+    return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "删除群文件")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(folder)));
+}
+
+/**
+ * @brief 移动群文件
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param file_id 文件FileID
+ * @param old_folder 当前所在的文件夹名，根目录留空或填/
+ * @param new_folder 目标文件夹名，根目录留空或填/
+ */
+std::string API::MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string old_folder, std::string new_folder)
+{
+    return e2s(_f<etext(etext, elong, elong, etext, etext, etext)>(this->j, "移动群文件")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(old_folder), s2e(new_folder)));
+}
+
+/**
+ * @brief 取群文件列表
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param folder 欲查看的文件夹名，根目录留空或填/
+ * @param group_file_list 群文件信息列表
+ */
+std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder, std::vector<GroupFileInformation> &group_file_list)
+{
+    earray1D<_EType_GroupFileInformation, GroupFileInformation> array;
+    std::string ret = e2s(_f<etext(etext, elong, elong, etext, void **)>(this->j, "取群文件列表")(this->key, thisQQ, groupQQ, s2e(folder), &array.data));
+    array.Unpack(group_file_list);
+    return ret;
+}
+
+
+/**
+ * @brief 保存文件到微云
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param file_id 文件FileID
+ */
+std::string API::SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder)
+{
+    return e2s(_f<etext(etext, elong, elong, etext, etext)>(this->j, "保存文件到微云")(this->key, thisQQ, groupQQ, s2e(file_id), s2e(folder)));
+}
+
+/**
 * @brief 设置在线状态
 * @param thisQQ 框架QQ
 * @param main main 11: 在线, 31: 离开, 41: 隐身, 50: 忙碌, 60: Q我吧, 70: 请勿打扰

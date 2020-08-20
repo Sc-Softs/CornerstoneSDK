@@ -65,7 +65,7 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
              {"author", config["插件作者"]},
              {"appv", config["插件版本"]},
              {"describe", config["插件说明"]},
-             {"sdkv", "2.6.5"},
+             {"sdkv", "2.6.9"},
              {"friendmsaddres", (uintptr_t)&EFun_OnPrivateMessage},
              {"groupmsaddres", (uintptr_t)&EFun_OnGroupMessage},
              {"unitproaddres", (uintptr_t)&OnUninstall},

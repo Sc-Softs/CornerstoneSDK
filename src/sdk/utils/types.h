@@ -955,10 +955,10 @@ struct _EType_GroupMessageData
     etext ReplyMessageContent = nullptr;
     // 发送者气泡ID
     eint BubbleID;
-    // 发送人位置经度
-    eint SenderLongitude;
-    // 发送人位置纬度
-    eint SenderLatitude;
+    // 框架QQ匿名Id，用于区分别人和自己(当天从未使用过匿名则为0)
+    eint ThisQQAnonymousID;
+    // 保留参数，请勿使用
+    eint reserved_;
     // 文件Id
     etext FileID = nullptr;
     // 文件Md5
@@ -1105,6 +1105,49 @@ struct GroupCardInformation : _EType_GroupCardInformation
         delete_str_copy(this->GroupClassification);
         delete_str_copy(this->GroupTags);
         delete_str_copy(this->GroupDescription);
+    }
+};
+
+// Note: _EType_开头的是内部转换用的类型，请使用普通的GroupFileInformation
+struct _EType_GroupFileInformation
+{
+    // 文件夹fileid或者文件fileid
+    etext FileID = nullptr;
+    // 文件夹名或文件名
+    etext FileName = nullptr;
+    // 文件大小，文件夹时表示有多少个文件
+    elong FileSize;
+    // 文件md5，文件夹时为空，部分文件类型也可能是空
+    ebin FileMd5 = nullptr;
+    // 创建文件夹或上传文件的QQ
+    elong FileFromUin;
+    // 创建文件夹或上传文件的QQ
+    etext FileFromNick = nullptr;
+    // 文件类型  1: 文件, 2: 文件夹
+    eint FileType;
+};
+// 群文件信息
+struct GroupFileInformation : _EType_GroupFileInformation
+{
+    GroupFileInformation(const GroupFileInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->FileID, info.FileID);
+        etext_copy_new(this->FileName, info.FileName);
+        etext_copy_new(this->FileFromNick, info.FileFromNick);
+    }
+    GroupFileInformation(const _EType_GroupFileInformation& info)
+    {
+        memcpy(this, &info, sizeof(info));
+        etext_copy_new(this->FileID, e2s(info.FileID));
+        etext_copy_new(this->FileName, e2s(info.FileName));
+        etext_copy_new(this->FileFromNick, e2s(info.FileFromNick));
+    }
+    ~GroupFileInformation()
+    {
+        delete_str_copy(this->FileID);
+        delete_str_copy(this->FileName);
+        delete_str_copy(this->FileFromNick);
     }
 };
 

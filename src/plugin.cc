@@ -150,7 +150,7 @@ EventProcessEnum OnGroupMessage(GroupMessageData *data)
             api->OutputLog(sum_string("群成员列表获取成功: 返回的size为", size));
             string members;
             // 最多只显示5个群成员
-            int max = std::max(member_list.size(), 5);
+            size_t max = std::max((int)member_list.size(), 5);
             for (int i = 0; i < max; i++)
             {
                 auto member_info = member_list[i];

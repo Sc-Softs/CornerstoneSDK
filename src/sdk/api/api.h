@@ -596,9 +596,63 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param folder 文件夹名
-     * @return 失败或无权限返回false
      */
     std::string CreateGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder);
+
+    /**
+     * @brief 重命名群文件夹
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param old_folder 旧文件夹名
+     * @param new_folder 新文件夹名
+     * @return 失败或无权限返回false
+     */
+    std::string RenameGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string old_folder, std::string new_folder);
+
+    /**
+     * @brief 删除群文件夹
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param folder 文件夹名
+     */
+    std::string DeleteGroupFolder(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder);
+
+    /**
+     * @brief 删除群文件
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     * @param folder 文件所在的文件夹名，根目录留空或填/
+     */
+    std::string DeleteGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder);
+
+    /**
+     * @brief 移动群文件
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     * @param old_folder 当前所在的文件夹名，根目录留空或填/
+     * @param new_folder 目标文件夹名，根目录留空或填/
+     */
+    std::string MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string old_folder, std::string new_folder);
+
+    /**
+     * @brief 取群文件列表
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param folder 欲查看的文件夹名，根目录留空或填/
+     * @param group_file_list 群文件信息列表
+     */
+    std::string GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, std::string folder, std::vector<GroupFileInformation> &group_file_list);
+
+    // 微云之所以用拼音WeiYun是因为官方用的拼音，也找不到官方的英文名
+    /**
+     * @brief 保存文件到微云
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param file_id 文件FileID
+     */
+    std::string SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, std::string file_id, std::string folder);
 
     /**
     * @brief 设置在线状态
