@@ -1,5 +1,5 @@
  # 插件文件名
-plugin_name = "cornerstone_demo_plugin.dll"
+plugin_name = "cornerstone_sdk_demo.dll"
 
 # 定义一个动态链接库目标
 shared_library("../out/" + plugin_name)
@@ -16,6 +16,7 @@ shared_library("../out/" + plugin_name)
         "//src/sdk/sdk.cc",
         "//src/sdk/api/api.cc",
         "//src/sdk/utils/types.cc",
+        "//src/sdk/encoding/encoding.cc",
     ]
 
     # 连接器参数（未格式化）
@@ -36,7 +37,6 @@ shared_library("../out/" + plugin_name)
         "-O999",                    # 超强优化（和-O3没区别）
         "-ffunction-sections",      # 将每个函数单独划分为代码段，方便回收
         "-fdata-sections",          # 将每段数据单独划分为数据段，方便回收
-        "-DUNICODE", "-D_UNICODE",  # 让windows.h默认使用宽字符串防止报错(*^_^*)
         # "-DDEBUG", "-O0", "-g",   # 调试模式，若要使用请去掉前面的超强优化
     ]
 

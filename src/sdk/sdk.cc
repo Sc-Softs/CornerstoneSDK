@@ -30,26 +30,55 @@ SOFTWARE.
 #include "sdk.h"
 
 #include "../config.h"
+
+#include <cstring>
 #include <unordered_set>
 
 API *api;
 
-EventProcess EFun_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
+// 群消息事件回调包装
+EventProcess ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
 {
-    PrivateMessageData data = (PrivateMessageData)*(const_cast<_EType_PrivateMessageData *>(eData));
-    return OnPrivateMessage(&data);
+    PrivateMessageData data(*(const_cast<_EType_PrivateMessageData *>(eData)));
+    return OnPrivateMessage(data);
 }
 
-EventProcess EFun_OnGroupMessage(volatile _EType_GroupMessageData *eData)
+// 群消息事件回调包装
+EventProcess ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eData)
 {
-    GroupMessageData data = (GroupMessageData)*(const_cast<_EType_GroupMessageData *>(eData));
-    return OnGroupMessage(&data);
+    GroupMessageData data(*(const_cast<_EType_GroupMessageData *>(eData)));
+    return OnGroupMessage(data);
 }
 
-EventProcess EFun_OnEvent(volatile _EType_EventData *eData)
+// 插件卸载事件回调包装（未知参数）
+EventProcess ECallBack_OnUninstall(void*)
 {
-    EventData data = (EventData)*(const_cast<_EType_EventData *>(eData));
-    return OnEvent(&data);
+    return OnUninstall();
+}
+
+// 插件设置事件回调包装（未知参数）
+EventProcess ECallBack_OnSettings(void*)
+{
+    return OnSettings();
+}
+
+// 插件被启用事件回调包装（未知参数）
+EventProcess ECallBack_OnEnabled(void*)
+{
+    return OnEnabled();
+}
+
+// 插件被禁用事件回调包装（未知参数）
+EventProcess ECallBack_OnDisabled(void*)
+{
+    return OnDisabled();
+}
+
+// 其他事件回调包装
+EventProcess ECallBack_OnEvent(volatile _EType_EventData *eData)
+{
+    EventData data(*(const_cast<_EType_EventData *>(eData)));
+    return OnEvent(data);
 }
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
@@ -66,13 +95,13 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
              {"appv", config["插件版本"]},
              {"describe", config["插件说明"]},
              {"sdkv", "2.6.5"},
-             {"friendmsaddres", (uintptr_t)&EFun_OnPrivateMessage},
-             {"groupmsaddres", (uintptr_t)&EFun_OnGroupMessage},
-             {"unitproaddres", (uintptr_t)&OnUninstall},
-             {"setproaddres", (uintptr_t)&OnSettings},
-             {"useproaddres", (uintptr_t)&OnEnabled},
-             {"banproaddres", (uintptr_t)&OnDisabled},
-             {"eventmsaddres", (uintptr_t)&EFun_OnEvent}};
+             {"friendmsaddres", (uintptr_t)&ECallBack_OnPrivateMessage},
+             {"groupmsaddres", (uintptr_t)&ECallBack_OnGroupMessage},
+             {"unitproaddres", (uintptr_t)&ECallBack_OnUninstall},
+             {"setproaddres", (uintptr_t)&ECallBack_OnSettings},
+             {"useproaddres", (uintptr_t)&ECallBack_OnEnabled},
+             {"banproaddres", (uintptr_t)&ECallBack_OnDisabled},
+             {"eventmsaddres", (uintptr_t)&ECallBack_OnEvent}};
         const std::unordered_set<std::string> dangerous_api =
             {
                 "QQ点赞",
@@ -109,15 +138,15 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
         auto info = s2e_s(info_utf8);
         auto size = info.size();
         auto cstr = new char[size + 1]; // 如果直接返回c_str()，有时会崩溃
-        strcpy(cstr, info.c_str());
+        std::memcpy(cstr, info.c_str(), size + 1);
         cstr[size] = '\0'; // 确保没事
         return cstr;       // 不知道易语言会不会回收这个内存？
     }
     catch (Json::exception e)
     {
-        MessageBoxA(nullptr,
-                    s2e(sum_string("插件信息解析失败，请检查config.h\r\n错误信息：\r\n", e.what())),
-                    s2e("Cornerstone SDK 错误"),
+        MessageBoxW(nullptr,
+                    UTF8ToWideChar(sum_string("插件信息解析失败，请检查config.h\r\n错误信息：\r\n", e.what())).c_str(),
+                    UTF8ToWideChar("Cornerstone SDK 错误").c_str(),
                     MB_OK | MB_ICONERROR);
         return "{}";
     }

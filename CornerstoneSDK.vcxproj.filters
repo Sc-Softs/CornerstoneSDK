@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="CornerstoneSDK">
+      <UniqueIdentifier>{87544047-66a7-46af-93f7-341529d07a70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Plugin">
+      <UniqueIdentifier>{6e72d6ce-1ec0-4bde-b4a0-a1341b73d6b3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\sdk\api\api.cc">
+      <Filter>CornerstoneSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdk\sdk.cc">
+      <Filter>CornerstoneSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdk\utils\types.cc">
+      <Filter>CornerstoneSDK</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plugin.cc">
+      <Filter>Plugin</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdk\encoding\encoding.cc">
+      <Filter>CornerstoneSDK</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\sdk\api\api.h">
+      <Filter>CornerstoneSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\sdk.h">
+      <Filter>CornerstoneSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\utils\types.h">
+      <Filter>CornerstoneSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\utils\utils-inl.h">
+      <Filter>CornerstoneSDK</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config.h">
+      <Filter>Plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\encoding\encoding.h">
+      <Filter>CornerstoneSDK</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="def\config.def">
+      <Filter>CornerstoneSDK</Filter>
+    </None>
+  </ItemGroup>
+</Project>

@@ -9,22 +9,22 @@ using namespace std;
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 好友消息事件
-EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
+EventProcess OnPrivateMessage(PrivateMessageData &data)
 {
-    std::string content = data->MessageContent;
+    std::string content = data.MessageContent;
     if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("好友消息测试");
-        api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友消息测试");
+        api->SendFriendMessage(data.ThisQQ, data.SenderQQ, "好友消息测试");
     }
     else if (content == "CornerstoneSDK测试好友列表")
     {
         vector<FriendInformation> friend_list;
-        auto size = api->GetFriendList(data->ThisQQ, friend_list);
+        auto size = api->GetFriendList(data.ThisQQ, friend_list);
         if (size == 0)
         {
             api->OutputLog("好友列表获取失败: 返回的size为0");
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "好友列表获取失败: 返回的size为0");
+            api->SendFriendMessage(data.ThisQQ, data.SenderQQ, "好友列表获取失败: 返回的size为0");
         }
         else
         {
@@ -34,17 +34,17 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
             {
                 friends += sum_string(friend_info.QQNumber, ": ", friend_info.Name, "\n");
             }
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, friends);
+            api->SendFriendMessage(data.ThisQQ, data.SenderQQ, friends);
         }
     }
     else if (content == "CornerstoneSDK测试群列表")
     {
         vector<GroupInformation> group_list;
-        auto size = api->GetGroupList(data->ThisQQ, group_list);
+        auto size = api->GetGroupList(data.ThisQQ, group_list);
         if (size == 0)
         {
             api->OutputLog("群列表获取失败: 返回的size为0");
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, "群列表获取失败: 返回的size为0");
+            api->SendFriendMessage(data.ThisQQ, data.SenderQQ, "群列表获取失败: 返回的size为0");
         }
         else
         {
@@ -54,21 +54,21 @@ EventProcess OnPrivateMessage(volatile PrivateMessageData *data)
             {
                 groups += sum_string(group_info.GroupQQ, ": ", group_info.GroupName, "\n");
             }
-            api->SendFriendMessage(data->ThisQQ, data->SenderQQ, groups);
+            api->SendFriendMessage(data.ThisQQ, data.SenderQQ, groups);
         }
     }
     return EventProcess::Ignore;
 }
 
 // 群消息事件
-EventProcess OnGroupMessage(volatile GroupMessageData *data)
+EventProcess OnGroupMessage(GroupMessageData &data)
 {
-    std::string content = data->MessageContent;
+    std::string content = data.MessageContent;
     if (content == "CornerstoneSDK测试")
     {
         api->OutputLog("群消息测试");
-        api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群消息测试");
-        auto retcode = get_retcode(api->SendGroupTemporaryMessage(data->ThisQQ, data->MessageGroupQQ, data->SenderQQ, "临时消息测试"));
+        api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, "群消息测试");
+        auto retcode = get_retcode(api->SendGroupTemporaryMessage(data.ThisQQ, data.MessageGroupQQ, data.SenderQQ, "临时消息测试"));
         if (retcode != 0)
         {
             api->OutputLog(sum_string("临时消息发送失败: ", retcode));
@@ -77,11 +77,11 @@ EventProcess OnGroupMessage(volatile GroupMessageData *data)
     else if (content == "CornerstoneSDK测试取群成员列表")
     {
         vector<GroupMemberInformation> member_list;
-        auto size = api->GetGroupMemberList(data->ThisQQ, data->MessageGroupQQ, member_list);
+        auto size = api->GetGroupMemberList(data.ThisQQ, data.MessageGroupQQ, member_list);
         if (size == 0)
         {
             api->OutputLog("群成员列表获取失败: 返回的size为0");
-            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, "群成员列表获取失败: 返回的size为0");
+            api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, "群成员列表获取失败: 返回的size为0");
         }
         else
         {
@@ -91,44 +91,44 @@ EventProcess OnGroupMessage(volatile GroupMessageData *data)
             {
                 members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");
             }
-            api->SendGroupMessage(data->ThisQQ, data->MessageGroupQQ, members);
+            api->SendGroupMessage(data.ThisQQ, data.MessageGroupQQ, members);
         }
     }
     return EventProcess::Ignore;
 }
 
-// 插件卸载事件（未知参数）
-EventProcess OnUninstall(void *)
+// 插件卸载事件
+EventProcess OnUninstall()
 {
     delete api; // 清除全局API对象避免内存泄漏
     return EventProcess::Ignore;
 }
 
-// 插件设置事件（未知参数），这里可以弹出对话框
-EventProcess OnSettings(void *)
+// 插件设置事件 这里可以弹出对话框
+EventProcess OnSettings()
 {
     return EventProcess::Ignore;
 }
 
-// 插件被启用事件（未知参数）
-EventProcess OnEnabled(void *)
+// 插件被启用事件
+EventProcess OnEnabled()
 {
     api->OutputLog(sum_string("插件数据目录：", api->GetPluginDataDirectory()));
     return EventProcess::Ignore;
 }
 
-// 插件被禁用事件（未知参数）
-EventProcess OnDisabled(void *)
+// 插件被禁用事件
+EventProcess OnDisabled()
 {
     return EventProcess::Ignore;
 }
 
-// 事件消息
-EventProcess OnEvent(volatile EventData *data)
+// 其他事件
+EventProcess OnEvent(EventData &data)
 {
-    if (data->SourceGroupQQ == 0) // 非群事件
+    if (data.SourceGroupQQ == 0) // 非群事件
     {
-        switch (data->EventType)
+        switch (data.EventType)
         {
         // 好友事件_被好友删除
         case EventType::Friend_Removed:
@@ -185,7 +185,7 @@ EventProcess OnEvent(volatile EventData *data)
     }
     else // 群事件
     {
-        switch (data->EventType)
+        switch (data.EventType)
         {
         // 群事件_我被邀请加入群
         case EventType::Group_Invited:

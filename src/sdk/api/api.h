@@ -27,14 +27,96 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_HEADER_API_H_
-#define CORNERSTONE_HEADER_API_H_
+#ifndef CORNERSTONE_SDK_HEADER_API_H_
+#define CORNERSTONE_SDK_HEADER_API_H_
 
 #include "../sdk.h"
 
 class API
 {
 public:
+/* TODO: 2.6.5->2.6.7 修改一吨东西
+
+1：修复创建群文件夹中文乱码的BUG
+
+2：修复私聊机器人时重复获取同一条私聊消息的BUG
+
+3：加入涂鸦消息接收与发送(文本代码方式)，支持群聊、私聊
+
+4：群聊坦白说也支持发送了(文本代码方式)，但这发送出去的是假坦白说
+
+5：修复发送私聊消息、发送群临时消息返回req和random为0的BUG
+
+6：处理群验证事件支持设置拒绝理由了
+
+7：更新二次登录包体
+
+8：上传群文件支持自定义上传文件夹了
+
+9：修复私聊消息发送过快或某些特殊情景下时发送人QQ变成机器人QQ的BUG
+
+10：修复私聊消息过快时漏消息的BUG
+
+11：免费礼物ID新增[告白话筒]
+
+12：私聊类消息文字改用和好友消息一样的文字配色
+
+13：框架窗口最小化时，右键托盘图标，可查看登录信息以此区分不同框架
+
+14：有人申请加群时，可获取到对方发送的验证消息了，具体看空壳
+
+15：修复某人被邀请入群事件，具体看空壳
+
+16：加入匿名消息解析，匿名消息将解析匿名值和匿名id传入插件
+
+17：禁言群成员时长为0时解除禁言、群聊消息结构的[发送人位置经度]改成[框架QQ匿名id]
+
+18：修复PC戳一戳无法解析的BUG
+
+19：框架运行前请求UAC权限以防框架创建文件夹等执行失败
+
+20：修复收到文件消息时，群聊消息结构当中文件相关值为空的BUG、修复群聊数据结构appid=0的BUG
+
+21：修复好友文件和群文件文本代码格式不统一的BUG
+
+22：修复关闭私聊消息接收后，好友事件消息无法正常接收的BUG
+
+23：修复关闭私聊消息接收后，依旧可以收到其他设备私聊消息的BUG
+
+24：框架支持韩文等特殊utf8字符了，SDK当中开放了[Utf8ToUsc2]和[Usc2ToUtf8]两个命令用于转换，具体看注释
+
+25：新增好友消息类型，可用于区分转账、红包、普通消息(直接判断文本代码不准确)
+
+26：修复群各种开关事件操作人昵称显示空白的BUG
+
+27：新增多种文本代码，具体看SDK
+
+28：修复好友事件和群事件冲突的BUG(旧版插件如果使用了好友事件，那么其相关代码将会失效)
+
+29：增加群名变更事件
+
+30：修复全员禁言开关事件传入插件时开和关颠倒的BUG
+
+31：有人请求添加好友时，可以获取对方验证消息了，具体看空壳
+
+32：修复2.6.6当中卸载插件时，选择保留数据后，依旧清空相关插件数据的BUG
+
+33：更新[修改个性签名]的API
+
+34：修复[修改昵称]API失效的BUG
+
+35：框架获取群事件后，即刻设置该群事件为已读以防重复读取
+
+36：群文件上传返回状态码和错误信息
+
+37：增加[重命名群文件夹]、[删除群文件夹]、[删除群文件]、[保存文件到微云]、[移动群文件]、[取群文件列表]的API
+
+38：修复群临时会话长消息无效的BUG
+
+39：SDK当中加入命令[取腾讯换行符]，解决收到文本后无法进行换行分割的BUG
+
+40：添加好友和添加群遇到未处理的类型时将在日志显示具体类型
+*/
     /**
      * @brief 载入插件关键字和系统API函数指针
      * @param api_data 系统API函数指针JSON
@@ -225,13 +307,13 @@ public:
      * @brief silk解码 无权限要求 尚未实现！
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkDecode(std::string audio_file_path);
+    const std::uint8_t *SilkDecode(const std::string& audio_file_path);
 
     /**
      * @brief silk编码 无权限要求 尚未实现！
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkEncode(std::string audio_file_path);
+    const std::uint8_t *SilkEncode(const std::string& audio_file_path);
 
     /**
      * @brief 设置群名片
@@ -250,7 +332,7 @@ public:
     std::string GetNameFromCache(std::int64_t otherQQ);
 
     /**
-     * @brief 从缓存获取昵称
+     * @brief 强制获取昵称
      * @param otherQQ 对方QQ
      * @return 成功返回昵称
      */
@@ -716,7 +798,7 @@ public:
      * @param time time 撤回消息用
      * @return 失败或无权限返回false
      */
-    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int32_t &random, std::int32_t &time);
+    bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, std::string fileID, std::string file_name, std::int32_t &req, std::int64_t &random, std::int32_t &time);
 
     /**
      * @brief 转发好友文件至好友（若要撤回消息请使用另一重载）
@@ -966,4 +1048,4 @@ private:
     char *key;
 };
 
-#endif // CORNERSTONE_HEADER_API_H_
+#endif // CORNERSTONE_SDK_HEADER_API_H_
