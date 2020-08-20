@@ -197,22 +197,22 @@ public:
      * @param thisQQ 框架QQ
      * @param friendQQ 好友QQ
      * @param audio 语音数据
-     * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
+     * @param audio_type 语音类型
      * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
-    std::string UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type, const std::string &audio_text);
+    std::string UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type = AudioTypeEnum::Normal, const std::string &audio_text = "");
 
     /**
      * @brief 上传群语音
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param audio 语音数据
-     * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
+     * @param audio_type 语音类型
      * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
      * @return 成功返回语音代码
      */
-    std::string UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type = 0, const std::string &audio_text = "");
+    std::string UploadGroupAudio(std::int64_t thisQQ, std::int64_t groupQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type = AudioTypeEnum::Normal, const std::string &audio_text = "");
 
     /**
      * @brief 上传头像
@@ -559,20 +559,20 @@ public:
      * @param source_groupQQ 来源群号
      * @param triggerQQ 触发QQ
      * @param message_seq 消息Seq
-     * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
+     * @param operate_type 操作类型
      * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
      * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
      */
-    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type, std::string refuse_reason = "");
+    void ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, GroupVerificationOperateEnum operate_type, std::int32_t event_type, std::string refuse_reason = "");
 
     /**
      * @brief 处理好友验证事件 在好友验证事件下使用，无权限时不执行
      * @param thisQQ 框架QQ
      * @param triggerQQ 触发QQ
      * @param message_seq 消息Seq
-     * @param operate_type 操作类型 1: 同意, 2: 拒绝
+     * @param operate_type 操作类型
      */
-    void ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type);
+    void ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, FriendVerificationOperateEnum operate_type);
 
     /**
      * @brief 查看转发聊天记录内容 私聊消息也可以使用此命令解析，无权限时不执行
@@ -657,12 +657,12 @@ public:
     /**
     * @brief 设置在线状态
     * @param thisQQ 框架QQ
-    * @param main main 11: 在线, 31: 离开, 41: 隐身, 50: 忙碌, 60: Q我吧, 70: 请勿打扰
-    * @param sun sun 当main=11时，可进一步设置 0: 普通在线, 1000: 我的电量, 1011: 信号弱, 1016: 睡觉中, 1017: 游戏中, 1018: 学习中, 1019: 吃饭中, 1021: 煲剧中, 1022: 度假中, 1024: 在线学习, 1025: 在家旅游, 1027: TiMi中, 1028: 我在听歌, 1032: 熬夜中, 1050: 打球中, 1051: 恋爱中, 1052: 我没事
-    * @param battery 电量 sun=1000时，可以设置上报电量，取值1到100
+    * @param main 主要在线状态
+    * @param sun 详细在线状态 当main为Online(在线)时，可进一步设置详细在线状态
+    * @param battery 电量 当sun为ShowBattery(我的电量)时，可以设置上报电量，取值1到100
     * @return 失败或无权限返回false
     */
-    bool SetStatus(std::int64_t thisQQ, std::int32_t main, std::int32_t sun = 0, std::int32_t battery = 0);
+    bool SetStatus(std::int64_t thisQQ, StatusTypeEnum main, StatusOnlineTypeEnum sun = StatusOnlineTypeEnum::Normal, std::int32_t battery = 0);
 
     /**
      * @brief 判断某api是否有权限
@@ -742,7 +742,7 @@ public:
      * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
-     * @param file_name FileName
+     * @param file_name 文件名
      * @param file_size 文件大小
      * @param req Req 撤回消息用
      * @param random Random 撤回消息用
@@ -757,7 +757,7 @@ public:
      * @param source_groupQQ 来源群号
      * @param otherQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name 文件名
      * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
@@ -769,7 +769,7 @@ public:
      * @param sourceQQ 来源QQ
      * @param targetQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name 文件名
      * @param file_size 文件大小
      * @param req Req 撤回消息用
      * @param random Random 撤回消息用
@@ -784,7 +784,7 @@ public:
      * @param sourceQQ 来源QQ
      * @param targetQQ 目标QQ
      * @param fileID FileId
-     * @param file_name Filename
+     * @param file_name 文件名
      * @param file_size 文件大小
      * @return 失败或无权限返回false
      */
@@ -804,9 +804,9 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param otherQQ 对方QQ
-     * @param packageID 礼物ID 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+     * @param gift 礼物
      */
-    std::string SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t packageID);
+    std::string SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, FreeGiftEnum gift);
 
     /**
      * @brief 获取好友在线状态

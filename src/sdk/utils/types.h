@@ -145,8 +145,8 @@ inline const char* new_and_copy_str(const char* str)
     return newStr;
 }
 
-
-// 枚举常量
+//region 枚举常量
+//=============
 
 // 事件处理
 enum class EventProcessEnum : eint
@@ -279,6 +279,129 @@ enum class EventTypeEnum : eint
     // 群事件_某人被解除禁言
     Group_MemberNotShutUp = 29
 };
+
+// 语音类型
+enum class AudioTypeEnum : eint
+{
+    // 普通语音
+    Normal = 0,
+    // 变声语音
+    Change = 1,
+    // 文字语音
+    Text = 2,
+    // (红包)匹配语音
+    Match = 3,
+};
+
+// 群验证信息操作类型
+enum class GroupVerificationOperateEnum : eint
+{
+    Agree = 11,
+    Deny = 12,
+    Ignore = 14
+};
+
+// 好友验证信息操作类型
+enum class FriendVerificationOperateEnum : eint
+{
+    Agree = 1,
+    Deny = 2
+};
+
+// 主要在线状态
+enum class StatusTypeEnum : eint
+{
+    // 在线
+    Online = 11,
+    // 离开
+    Away = 31,
+    // 隐身
+    Invisibility = 41,
+    // 忙碌
+    Busy = 50,
+    // Q我吧
+    TalkToMe = 60,
+    // 请勿打扰
+    DoNotDisturb = 70
+};
+
+// 详细在线状态
+enum class StatusOnlineTypeEnum : eint
+{
+    // 普通在线
+    Normal = 0,
+    // 我的电量
+    ShowBattery = 1000,
+    // 信号弱
+    WeakSignal = 1011,
+    // 睡觉中
+    Sleeping = 1016,
+    // 游戏中
+    InGame = 1017,
+    // 学习中
+    Learning = 1018,
+    // 吃饭中
+    Eating = 1019,
+    // 煲剧中
+    WatchingTeleplay = 1021,
+    // 度假中
+    OnVacation = 1022,
+    // 在线学习
+    OnlineLearning = 1024,
+    // 在家旅游
+    TravelAtHome = 1025,
+    // TiMi中
+    InTiMi = 1027,
+    // 我在听歌
+    ListeningSong = 1028,
+    // 熬夜中
+    StayingUpLate = 1032,
+    // 打球中
+    PlayingBall = 1050,
+    // 恋爱中
+    InLove = 1051,
+    // 我没事(实际上有事)
+    IAmOK = 1052
+};
+
+// TODO 优化使用体验
+// 免费礼物
+enum class FreeGiftEnum : eint
+{
+    // 告白话筒
+    Gift_367 = 367,
+    // 卡布奇诺
+    Gift_299 = 299,
+    // 猫咪手表
+    Gift_302 = 302,
+    // 牵你的手
+    Gift_280 = 280,
+    // 可爱猫咪
+    Gift_281 = 281,
+    // 神秘面具
+    Gift_284 = 284,
+    // 甜wink
+    Gift_285 = 285,
+    // 我超忙的
+    Gift_286 = 286,
+    // 快乐肥宅水
+    Gift_289 = 289,
+    // 幸运手链
+    Gift_290 = 290,
+    // 坚强
+    Gift_313 = 313,
+    // 绒绒手套
+    Gift_307 = 307,
+    // 爱心口罩
+    Gift_312 = 312,
+    // 彩虹糖果
+    Gift_308 = 308
+};
+//const std::unordered_map<std::string, eint> FreeGiftMap =
+//        {
+// 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+//        };
+
 
 // 某些API中可能会用
 // 权限（有感叹号的是危险权限！）
@@ -551,6 +674,9 @@ const std::unordered_map<PermissionEnum, std::string> PermissionMap =
      {PermissionEnum::FriendDrawRedEnvelope, "好友画图红包"},
      {PermissionEnum::FriendAudioRedEnvelope, "好友语音红包"},
      {PermissionEnum::FriendFollowRedEnvelope, "好友接龙红包"}};
+
+//=============
+//endregion
 
 #pragma pack(4)
 // 数据结构

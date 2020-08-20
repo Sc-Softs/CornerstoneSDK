@@ -270,13 +270,13 @@ std::string API::UploadGroupImage(std::int64_t thisQQ, std::int64_t groupQQ, con
  * @param thisQQ 框架QQ
  * @param friendQQ 好友QQ
  * @param audio 语音数据
- * @param audio_type 语音类型 0：普通语音，1：变声语音，2：文字语音，3：红包匹配语音
+ * @param audio_type 语音类型
  * @param audio_text 语音文字 文字语音填附加文字(貌似会自动替换为语音对应的文本), 匹配语音填a、b、s、ss、sss，注意是小写
  * @return 成功返回语音代码
  */
-std::string API::UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, std::int32_t audio_type, const std::string &audio_text)
+std::string API::UploadFriendAudio(std::int64_t thisQQ, std::int64_t friendQQ, const std::uint8_t *audio, size_t size, AudioTypeEnum audio_type, const std::string &audio_text)
 {
-    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传好友语音")(this->key, thisQQ, friendQQ, audio_type, s2e(audio_text), audio, static_cast<eint>(size)));
+    return e2s(_f<etext(etext, elong, elong, eint, etext, ebin, eint)>(this->j, "上传好友语音")(this->key, thisQQ, friendQQ, (eint)audio_type, s2e(audio_text), audio, static_cast<eint>(size)));
 }
 
 /**
@@ -767,13 +767,13 @@ int64_t API::IsShuttedUp(std::int64_t thisQQ, std::int64_t groupQQ)
  * @param source_groupQQ 来源群号
  * @param triggerQQ 触发QQ
  * @param message_seq 消息Seq
- * @param operate_type 操作类型 11: 同意, 12: 拒绝, 14: 忽略
+ * @param operate_type 操作类型
  * @param event_type 事件类型 群事件_某人申请加群(Group_MemberVerifying)或群事件_我被邀请加入群(Group_Invited)
  * @param refuse_reason 拒绝理由 当拒绝时，可在此设置拒绝理由
  */
-void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type, std::int32_t event_type, std::string refuse_reason)
+void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t triggerQQ, std::int64_t message_seq, GroupVerificationOperateEnum operate_type, std::int32_t event_type, std::string refuse_reason)
 {
-    return _f<void(etext, elong, elong, elong, elong, eint, eint, etext)>(this->j, "处理群验证事件")(this->key, thisQQ, source_groupQQ, triggerQQ, message_seq, operate_type, event_type, s2e(refuse_reason));
+    return _f<void(etext, elong, elong, elong, elong, eint, eint, etext)>(this->j, "处理群验证事件")(this->key, thisQQ, source_groupQQ, triggerQQ, message_seq, (eint)operate_type, event_type, s2e(refuse_reason));
 }
 
 /**
@@ -781,11 +781,11 @@ void API::ProcessGroupVerificationEvent(std::int64_t thisQQ, std::int64_t source
  * @param thisQQ 框架QQ
  * @param triggerQQ 触发QQ
  * @param message_seq 消息Seq
- * @param operate_type 操作类型 1: 同意, 2: 拒绝
+ * @param operate_type 操作类型
  */
-void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, std::int32_t operate_type)
+void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t triggerQQ, std::int64_t message_seq, FriendVerificationOperateEnum operate_type)
 {
-    return _f<void(etext, elong, elong, elong, eint)>(this->j, "处理好友验证事件")(this->key, thisQQ, triggerQQ, message_seq, operate_type);
+    return _f<void(etext, elong, elong, elong, eint)>(this->j, "处理好友验证事件")(this->key, thisQQ, triggerQQ, message_seq, (eint)operate_type);
 }
 
 /**
@@ -902,13 +902,13 @@ std::string API::SaveFileToWeiYun(std::int64_t thisQQ, std::int64_t groupQQ, std
 }
 
 /**
-* @brief 设置在线状态
-* @param thisQQ 框架QQ
-* @param main main 11: 在线, 31: 离开, 41: 隐身, 50: 忙碌, 60: Q我吧, 70: 请勿打扰
-* @param sun sun 当main=11时，可进一步设置 0: 普通在线, 1000: 我的电量, 1011: 信号弱, 1016: 睡觉中, 1017: 游戏中, 1018: 学习中, 1019: 吃饭中, 1021: 煲剧中, 1022: 度假中, 1024: 在线学习, 1025: 在家旅游, 1027: TiMi中, 1028: 我在听歌, 1032: 熬夜中, 1050: 打球中, 1051: 恋爱中, 1052: 我没事
-* @param battery 电量 sun=1000时，可以设置上报电量，取值1到100
-* @return 失败或无权限返回false
-*/
+ * @brief 设置在线状态
+ * @param thisQQ 框架QQ
+ * @param main 主要在线状态
+ * @param sun 详细在线状态 当main为Online(在线)时，可进一步设置详细在线状态
+ * @param battery 电量 当sun为ShowBattery(我的电量)时，可以设置上报电量，取值1到100
+ * @return 失败或无权限返回false
+ */
 bool API::SetStatus(std::int64_t thisQQ, std::int32_t main, std::int32_t sun, std::int32_t battery)
 {
     return e2b(_f<ebool(etext, elong, eint, eint, eint)>(this->j, "设置在线状态")(this->key, thisQQ, main, sun, battery));
@@ -929,11 +929,12 @@ bool API::CheckPermission(PermissionEnum permission)
  */
 bool API::CheckPermission(std::string permission)
 {
+    // 确保存在这个权限
     for (auto it : PermissionMap)
     {
         if (it.second == permission)
         {
-            return e2b(_f<ebool(etext, etext)>(this->j, "api是否有权限")(this->key, s2e(permission)));
+            return this->CheckPermission(it.first);
         }
     }
     return false;
@@ -1132,11 +1133,11 @@ bool API::SetGroupMessageReceive(std::int64_t thisQQ, std::int64_t groupQQ, std:
  * @param thisQQ 框架QQ
  * @param groupQQ 群号
  * @param otherQQ 对方QQ
- * @param packageID 礼物ID 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
+ * @param gift 礼物
  */
-std::string API::SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t packageID)
+std::string API::SendFreeGift(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, FreeGiftEnum gift)
 {
-    return e2s(_f<etext(etext, elong, elong, elong, eint)>(this->j, "发送免费礼物")(this->key, thisQQ, groupQQ, otherQQ, packageID));
+    return e2s(_f<etext(etext, elong, elong, elong, eint)>(this->j, "发送免费礼物")(this->key, thisQQ, groupQQ, otherQQ, (eint)gift));
 }
 
 /**
