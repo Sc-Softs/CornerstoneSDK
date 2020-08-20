@@ -62,6 +62,14 @@
         "cerrno": "cpp",
         "cfloat": "cpp",
         "climits": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+        "memory_resource": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp"
     }
 }

@@ -3,3 +3,9 @@ build/
 
 # 忽略生成插件目录
 out/
+
+# 忽略 VS 临时文件
+.vs/
+
+# 忽略 VC 项目用户配置文件
+*.vcxproj.user

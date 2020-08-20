@@ -1,3 +1,2 @@
-LIBRARY "*.dll"
 EXPORTS
 apprun @1

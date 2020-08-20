@@ -27,14 +27,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_HEADER_TYPES_H_
-#define CORNERSTONE_HEADER_TYPES_H_
+#ifndef CORNERSTONE_SDK_HEADER_TYPES_H_
+#define CORNERSTONE_SDK_HEADER_TYPES_H_
 
 #include "../sdk.h"
 #include "utils-inl.h"
 
-#include <string>
+#include <cstring>
 #include <unordered_map>
+#include <type_traits>
 
 // 易语言类型
 using ebyte = std::uint8_t;        // 易语言字节型
@@ -83,7 +84,7 @@ public:
         {
             volatile EType **data = (volatile EType **)(((eint *)this->data) + 2);
             array.clear();
-            for (auto i = 0; i < size; i++)
+            for (decltype(size) i = 0; i < size; i++)
             {
                 array.push_back((CType)*(const_cast<EType *>(*data)));
                 data++;
@@ -128,22 +129,8 @@ constexpr bool e2b(const ebool &e)
     return ebool2bool(e);
 }
 
-std::string GBKtoUTF8(const char *gbk);
-std::string UTF8toGBK(const std::string &utf8);
-#define e2s_s(src_str) GBKtoUTF8(src_str)
-#define s2e_s(src_str) UTF8toGBK(src_str)
-#define e2s(src_str) e2s_s(src_str).c_str()
-#define s2e(src_str) s2e_s(src_str).c_str()
-
 // WARNING: 使用完后请自行delete字符串指针，否则将造成内存泄露
-inline const char* new_and_copy_str(const char* str)
-{
-    size_t size = std::strlen(str);
-    char* newStr = new char[size + 1];
-    std::strcpy(newStr, str);
-    newStr[size] = '\0';
-    return newStr;
-}
+const char* new_and_copy_str(const char* str);
 
 //region 枚举常量
 //=============
@@ -173,6 +160,7 @@ enum class MessageTypeEnum : eint
     // 群聊通常消息
     GroupUsualMessage = 134
 };
+
 // 消息子类型
 enum class MessageSubTypeEnum : eint
 {
@@ -364,7 +352,7 @@ enum class StatusOnlineTypeEnum : eint
     IAmOK = 1052
 };
 
-// TODO 优化使用体验
+// TODO: 优化使用体验
 // 免费礼物
 enum class FreeGiftEnum : eint
 {
@@ -397,11 +385,11 @@ enum class FreeGiftEnum : eint
     // 彩虹糖果
     Gift_308 = 308
 };
+
 //const std::unordered_map<std::string, eint> FreeGiftMap =
 //        {
 // 367: 告白话筒, 299: 卡布奇诺, 302: 猫咪手表, 280: 牵你的手, 281: 可爱猫咪, 284: 神秘面具, 285: 甜wink, 286: 我超忙的, 289: 快乐肥宅水, 290: 幸运手链, 313: 坚强, 307: 绒绒手套, 312: 爱心口罩, 308: 彩虹糖果
 //        };
-
 
 // 某些API中可能会用
 // 权限（有感叹号的是危险权限！）
@@ -681,7 +669,6 @@ const std::unordered_map<PermissionEnum, std::string> PermissionMap =
 #pragma pack(4)
 // 数据结构
 
-
 #define etext_copy_new(dst, src) if ((src) != nullptr) {(dst) = new_and_copy_str((src));} else {(dst) = nullptr;}
 #define delete_str_copy(str) if ((str) != nullptr) { delete[] (str); (str) = nullptr;}
 
@@ -737,6 +724,7 @@ struct _EType_PrivateMessageData
     // 文件大小
     elong FileSize;
 };
+
 // 私聊消息数据
 struct PrivateMessageData : _EType_PrivateMessageData
 {
@@ -1293,6 +1281,7 @@ struct _EType_CardInformation
     // bank_type
     etext BankType = nullptr;
 };
+
 // 银行卡信息
 struct CardInformation : _EType_CardInformation
 {
@@ -1338,6 +1327,7 @@ struct _EType_QQWalletInformation
     // 银行卡列表
     CardInformation *CardList = nullptr;
 };
+
 // QQ钱包信息
 struct QQWalletInformation : _EType_QQWalletInformation
 {
@@ -1542,4 +1532,4 @@ struct CaptchaInformation : _EType_CaptchaInformation
 #undef delete_str_copy
 
 #pragma pack()
-#endif // CORNERSTONE_HEADER_TYPES_H_
+#endif // CORNERSTONE_SDK_HEADER_TYPES_H_

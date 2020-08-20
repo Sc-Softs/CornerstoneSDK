@@ -27,18 +27,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_HEADER_UNTILS_INL_H_
-#define CORNERSTONE_HEADER_UNTILS_INL_H_
+#ifndef CORNERSTONE_SDK_HEADER_UNTILS_INL_H_
+#define CORNERSTONE_SDK_HEADER_UNTILS_INL_H_
 
 #include "../sdk.h"
 
 #include <string>
 
+template <class>
+struct _f_s;
+
+template <class RetT, class... ArgT>
+struct _f_s<RetT(ArgT...)>
+{
+    using type = typename RetT(__stdcall*)(ArgT...);
+};
+
+
+template <class FuncT>
+inline auto _f(Json api, const char *name)
+{
+    using func_type = _f_s<FuncT>::type;
+    return reinterpret_cast<func_type>(static_cast<uintptr_t>(api[name]));
+}
+
+/*
 template <class FuncT>
 inline FuncT *_f(Json api, const char *name)
 {
     return (FuncT *)((uintptr_t)api[name]);
 }
+*/
+
+#define pointer_or_zero(pointer) (((pointer) == nullptr) ? 0 : *(pointer))
 
 /**
  * @brief 获取API返回的JSON文本中的返回码
@@ -50,6 +71,11 @@ inline std::int32_t get_retcode(std::string retstr)
     return (std::int32_t)(Json::parse(retstr)["retcode"]);
 }
 
+inline std::string to_string(const char value)
+{
+    return std::string(1, value);
+}
+
 inline std::string to_string(const char *value)
 {
     return std::string(value);
@@ -58,6 +84,21 @@ inline std::string to_string(const char *value)
 inline std::string to_string(const std::string &value)
 {
     return value;
+}
+
+inline std::string to_string(const wchar_t value)
+{
+    return WideCharToUTF8(std::wstring(1, value));
+}
+
+inline std::string to_string(const wchar_t* value)
+{
+    return WideCharToUTF8(value);
+}
+
+inline std::string to_string(const std::wstring& value)
+{
+    return WideCharToUTF8(value);
 }
 
 template <class T>
@@ -90,11 +131,17 @@ constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g,
 
 // 调试
 #ifdef DEBUG
-#define debug() MessageBoxA(nullptr, sum_string(__FUNCTION__, ":", __LINE__).c_str(), "DEBUG at", MB_OK | MB_ICONINFORMATION)
-#define debugEx(x) MessageBoxA(nullptr, sum_string(__FUNCTION__, ":", __LINE__, "\r\n", x).c_str(), "DEBUG at", MB_OK | MB_ICONINFORMATION)
+#define debug() MessageBoxW(nullptr, \
+    L"", \
+    UTF8ToWideChar(sum_string("debug@", __func__, ":", __LINE__)).c_str(), \
+    MB_OK | MB_ICONINFORMATION)
+#define debugEx(x) MessageBoxW(nullptr, \
+    UTF8ToWideChar(sum_string(#x, " == ", (x))).c_str(), \
+    UTF8ToWideChar(sum_string("debugEx@", __func__, ":", __LINE__)).c_str(), \
+    MB_OK | MB_ICONINFORMATION)
 #else
 #define debug()
 #define debugEx(x)
 #endif
 
-#endif // CORNERSTONE_HEADER_UNTILS_INL_H_
+#endif // CORNERSTONE_SDK_HEADER_UNTILS_INL_H_

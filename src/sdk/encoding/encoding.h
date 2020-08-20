@@ -27,42 +27,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_SDK_HEADER_SDK_H_
-#define CORNERSTONE_SDK_HEADER_SDK_H_
+#include "../sdk.h"
 
-//系统
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <string>
 
-// 第三方
-#include "third_party/json.hpp"
-using Json = nlohmann::json;
+/*
+std::string GBKtoUTF8(const char* src_str);
+std::string UTF8toGBK(const std::string& src_str);
+*/
 
-// 工具
-#include "encoding/encoding.h"
-#include "utils/types.h"
-#include "utils/utils-inl.h"
-
-// API
-#include "api/api.h"
-
-// 好友消息事件
-EventProcess OnPrivateMessage(PrivateMessageData &data);
-// 群消息事件
-EventProcess OnGroupMessage(GroupMessageData &data);
-// 插件卸载事件
-EventProcess OnUninstall();
-// 插件设置事件 这里可以弹出对话框
-EventProcess OnSettings();
-// 插件被启用事件
-EventProcess OnEnabled();
-// 插件被禁用事件
-EventProcess OnDisabled();
-// 其他事件
-EventProcess OnEvent(EventData &data);
-
-// API对象
-class API;
-extern API *api;
-
-#endif // CORNERSTONE_SDK_HEADER_SDK_H_
+std::wstring UTF8ToWideChar(const std::string& utf8);
+std::string WideCharToUTF8(const std::wstring& wstr);
+std::wstring ANSIToWideChar(const std::string& ansi);
+std::string WideCharToANSI(const std::wstring& wstr);
+std::wstring ANSIWithUCS2ToWideChar(const std::string& ansi_with_ucs2);
+std::string WideCharToANSIWithUCS2(const std::wstring& wstr);
+#define e2s_s(ansi_with_ucs2) WideCharToUTF8(ANSIWithUCS2ToWideChar(ansi_with_ucs2))
+#define s2e_s(utf8) WideCharToANSIWithUCS2(UTF8ToWideChar(utf8))
+#define e2s(ansi_with_ucs2) e2s_s(ansi_with_ucs2).c_str()
+#define s2e(utf8) s2e_s(utf8).c_str()
