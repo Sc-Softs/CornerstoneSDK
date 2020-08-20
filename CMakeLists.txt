@@ -11,5 +11,5 @@ file(GLOB_RECURSE CORN_SOURCE src/sdk/**.cc)
 
 set(LIB_NAME "test")
 add_library(${LIB_NAME} SHARED ${SOURCE_FILES} ${CORN_SOURCE})
-add_link_options("$<$<CXX_COMPILER_ID:MSVC>:/EXPORT:apprun=_apprun")
+target_link_options(${LIB_NAME} PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/EXPORT:apprun=_apprun@8>")
 
