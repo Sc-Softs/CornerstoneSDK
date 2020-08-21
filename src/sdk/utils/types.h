@@ -36,6 +36,7 @@ SOFTWARE.
 #include <cstring>
 #include <unordered_map>
 #include <type_traits>
+#include <algorithm>
 
 // 易语言类型
 using ebyte = std::uint8_t;        // 易语言字节型
@@ -778,18 +779,28 @@ struct _EType_ServiceInformation
 };
 
 // 服务信息
-struct ServiceInformation : _EType_ServiceInformation
+struct ServiceInformation
 {
-    ServiceInformation()
+    enum ServiceCode : eint{
+        SVIP = 1, //SVIP
+        VIDEO_VIP = 4, //视频会员
+        MUSIC_PACK = 6, //音乐包
+        STAR = 105, //star
+        YELLOW_DIAMOND = 102, //黄钻
+        GREEN_DIAMOND = 103, //绿钻
+        RED_DIAMOND = 101, //红钻
+        YELLOWLOVE = 104, //yellowlove
+        SVIP_WITH_VIDEO = 107, //SVIP&视频会员
+        SVIP_WITH_GREEN = 109, //SVIP&绿钻
+        SVIP_WITH_MUSIC = 110 //SVIP&音乐包
+    };
+
+    ServiceCode ServiceCodename;
+    eint ServiceLevel;
+
+    ServiceInformation(const _EType_ServiceInformation& info):
+        ServiceCodename{info.ServiceCodename}, ServiceLevel{info.ServiceLevel}
     {}
-    ServiceInformation(const ServiceInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-    }
-    ServiceInformation(const _EType_ServiceInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-    }
 };
 
 // Note: _EType_开头的是内部转换用的类型，请使用普通的FriendInformation
@@ -822,7 +833,7 @@ struct _EType_FriendInformation
     // 城市 只能使用[查询好友信息]获取
     etext City = nullptr;
     // 服务列表 只能使用[查询好友信息]获取
-    ServiceInformation *ServiceList = nullptr;
+    _EType_ServiceInformation *ServiceList = nullptr;
     // 连续在线天数 只能使用[查询好友信息]获取
     eint ContinuousOnlineTime;
     // QQ达人 只能使用[查询好友信息]获取
@@ -834,67 +845,65 @@ struct _EType_FriendInformation
 };
 
 // 好友信息
-struct FriendInformation : _EType_FriendInformation
+struct FriendInformation
 {
-    FriendInformation(const FriendInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->Email, info.Email);
-        str_copy_new(this->Name, info.Name);
-        str_copy_new(this->Note, info.Note);
-        str_copy_new(this->Status, info.Status);
-        str_copy_new(this->Signature, info.Signature);
-        str_copy_new(this->Nation, info.Nation);
-        str_copy_new(this->Province, info.Province);
-        str_copy_new(this->City, info.City);
-        str_copy_new(this->QQTalent, info.QQTalent);
-    }
-    FriendInformation(const _EType_FriendInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->Email, info.Email);
-        e2s_copy_new(this->Name, info.Name);
-        e2s_copy_new(this->Note, info.Note);
-        e2s_copy_new(this->Status, info.Status);
-        e2s_copy_new(this->Signature, info.Signature);
-        e2s_copy_new(this->Nation, info.Nation);
-        e2s_copy_new(this->Province, info.Province);
-        e2s_copy_new(this->City, info.City);
-        e2s_copy_new(this->QQTalent, info.QQTalent);
+    ::std::string Email;
+    elong QQNumber;
+    ::std::string Name;
+    ::std::string Note;
+    ::std::string Status;
+    eint Likes;
+    ::std::string Signature;
 
-        if (this->ServiceList != nullptr)
+    enum GenderType : eint{
+        UNKNOW = 255,
+        Male = 0,
+        Female = 1
+    };
+
+    GenderType Gender;
+
+    eint Level;
+    eint Age;
+    ::std::string Nation;
+    ::std::string Province;
+    ::std::string City;
+    ::std::string QQTalent;
+
+    ::std::vector<ServiceInformation> ServiceList;
+
+    friend _EType_FriendInformation;
+
+    FriendInformation(const _EType_FriendInformation& info) :
+        QQNumber{info.QQNumber},Gender{info.Gender},Level{info.Level},Age{info.Age}
+    {
+        constexpr auto init_with_check = [](auto & member, const auto& src){
+            if(src != nullptr) member = e2s_s(src);
+        };
+
+        init_with_check(this->Email,info.Email);
+        init_with_check(this->Name,info.Name);
+        init_with_check(this->Note,info.Note);
+        init_with_check(this->Status,info.Status);
+        init_with_check(this->Signature,info.Signature);
+        init_with_check(this->Nation,info.Nation);
+        init_with_check(this->Province,info.Province);
+        init_with_check(this->City,info.City);
+        init_with_check(this->QQTalent,info.QQTalent);
+        
+        const auto & base_list = info.ServiceList;
+
+        #undef INIT_WITH_NULLPTR_CHECK
+
+        if (base_list != nullptr)
         {
-            earray1D<_EType_ServiceInformation, ServiceInformation> array;
-            std::vector<ServiceInformation> info_list;
-            array.data = this->ServiceList;
-            size_t size = array.Unpack(info_list);
-            if (size > 0) {
-                this->ServiceList = new ServiceInformation[size];
-                for (size_t i = 0; i < info_list.size(); i++)
-                {
-                    memcpy(this->ServiceList + i, &info_list[i], sizeof(ServiceInformation));
-                }
-            }
+            auto size = reinterpret_cast<eint*>(base_list)[1];
+            auto pptr = reinterpret_cast<_EType_ServiceInformation**>(
+                reinterpret_cast<eint*>(base_list)+2);
+            ::std::for_each(pptr,pptr+size,[this](const auto ptr){
+                this->ServiceList.push_back(*ptr);
+            });
         }
-    }
-    ~FriendInformation()
-    {
-        delete_str(this->Email);
-        delete_str(this->Name);
-        delete_str(this->Note);
-        delete_str(this->Status);
-        delete_str(this->Signature);
-        delete_str(this->Nation);
-        delete_str(this->Province);
-        delete_str(this->City);
-        delete_str(this->QQTalent);
-
-        if (this->ServiceList != nullptr)
-        {
-            delete[] this->ServiceList;
-            this->ServiceList = nullptr;
-        }
-
     }
 };
 
