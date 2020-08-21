@@ -1,6 +1,8 @@
 #include "sdk/sdk.h"
+
 #include <cstdint>
 #include <string>
+
 using namespace std;
 
 // Cornerstone SDK 的部分 API 尚未经过测试，可能仍存在漏洞
@@ -92,6 +94,12 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData &data)
         }
     }
 
+    // 没有要回复的消息
+    if (ret.empty())
+    {
+        return EventProcessEnum::Ignore;
+    }
+
     // 根据不同的消息来源调用不同的发送信息api
     if (data.MessageType == MessageTypeEnum::FriendUsualMessage)
     {
@@ -109,7 +117,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData &data)
 // 群消息事件
 EventProcessEnum OnGroupMessage(GroupMessageData &data)
 {
-    // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
+    // 序列从0开始，过滤长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
     if (data.MessageClipID > 0 && data.MessageClip + 1 != data.MessageClipCount)
     {
         return EventProcessEnum::Ignore;
@@ -150,8 +158,12 @@ EventProcessEnum OnGroupMessage(GroupMessageData &data)
             api->OutputLog(sum_string("群成员列表获取成功: 返回的size为", size));
             string members;
             // 最多只显示5个群成员
-            size_t max = std::max((int)member_list.size(), 5);
-            for (int i = 0; i < max; i++)
+            size_t n = member_list.size();
+            if (n > 5)
+            {
+                n = 5;
+            }
+            for (size_t i = 0; i < n; i++)
             {
                 auto member_info = member_list[i];
                 members += sum_string(member_info.QQNumber, ": ", member_info.Name, "\n");

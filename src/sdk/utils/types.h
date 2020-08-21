@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容 Corn SDK v2.6.9
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -304,7 +304,7 @@ enum class StatusTypeEnum : eint
     // 离开
     Away = 31,
     // 隐身
-    Invisibility = 41,
+    Invisible = 41,
     // 忙碌
     Busy = 50,
     // Q我吧
@@ -319,49 +319,43 @@ enum class StatusOnlineTypeEnum : eint
     // 普通在线
     Normal = 0,
     // 我的电量
-    ShowBattery = 1000,
+    Battery = 1000,
     // 信号弱
     WeakSignal = 1011,
     // 睡觉中
     Sleeping = 1016,
     // 游戏中
-    InGame = 1017,
+    Gaming = 1017,
     // 学习中
-    Learning = 1018,
+    Studying = 1018,
     // 吃饭中
     Eating = 1019,
     // 煲剧中
-    WatchingTeleplay = 1021,
+    WatchingTVSeries = 1021,
     // 度假中
     OnVacation = 1022,
     // 在线学习
-    OnlineLearning = 1024,
+    OnlineStudying = 1024,
     // 在家旅游
     TravelAtHome = 1025,
     // TiMi中
-    InTiMi = 1027,
+    TiMiing = 1027,
     // 我在听歌
-    ListeningSong = 1028,
+    ListeningToMusic = 1028,
     // 熬夜中
     StayingUpLate = 1032,
     // 打球中
     PlayingBall = 1050,
     // 恋爱中
-    InLove = 1051,
+    FallInLove = 1051,
     // 我没事(实际上有事)
-    IAmOK = 1052
+    ImOK = 1052
 };
 
 // TODO: 优化使用体验
 // 免费礼物
 enum class FreeGiftEnum : eint
 {
-    // 告白话筒
-    Gift_367 = 367,
-    // 卡布奇诺
-    Gift_299 = 299,
-    // 猫咪手表
-    Gift_302 = 302,
     // 牵你的手
     Gift_280 = 280,
     // 可爱猫咪
@@ -376,14 +370,20 @@ enum class FreeGiftEnum : eint
     Gift_289 = 289,
     // 幸运手链
     Gift_290 = 290,
-    // 坚强
-    Gift_313 = 313,
+    // 卡布奇诺
+    Gift_299 = 299,
+    // 猫咪手表
+    Gift_302 = 302,
     // 绒绒手套
     Gift_307 = 307,
+    // 彩虹糖果
+    Gift_308 = 308,
     // 爱心口罩
     Gift_312 = 312,
-    // 彩虹糖果
-    Gift_308 = 308
+    // 坚强
+    Gift_313 = 313,
+    // 告白话筒
+    Gift_367 = 367
 };
 
 //const std::unordered_map<std::string, eint> FreeGiftMap =
@@ -669,8 +669,23 @@ const std::unordered_map<PermissionEnum, std::string> PermissionMap =
 #pragma pack(4)
 // 数据结构
 
-#define etext_copy_new(dst, src) if ((src) != nullptr) {(dst) = new_and_copy_str((src));} else {(dst) = nullptr;}
-#define delete_str_copy(str) if ((str) != nullptr) { delete[] (str); (str) = nullptr;}
+#define str_copy_new(dst, src) ((dst) = \
+    (src) == nullptr \
+    ? nullptr \
+    : new_and_copy_str(src) \
+    )
+
+#define e2s_copy_new(dst, src) ((dst) = \
+    (src) == nullptr \
+    ? nullptr \
+    : new_and_copy_str(e2s(src)) \
+    )
+
+#define delete_str(str) ( \
+    (str) == nullptr \
+    ? static_cast<void>(0) \
+    : delete[] (str), (str) = nullptr \
+    )
 
 // Note: _EType_开头的是内部转换用的类型，请使用普通的PrivateMessageData
 struct _EType_PrivateMessageData
@@ -731,25 +746,25 @@ struct PrivateMessageData : _EType_PrivateMessageData
     PrivateMessageData(const PrivateMessageData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->MessageContent, info.MessageContent);
-        etext_copy_new(this->SourceEventQQName, info.SourceEventQQName);
-        etext_copy_new(this->FileID, info.FileID);
-        etext_copy_new(this->FileName, info.FileName);
+        str_copy_new(this->MessageContent, info.MessageContent);
+        str_copy_new(this->SourceEventQQName, info.SourceEventQQName);
+        str_copy_new(this->FileID, info.FileID);
+        str_copy_new(this->FileName, info.FileName);
     }
     PrivateMessageData(const _EType_PrivateMessageData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
-        etext_copy_new(this->SourceEventQQName, e2s(info.SourceEventQQName));
-        etext_copy_new(this->FileID, e2s(info.FileID));
-        etext_copy_new(this->FileName, e2s(info.FileName));
+        e2s_copy_new(this->MessageContent, info.MessageContent);
+        e2s_copy_new(this->SourceEventQQName, info.SourceEventQQName);
+        e2s_copy_new(this->FileID, info.FileID);
+        e2s_copy_new(this->FileName, info.FileName);
     }
     ~PrivateMessageData()
     {
-        delete_str_copy(this->MessageContent);
-        delete_str_copy(this->SourceEventQQName);
-        delete_str_copy(this->FileID);
-        delete_str_copy(this->FileName);
+        delete_str(this->MessageContent);
+        delete_str(this->SourceEventQQName);
+        delete_str(this->FileID);
+        delete_str(this->FileName);
     }
 };
 
@@ -761,6 +776,7 @@ struct _EType_ServiceInformation
     // 服务等级
     eint ServiceLevel;
 };
+
 // 服务信息
 struct ServiceInformation : _EType_ServiceInformation
 {
@@ -816,34 +832,35 @@ struct _EType_FriendInformation
     // 今日可赞数 只能使用[查询好友信息]获取
     eint LikesAvailableToday;
 };
+
 // 好友信息
 struct FriendInformation : _EType_FriendInformation
 {
     FriendInformation(const FriendInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->Email, info.Email);
-        etext_copy_new(this->Name, info.Name);
-        etext_copy_new(this->Note, info.Note);
-        etext_copy_new(this->Status, info.Status);
-        etext_copy_new(this->Signature, info.Signature);
-        etext_copy_new(this->Nation, info.Nation);
-        etext_copy_new(this->Province, info.Province);
-        etext_copy_new(this->City, info.City);
-        etext_copy_new(this->QQTalent, info.QQTalent);
+        str_copy_new(this->Email, info.Email);
+        str_copy_new(this->Name, info.Name);
+        str_copy_new(this->Note, info.Note);
+        str_copy_new(this->Status, info.Status);
+        str_copy_new(this->Signature, info.Signature);
+        str_copy_new(this->Nation, info.Nation);
+        str_copy_new(this->Province, info.Province);
+        str_copy_new(this->City, info.City);
+        str_copy_new(this->QQTalent, info.QQTalent);
     }
     FriendInformation(const _EType_FriendInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->Email, e2s(info.Email));
-        etext_copy_new(this->Name, e2s(info.Name));
-        etext_copy_new(this->Note, e2s(info.Note));
-        etext_copy_new(this->Status, e2s(info.Status));
-        etext_copy_new(this->Signature, e2s(info.Signature));
-        etext_copy_new(this->Nation, e2s(info.Nation));
-        etext_copy_new(this->Province, e2s(info.Province));
-        etext_copy_new(this->City, e2s(info.City));
-        etext_copy_new(this->QQTalent, e2s(info.QQTalent));
+        e2s_copy_new(this->Email, info.Email);
+        e2s_copy_new(this->Name, info.Name);
+        e2s_copy_new(this->Note, info.Note);
+        e2s_copy_new(this->Status, info.Status);
+        e2s_copy_new(this->Signature, info.Signature);
+        e2s_copy_new(this->Nation, info.Nation);
+        e2s_copy_new(this->Province, info.Province);
+        e2s_copy_new(this->City, info.City);
+        e2s_copy_new(this->QQTalent, info.QQTalent);
 
         if (this->ServiceList != nullptr)
         {
@@ -862,19 +879,19 @@ struct FriendInformation : _EType_FriendInformation
     }
     ~FriendInformation()
     {
-        delete_str_copy(this->Email);
-        delete_str_copy(this->Name);
-        delete_str_copy(this->Note);
-        delete_str_copy(this->Status);
-        delete_str_copy(this->Signature);
-        delete_str_copy(this->Nation);
-        delete_str_copy(this->Province);
-        delete_str_copy(this->City);
-        delete_str_copy(this->QQTalent);
+        delete_str(this->Email);
+        delete_str(this->Name);
+        delete_str(this->Note);
+        delete_str(this->Status);
+        delete_str(this->Signature);
+        delete_str(this->Nation);
+        delete_str(this->Province);
+        delete_str(this->City);
+        delete_str(this->QQTalent);
 
         if (this->ServiceList != nullptr)
         {
-            delete this->ServiceList;
+            delete[] this->ServiceList;
             this->ServiceList = nullptr;
         }
 
@@ -947,19 +964,19 @@ struct GroupInformation : _EType_GroupInformation
     GroupInformation(const GroupInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->GroupName, info.GroupName);
-        etext_copy_new(this->GroupMemo, info.GroupMemo);
+        str_copy_new(this->GroupName, info.GroupName);
+        str_copy_new(this->GroupMemo, info.GroupMemo);
     }
     GroupInformation(const _EType_GroupInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->GroupName, e2s(info.GroupName));
-        etext_copy_new(this->GroupMemo, e2s(info.GroupMemo));
+        e2s_copy_new(this->GroupName, info.GroupName);
+        e2s_copy_new(this->GroupMemo, info.GroupMemo);
     }
     ~GroupInformation()
     {
-        delete_str_copy(this->GroupName);
-        delete_str_copy(this->GroupMemo);
+        delete_str(this->GroupName);
+        delete_str(this->GroupMemo);
     }
 };
 
@@ -1001,34 +1018,34 @@ struct GroupMemberInformation : _EType_GroupMemberInformation
     GroupMemberInformation(const GroupMemberInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->QQNumber, info.QQNumber);
-        etext_copy_new(this->Name, info.Name);
-        etext_copy_new(this->Email, info.Email);
-        etext_copy_new(this->Nickname, info.Nickname);
-        etext_copy_new(this->Note, info.Note);
-        etext_copy_new(this->Title, info.Title);
-        etext_copy_new(this->Phone, info.Phone);
+        str_copy_new(this->QQNumber, info.QQNumber);
+        str_copy_new(this->Name, info.Name);
+        str_copy_new(this->Email, info.Email);
+        str_copy_new(this->Nickname, info.Nickname);
+        str_copy_new(this->Note, info.Note);
+        str_copy_new(this->Title, info.Title);
+        str_copy_new(this->Phone, info.Phone);
     }
     GroupMemberInformation(const _EType_GroupMemberInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->QQNumber, e2s(info.QQNumber));
-        etext_copy_new(this->Name, e2s(info.Name));
-        etext_copy_new(this->Email, e2s(info.Email));
-        etext_copy_new(this->Nickname, e2s(info.Nickname));
-        etext_copy_new(this->Note, e2s(info.Note));
-        etext_copy_new(this->Title, e2s(info.Title));
-        etext_copy_new(this->Phone, e2s(info.Phone));
+        e2s_copy_new(this->QQNumber, info.QQNumber);
+        e2s_copy_new(this->Name, info.Name);
+        e2s_copy_new(this->Email, info.Email);
+        e2s_copy_new(this->Nickname, info.Nickname);
+        e2s_copy_new(this->Note, info.Note);
+        e2s_copy_new(this->Title, info.Title);
+        e2s_copy_new(this->Phone, info.Phone);
     }
     ~GroupMemberInformation()
     {
-        delete_str_copy(this->QQNumber);
-        delete_str_copy(this->Name);
-        delete_str_copy(this->Email);
-        delete_str_copy(this->Nickname);
-        delete_str_copy(this->Note);
-        delete_str_copy(this->Title);
-        delete_str_copy(this->Phone);
+        delete_str(this->QQNumber);
+        delete_str(this->Name);
+        delete_str(this->Email);
+        delete_str(this->Nickname);
+        delete_str(this->Note);
+        delete_str(this->Title);
+        delete_str(this->Phone);
     }
 };
 
@@ -1090,34 +1107,34 @@ struct GroupMessageData : _EType_GroupMessageData
     GroupMessageData(const GroupMessageData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->SourceGroupName, info.SourceGroupName);
-        etext_copy_new(this->SenderNickname, info.SenderNickname);
-        etext_copy_new(this->SenderTitle, info.SenderTitle);
-        etext_copy_new(this->MessageContent, info.MessageContent);
-        etext_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
-        etext_copy_new(this->FileID, info.FileID);
-        etext_copy_new(this->FileName, info.FileName);
+        str_copy_new(this->SourceGroupName, info.SourceGroupName);
+        str_copy_new(this->SenderNickname, info.SenderNickname);
+        str_copy_new(this->SenderTitle, info.SenderTitle);
+        str_copy_new(this->MessageContent, info.MessageContent);
+        str_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
+        str_copy_new(this->FileID, info.FileID);
+        str_copy_new(this->FileName, info.FileName);
     }
     GroupMessageData(const _EType_GroupMessageData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->SourceGroupName, e2s(info.SourceGroupName));
-        etext_copy_new(this->SenderNickname, e2s(info.SenderNickname));
-        etext_copy_new(this->SenderTitle, e2s(info.SenderTitle));
-        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
-        etext_copy_new(this->ReplyMessageContent, e2s(info.ReplyMessageContent));
-        etext_copy_new(this->FileID, e2s(info.FileID));
-        etext_copy_new(this->FileName, e2s(info.FileName));
+        e2s_copy_new(this->SourceGroupName, info.SourceGroupName);
+        e2s_copy_new(this->SenderNickname, info.SenderNickname);
+        e2s_copy_new(this->SenderTitle, info.SenderTitle);
+        e2s_copy_new(this->MessageContent, info.MessageContent);
+        e2s_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
+        e2s_copy_new(this->FileID, info.FileID);
+        e2s_copy_new(this->FileName, info.FileName);
     }
     ~GroupMessageData()
     {
-        delete_str_copy(this->SourceGroupName);
-        delete_str_copy(this->SenderNickname);
-        delete_str_copy(this->SenderTitle);
-        delete_str_copy(this->MessageContent);
-        delete_str_copy(this->ReplyMessageContent);
-        delete_str_copy(this->FileID);
-        delete_str_copy(this->FileName);
+        delete_str(this->SourceGroupName);
+        delete_str(this->SenderNickname);
+        delete_str(this->SenderTitle);
+        delete_str(this->MessageContent);
+        delete_str(this->ReplyMessageContent);
+        delete_str(this->FileID);
+        delete_str(this->FileName);
     }
 };
 
@@ -1155,25 +1172,25 @@ struct EventData : _EType_EventData
     EventData(const EventData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->SourceGroupName, info.SourceGroupName);
-        etext_copy_new(this->OperateQQName, info.OperateQQName);
-        etext_copy_new(this->TriggerQQName, info.TriggerQQName);
-        etext_copy_new(this->MessageContent, info.MessageContent);
+        str_copy_new(this->SourceGroupName, info.SourceGroupName);
+        str_copy_new(this->OperateQQName, info.OperateQQName);
+        str_copy_new(this->TriggerQQName, info.TriggerQQName);
+        str_copy_new(this->MessageContent, info.MessageContent);
     }
     EventData(const _EType_EventData& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->SourceGroupName, e2s(info.SourceGroupName));
-        etext_copy_new(this->OperateQQName, e2s(info.OperateQQName));
-        etext_copy_new(this->TriggerQQName, e2s(info.TriggerQQName));
-        etext_copy_new(this->MessageContent, e2s(info.MessageContent));
+        e2s_copy_new(this->SourceGroupName, info.SourceGroupName);
+        e2s_copy_new(this->OperateQQName, info.OperateQQName);
+        e2s_copy_new(this->TriggerQQName, info.TriggerQQName);
+        e2s_copy_new(this->MessageContent, info.MessageContent);
     }
     ~EventData()
     {
-        delete_str_copy(this->SourceGroupName);
-        delete_str_copy(this->OperateQQName);
-        delete_str_copy(this->TriggerQQName);
-        delete_str_copy(this->MessageContent);
+        delete_str(this->SourceGroupName);
+        delete_str(this->OperateQQName);
+        delete_str(this->TriggerQQName);
+        delete_str(this->MessageContent);
     }
 };
 
@@ -1197,28 +1214,28 @@ struct GroupCardInformation : _EType_GroupCardInformation
     GroupCardInformation(const GroupCardInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->GroupName, info.GroupName);
-        etext_copy_new(this->GroupLocation, info.GroupLocation);
-        etext_copy_new(this->GroupClassification, info.GroupClassification);
-        etext_copy_new(this->GroupTags, info.GroupTags);
-        etext_copy_new(this->GroupDescription, info.GroupDescription);
+        str_copy_new(this->GroupName, info.GroupName);
+        str_copy_new(this->GroupLocation, info.GroupLocation);
+        str_copy_new(this->GroupClassification, info.GroupClassification);
+        str_copy_new(this->GroupTags, info.GroupTags);
+        str_copy_new(this->GroupDescription, info.GroupDescription);
     }
     GroupCardInformation(const _EType_GroupCardInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->GroupName, e2s(info.GroupName));
-        etext_copy_new(this->GroupLocation, e2s(info.GroupLocation));
-        etext_copy_new(this->GroupClassification, e2s(info.GroupClassification));
-        etext_copy_new(this->GroupTags, e2s(info.GroupTags));
-        etext_copy_new(this->GroupDescription, e2s(info.GroupDescription));
+        e2s_copy_new(this->GroupName, info.GroupName);
+        e2s_copy_new(this->GroupLocation, info.GroupLocation);
+        e2s_copy_new(this->GroupClassification, info.GroupClassification);
+        e2s_copy_new(this->GroupTags, info.GroupTags);
+        e2s_copy_new(this->GroupDescription, info.GroupDescription);
     }
     ~GroupCardInformation()
     {
-        delete_str_copy(this->GroupName);
-        delete_str_copy(this->GroupLocation);
-        delete_str_copy(this->GroupClassification);
-        delete_str_copy(this->GroupTags);
-        delete_str_copy(this->GroupDescription);
+        delete_str(this->GroupName);
+        delete_str(this->GroupLocation);
+        delete_str(this->GroupClassification);
+        delete_str(this->GroupTags);
+        delete_str(this->GroupDescription);
     }
 };
 
@@ -1246,22 +1263,22 @@ struct GroupFileInformation : _EType_GroupFileInformation
     GroupFileInformation(const GroupFileInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->FileID, info.FileID);
-        etext_copy_new(this->FileName, info.FileName);
-        etext_copy_new(this->FileFromNick, info.FileFromNick);
+        str_copy_new(this->FileID, info.FileID);
+        str_copy_new(this->FileName, info.FileName);
+        str_copy_new(this->FileFromNick, info.FileFromNick);
     }
     GroupFileInformation(const _EType_GroupFileInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->FileID, e2s(info.FileID));
-        etext_copy_new(this->FileName, e2s(info.FileName));
-        etext_copy_new(this->FileFromNick, e2s(info.FileFromNick));
+        e2s_copy_new(this->FileID, info.FileID);
+        e2s_copy_new(this->FileName, info.FileName);
+        e2s_copy_new(this->FileFromNick, info.FileFromNick);
     }
     ~GroupFileInformation()
     {
-        delete_str_copy(this->FileID);
-        delete_str_copy(this->FileName);
-        delete_str_copy(this->FileFromNick);
+        delete_str(this->FileID);
+        delete_str(this->FileName);
+        delete_str(this->FileFromNick);
     }
 };
 
@@ -1290,28 +1307,28 @@ struct CardInformation : _EType_CardInformation
     CardInformation(const CardInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->TailNumber, info.TailNumber);
-        etext_copy_new(this->Bank, info.Bank);
-        etext_copy_new(this->BindPhone, info.BindPhone);
-        etext_copy_new(this->BindSerial, info.BindSerial);
-        etext_copy_new(this->BankType, info.BankType);
+        str_copy_new(this->TailNumber, info.TailNumber);
+        str_copy_new(this->Bank, info.Bank);
+        str_copy_new(this->BindPhone, info.BindPhone);
+        str_copy_new(this->BindSerial, info.BindSerial);
+        str_copy_new(this->BankType, info.BankType);
     }
     CardInformation(const _EType_CardInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->TailNumber, e2s(info.TailNumber));
-        etext_copy_new(this->Bank, e2s(info.Bank));
-        etext_copy_new(this->BindPhone, e2s(info.BindPhone));
-        etext_copy_new(this->BindSerial, e2s(info.BindSerial));
-        etext_copy_new(this->BankType, e2s(info.BankType));
+        e2s_copy_new(this->TailNumber, info.TailNumber);
+        e2s_copy_new(this->Bank, info.Bank);
+        e2s_copy_new(this->BindPhone, info.BindPhone);
+        e2s_copy_new(this->BindSerial, info.BindSerial);
+        e2s_copy_new(this->BankType, info.BankType);
     }
     ~CardInformation()
     {
-        delete_str_copy(this->TailNumber);
-        delete_str_copy(this->Bank);
-        delete_str_copy(this->BindPhone);
-        delete_str_copy(this->BindSerial);
-        delete_str_copy(this->BankType);
+        delete_str(this->TailNumber);
+        delete_str(this->Bank);
+        delete_str(this->BindPhone);
+        delete_str(this->BindSerial);
+        delete_str(this->BankType);
     }
 };
 
@@ -1334,16 +1351,16 @@ struct QQWalletInformation : _EType_QQWalletInformation
     QQWalletInformation(const QQWalletInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->Balance, info.Balance);
-        etext_copy_new(this->ID, info.ID);
-        etext_copy_new(this->RealName, info.RealName);
+        str_copy_new(this->Balance, info.Balance);
+        str_copy_new(this->ID, info.ID);
+        str_copy_new(this->RealName, info.RealName);
     }
     QQWalletInformation(const _EType_QQWalletInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->Balance, e2s(info.Balance));
-        etext_copy_new(this->ID, e2s(info.ID));
-        etext_copy_new(this->RealName, e2s(info.RealName));
+        e2s_copy_new(this->Balance, info.Balance);
+        e2s_copy_new(this->ID, info.ID);
+        e2s_copy_new(this->RealName, info.RealName);
 
         if (this->CardList != nullptr)
         {
@@ -1362,9 +1379,9 @@ struct QQWalletInformation : _EType_QQWalletInformation
     }
     ~QQWalletInformation()
     {
-        delete_str_copy(this->Balance);
-        delete_str_copy(this->ID);
-        delete_str_copy(this->RealName);
+        delete_str(this->Balance);
+        delete_str(this->ID);
+        delete_str(this->RealName);
 
         if (this->CardList != nullptr)
         {
@@ -1404,43 +1421,43 @@ struct OrderDetail : _EType_OrderDetail
     OrderDetail(const OrderDetail& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->OrderTime, info.OrderTime);
-        etext_copy_new(this->OrderDescription, info.OrderDescription);
-        etext_copy_new(this->OrderClassification, info.OrderClassification);
-        etext_copy_new(this->OrderType, info.OrderType);
-        etext_copy_new(this->OrderCommission, info.OrderCommission);
-        etext_copy_new(this->OperatorQQ, info.OperatorQQ);
-        etext_copy_new(this->OperatorName, info.OperatorName);
-        etext_copy_new(this->ReceiverQQ, info.ReceiverQQ);
-        etext_copy_new(this->ReceiverName, info.ReceiverName);
-        etext_copy_new(this->OperateAmount, info.OperateAmount);
+        str_copy_new(this->OrderTime, info.OrderTime);
+        str_copy_new(this->OrderDescription, info.OrderDescription);
+        str_copy_new(this->OrderClassification, info.OrderClassification);
+        str_copy_new(this->OrderType, info.OrderType);
+        str_copy_new(this->OrderCommission, info.OrderCommission);
+        str_copy_new(this->OperatorQQ, info.OperatorQQ);
+        str_copy_new(this->OperatorName, info.OperatorName);
+        str_copy_new(this->ReceiverQQ, info.ReceiverQQ);
+        str_copy_new(this->ReceiverName, info.ReceiverName);
+        str_copy_new(this->OperateAmount, info.OperateAmount);
     }
     OrderDetail(const _EType_OrderDetail& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->OrderTime, e2s(info.OrderTime));
-        etext_copy_new(this->OrderDescription, e2s(info.OrderDescription));
-        etext_copy_new(this->OrderClassification, e2s(info.OrderClassification));
-        etext_copy_new(this->OrderType, e2s(info.OrderType));
-        etext_copy_new(this->OrderCommission, e2s(info.OrderCommission));
-        etext_copy_new(this->OperatorQQ, e2s(info.OperatorQQ));
-        etext_copy_new(this->OperatorName, e2s(info.OperatorName));
-        etext_copy_new(this->ReceiverQQ, e2s(info.ReceiverQQ));
-        etext_copy_new(this->ReceiverName, e2s(info.ReceiverName));
-        etext_copy_new(this->OperateAmount, e2s(info.OperateAmount));
+        e2s_copy_new(this->OrderTime, info.OrderTime);
+        e2s_copy_new(this->OrderDescription, info.OrderDescription);
+        e2s_copy_new(this->OrderClassification, info.OrderClassification);
+        e2s_copy_new(this->OrderType, info.OrderType);
+        e2s_copy_new(this->OrderCommission, info.OrderCommission);
+        e2s_copy_new(this->OperatorQQ, info.OperatorQQ);
+        e2s_copy_new(this->OperatorName, info.OperatorName);
+        e2s_copy_new(this->ReceiverQQ, info.ReceiverQQ);
+        e2s_copy_new(this->ReceiverName, info.ReceiverName);
+        e2s_copy_new(this->OperateAmount, info.OperateAmount);
     }
     ~OrderDetail()
     {
-        delete_str_copy(this->OrderTime);
-        delete_str_copy(this->OrderDescription);
-        delete_str_copy(this->OrderClassification);
-        delete_str_copy(this->OrderType);
-        delete_str_copy(this->OrderCommission);
-        delete_str_copy(this->OperatorQQ);
-        delete_str_copy(this->OperatorName);
-        delete_str_copy(this->ReceiverQQ);
-        delete_str_copy(this->ReceiverName);
-        delete_str_copy(this->OperateAmount);
+        delete_str(this->OrderTime);
+        delete_str(this->OrderDescription);
+        delete_str(this->OrderClassification);
+        delete_str(this->OrderType);
+        delete_str(this->OrderCommission);
+        delete_str(this->OperatorQQ);
+        delete_str(this->OperatorName);
+        delete_str(this->ReceiverQQ);
+        delete_str(this->ReceiverName);
+        delete_str(this->OperateAmount);
     }
 };
 
@@ -1448,8 +1465,8 @@ struct OrderDetail : _EType_OrderDetail
 struct _EType_CaptchaInformation
 {
     _EType_CaptchaInformation() {}
-    // FIXME 需要限定类型只能为CaptchaInformation
-    // TODO 增加字符串指针为null的判断
+    // FIXME: 需要限定类型只能为CaptchaInformation
+    // TODO: 增加字符串指针为null的判断
     template<typename T>
     _EType_CaptchaInformation(const T& info) {
         memcpy(this, &info, sizeof(_EType_CaptchaInformation));
@@ -1491,45 +1508,45 @@ struct CaptchaInformation : _EType_CaptchaInformation
     CaptchaInformation(const CaptchaInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->TokenID, info.TokenID);
-        etext_copy_new(this->SKey, info.SKey);
-        etext_copy_new(this->BankType, info.BankType);
-        etext_copy_new(this->Mobile, info.Mobile);
-        etext_copy_new(this->BusinessType, info.BusinessType);
-        etext_copy_new(this->TransactionID, info.TransactionID);
-        etext_copy_new(this->PurchaserID, info.PurchaserID);
-        etext_copy_new(this->Token, info.Token);
-        etext_copy_new(this->AuthParams, info.AuthParams);
+        str_copy_new(this->TokenID, info.TokenID);
+        str_copy_new(this->SKey, info.SKey);
+        str_copy_new(this->BankType, info.BankType);
+        str_copy_new(this->Mobile, info.Mobile);
+        str_copy_new(this->BusinessType, info.BusinessType);
+        str_copy_new(this->TransactionID, info.TransactionID);
+        str_copy_new(this->PurchaserID, info.PurchaserID);
+        str_copy_new(this->Token, info.Token);
+        str_copy_new(this->AuthParams, info.AuthParams);
     }
     CaptchaInformation(const _EType_CaptchaInformation& info)
     {
         memcpy(this, &info, sizeof(info));
-        etext_copy_new(this->TokenID, e2s(info.TokenID));
-        etext_copy_new(this->SKey, e2s(info.SKey));
-        etext_copy_new(this->BankType, e2s(info.BankType));
-        etext_copy_new(this->Mobile, e2s(info.Mobile));
-        etext_copy_new(this->BusinessType, e2s(info.BusinessType));
-        etext_copy_new(this->TransactionID, e2s(info.TransactionID));
-        etext_copy_new(this->PurchaserID, e2s(info.PurchaserID));
-        etext_copy_new(this->Token, e2s(info.Token));
-        etext_copy_new(this->AuthParams, e2s(info.AuthParams));
+        e2s_copy_new(this->TokenID, info.TokenID);
+        e2s_copy_new(this->SKey, info.SKey);
+        e2s_copy_new(this->BankType, info.BankType);
+        e2s_copy_new(this->Mobile, info.Mobile);
+        e2s_copy_new(this->BusinessType, info.BusinessType);
+        e2s_copy_new(this->TransactionID, info.TransactionID);
+        e2s_copy_new(this->PurchaserID, info.PurchaserID);
+        e2s_copy_new(this->Token, info.Token);
+        e2s_copy_new(this->AuthParams, info.AuthParams);
     }
     ~CaptchaInformation()
     {
-        delete_str_copy(this->TokenID);
-        delete_str_copy(this->SKey);
-        delete_str_copy(this->BankType);
-        delete_str_copy(this->Mobile);
-        delete_str_copy(this->BusinessType);
-        delete_str_copy(this->TransactionID);
-        delete_str_copy(this->PurchaserID);
-        delete_str_copy(this->Token);
-        delete_str_copy(this->AuthParams);
+        delete_str(this->TokenID);
+        delete_str(this->SKey);
+        delete_str(this->BankType);
+        delete_str(this->Mobile);
+        delete_str(this->BusinessType);
+        delete_str(this->TransactionID);
+        delete_str(this->PurchaserID);
+        delete_str(this->Token);
+        delete_str(this->AuthParams);
     }
 };
 
-#undef etext_copy_new
-#undef delete_str_copy
+#undef e2s_copy_new
+#undef delete_str
 
 #pragma pack()
 #endif // CORNERSTONE_SDK_HEADER_TYPES_H_

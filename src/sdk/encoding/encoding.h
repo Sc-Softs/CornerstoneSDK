@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容 Corn SDK v2.6.9
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -41,7 +41,7 @@ std::string WideCharToUTF8(const std::wstring& wstr);
 std::wstring ANSIToWideChar(const std::string& ansi);
 std::string WideCharToANSI(const std::wstring& wstr);
 std::wstring ANSIWithUCS2ToWideChar(const std::string& ansi_with_ucs2);
-std::string WideCharToANSIWithUCS2(const std::wstring& wstr);
+std::string WideCharToANSIWithUCS2(const std::wstring& wstr, const std::wstring& force_escape_wchars = L"[\\]");
 #define e2s_s(ansi_with_ucs2) WideCharToUTF8(ANSIWithUCS2ToWideChar(ansi_with_ucs2))
 #define s2e_s(utf8) WideCharToANSIWithUCS2(UTF8ToWideChar(utf8))
 #define e2s(ansi_with_ucs2) e2s_s(ansi_with_ucs2).c_str()

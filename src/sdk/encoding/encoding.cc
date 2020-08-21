@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容 Corn SDK v2.6.9
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -169,9 +169,9 @@ std::wstring ANSIWithUCS2ToWideChar(const std::string& ansi_with_ucs2)
 {
     auto wstr_with_ucs2 = ANSIToWideChar(ansi_with_ucs2);
     std::wstring wstr;
-    wstr.reserve(wstr_with_ucs2.size() + 1);  // 预留 L'\0'
+    wstr.reserve(wstr_with_ucs2.size());
     std::wstring ucs2_tmp;
-    ucs2_tmp.reserve(7);  // 预留 L'\0'
+    ucs2_tmp.reserve(6);
     for (auto it = wstr_with_ucs2.cbegin(), cend = wstr_with_ucs2.cend(); it != cend; it++)
     {
         if (*it == L'\\')
@@ -231,7 +231,7 @@ std::string WideCharToUCS2(wchar_t wch)
 {
     auto wch_value = static_cast<uint16_t>(wch);
     std::string ucs2;
-    ucs2.reserve(7);  // 预留 '\0'
+    ucs2.reserve(6);
     ucs2 += "\\u";
     ucs2 += HexToChar(wch_value >> 12);
     ucs2 += HexToChar((wch_value >> 8) & 0xf);
@@ -240,16 +240,34 @@ std::string WideCharToUCS2(wchar_t wch)
     return ucs2;
 }
 
-std::string WideCharToANSIWithUCS2(const std::wstring& wstr)
+std::string WideCharToANSIWithUCS2(const std::wstring& wstr, const std::wstring& force_escape_wchars)
 {
-    BOOL is_default_char_used = FALSE;
-    auto len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, &is_default_char_used);
-    if (!len)
+    BOOL need_escape = FALSE;
+    // 测试是否有需要强制转义的字符
+    if (!force_escape_wchars.empty())
     {
-        return "";
+        for (auto wch : wstr)
+        {
+            if (force_escape_wchars.find(wch) != std::wstring::npos)
+            {
+                need_escape = TRUE;
+                break;
+            }
+        }
     }
-    // 如果能够用ANSI编码
-    if (!is_default_char_used)
+    int len;
+    // 测试是否能被ANSI编码
+    if (need_escape == FALSE)
+    {
+        need_escape = FALSE;
+        len = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, nullptr, 0, nullptr, &need_escape);
+        if (!len)
+        {
+            return "";
+        }
+    }
+    // 如果不需要转义
+    if (!need_escape)
     {
         auto ansi_c = new char[len + 1];
         if (!ansi_c)
@@ -277,32 +295,42 @@ std::string WideCharToANSIWithUCS2(const std::wstring& wstr)
             return "";
         }
         std::string ansi_with_ucs2;
-        // 对每个WideChar尝试使用ANSI编码
-        for (auto it = wstr.cbegin(), cend = wstr.cend(); it != cend; it++)
+        // 遍历字符，选择不同的方案
+        for (auto it : wstr)
         {
-            // 如果字符在基础平面上
-            if ((uint16_t)(*it) >> 11 != 0b11011)
+            // 如果字符不需要强制转义
+            if (force_escape_wchars.find(it) == std::wstring::npos)
             {
-                is_default_char_used = FALSE;
-                wstr_c_tmp[0] = *it;
-                auto len = WideCharToMultiByte(CP_ACP, 0, wstr_c_tmp, -1, nullptr, 0, nullptr, &is_default_char_used);
-                if (!len)
+                // 如果字符是ASCII字符
+                if (static_cast<uint16_t>(it) <= 0x7f)
                 {
-                    delete[] wstr_c_tmp;
-                    delete[] ansi_c_tmp;
-                    return "";
-                }
-                // 如果能够用ANSI编码
-                if (!is_default_char_used)
-                {
-                    memset(ansi_c_tmp, 0, len + 1);
-                    WideCharToMultiByte(CP_ACP, 0, wstr_c_tmp, -1, ansi_c_tmp, len, nullptr, nullptr);
-                    ansi_with_ucs2 += ansi_c_tmp;
+                    ansi_with_ucs2 += static_cast<char>(it);
                     continue;
                 }
+                // 如果字符不是代理（在基础平面上）
+                else if ((uint16_t)(it) >> 11 != 0b11011)
+                {
+                    need_escape = FALSE;
+                    wstr_c_tmp[0] = it;
+                    auto len = WideCharToMultiByte(CP_ACP, 0, wstr_c_tmp, -1, nullptr, 0, nullptr, &need_escape);
+                    if (!len)
+                    {
+                        delete[] wstr_c_tmp;
+                        delete[] ansi_c_tmp;
+                        return "";
+                    }
+                    // 如果能够用ANSI编码
+                    if (!need_escape)
+                    {
+                        memset(ansi_c_tmp, 0, len + 1);
+                        WideCharToMultiByte(CP_ACP, 0, wstr_c_tmp, -1, ansi_c_tmp, len, nullptr, nullptr);
+                        ansi_with_ucs2 += ansi_c_tmp;
+                        continue;
+                    }
+                }
             }
-            // 字符不在基础平面上或者无法编码
-            ansi_with_ucs2 += WideCharToUCS2(*it);
+            // 否则字符需要转义
+            ansi_with_ucs2 += WideCharToUCS2(it);
         }
         delete[] wstr_c_tmp;
         delete[] ansi_c_tmp;

@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容 Corn SDK v2.6.9
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -58,7 +58,8 @@ API::~API()
  */
 std::string API::OutputLog(const std::string &message, std::int32_t text_color, std::int32_t background_color)
 {
-    return e2s_s(_f<etext(etext, etext, eint, eint)>(this->j, "输出日志")(this->key, s2e(message), text_color, background_color));
+    // 不转义因为日志不支持
+    return e2s_s(_f<etext(etext, etext, eint, eint)>(this->j, "输出日志")(this->key, WideCharToANSI(UTF8ToWideChar(message)).c_str(), text_color, background_color));
 }
 
 /**

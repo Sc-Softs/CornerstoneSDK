@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.5
+兼容 Corn SDK v2.6.9
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -36,7 +36,7 @@ SOFTWARE.
 
 API *api;
 
-// 群消息事件回调包装
+// 私聊消息事件回调包装
 EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
 {
     PrivateMessageData data(*(const_cast<_EType_PrivateMessageData *>(eData)));
@@ -94,7 +94,7 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
              {"author", config["插件作者"]},
              {"appv", config["插件版本"]},
              {"describe", config["插件说明"]},
-             {"sdkv", "2.6.5"},
+             {"sdkv", "2.6.9"},
              {"friendmsaddres", (uintptr_t)&ECallBack_OnPrivateMessage},
              {"groupmsaddres", (uintptr_t)&ECallBack_OnGroupMessage},
              {"unitproaddres", (uintptr_t)&ECallBack_OnUninstall},
@@ -134,8 +134,7 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
         }
 
         // 将插件信息提交给框架
-        auto info_utf8 = json_info.dump();
-        auto info = s2e_s(info_utf8);
+        auto info = s2e_s(json_info.dump());
         auto size = info.size();
         auto cstr = new char[size + 1]; // 如果直接返回c_str()，有时会崩溃
         std::memcpy(cstr, info.c_str(), size + 1);
