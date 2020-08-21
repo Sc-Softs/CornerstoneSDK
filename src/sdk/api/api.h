@@ -1108,7 +1108,7 @@ public:
 
 private:
     Json j;
-    char *key;
+    ::std::string key;
 };
 
 #endif // CORNERSTONE_SDK_HEADER_API_H_
