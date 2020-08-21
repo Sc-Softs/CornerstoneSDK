@@ -1193,7 +1193,7 @@ std::string API::GetOrderDetail(std::int64_t thisQQ, const std::string &orderID,
  */
 std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, const std::string &captcha, const std::string &payment_password)
 {
-    volatile _EType_CaptchaInformation eInfo = (_EType_CaptchaInformation)*captcha_information;
+    volatile _EType_CaptchaInformation eInfo = *captcha_information;
     return e2s_s(_f<etext(etext, elong, volatile _EType_CaptchaInformation *, etext, etext)>(this->j, "提交支付验证码")(this->key, thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
 }
 

@@ -133,6 +133,11 @@ constexpr bool e2b(const ebool &e)
 // WARNING: 使用完后请自行delete字符串指针，否则将造成内存泄露
 const char* new_and_copy_str(const char* str);
 
+// 将etext赋予::std::string，constexpr产生隐式inline等
+constexpr auto string_e2std = [](::std::string & member, const etext& src){
+    if(src != nullptr) member = e2s_s(src);
+};
+
 //region 枚举常量
 //=============
 
@@ -670,24 +675,6 @@ const std::unordered_map<PermissionEnum, std::string> PermissionMap =
 #pragma pack(4)
 // 数据结构
 
-#define str_copy_new(dst, src) ((dst) = \
-    (src) == nullptr \
-    ? nullptr \
-    : new_and_copy_str(src) \
-    )
-
-#define e2s_copy_new(dst, src) ((dst) = \
-    (src) == nullptr \
-    ? nullptr \
-    : new_and_copy_str(e2s(src)) \
-    )
-
-#define delete_str(str) ( \
-    (str) == nullptr \
-    ? static_cast<void>(0) \
-    : delete[] (str), (str) = nullptr \
-    )
-
 // Note: _EType_开头的是内部转换用的类型，请使用普通的PrivateMessageData
 struct _EType_PrivateMessageData
 {
@@ -742,30 +729,81 @@ struct _EType_PrivateMessageData
 };
 
 // 私聊消息数据
-struct PrivateMessageData : _EType_PrivateMessageData
+struct PrivateMessageData
 {
-    PrivateMessageData(const PrivateMessageData& info)
+    // 发送人QQ
+    elong SenderQQ;
+    // 框架QQ
+    elong ThisQQ;
+    // 消息Req
+    eint MessageReq;
+    // 消息Seq
+    elong MessageSeq;
+    // 消息接收时间
+    eint MessageReceiveTime;
+    // 消息群号 当为群临时会话时可取
+    elong MessageGroupQQ;
+    // 消息发送时间
+    eint MessageSendTime;
+    // 消息Random
+    elong MessageRandom;
+    // 消息分片序列
+    eint MessageClip;
+    // 消息分片数量
+    eint MessageClipCount;
+    // 消息分片标识
+    elong MessageClipID;
+    // 消息内容
+    ::std::string MessageContent;
+    // 发送人气泡ID
+    eint BubbleID;
+    // 消息类型
+    MessageTypeEnum MessageType;
+    // 消息子类型
+    MessageSubTypeEnum MessageSubType;
+    // 消息子临时类型 0: 群, 1: 讨论组, 129: 腾讯公众号, 201: QQ咨询
+    MessageSubTypeEnum MessageSubTemporaryType;
+    // 红包类型 0: 非红包的普通消息, 2: 已转入余额, 4: 点击收款, 10: 红包
+    eint RedEnvelopeType;
+    // 会话Token
+    ebin SessionToken;
+    // 来源事件QQ
+    elong SourceEventQQ;
+    // 来源事件QQ昵称
+    ::std::string SourceEventQQName;
+    // 文件ID
+    ::std::string FileID;
+    // 文件Md5
+    ebin FileMD5 = nullptr;
+    // 文件名
+    ::std::string FileName;
+    // 文件大小
+    elong FileSize;
+
+    PrivateMessageData(const _EType_PrivateMessageData& info) :
+        SenderQQ{info.SenderQQ},
+        ThisQQ{info.ThisQQ},
+        MessageReq{info.MessageReq},
+        MessageSeq{info.MessageSeq},
+        MessageReceiveTime{info.MessageReceiveTime},
+        MessageGroupQQ{info.MessageGroupQQ},
+        MessageSendTime{info.MessageSendTime},
+        MessageRandom{info.MessageRandom},
+        MessageClip{info.MessageClip},
+        MessageClipCount{info.MessageClipCount},
+        MessageClipID{info.MessageClipID},
+        BubbleID{info.BubbleID},
+        MessageType{info.MessageType},
+        MessageSubType{info.MessageSubType},
+        MessageSubTemporaryType{info.MessageSubTemporaryType},
+        RedEnvelopeType{info.RedEnvelopeType},
+        SourceEventQQ{info.SourceEventQQ},
+        FileSize{info.FileSize}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->MessageContent, info.MessageContent);
-        str_copy_new(this->SourceEventQQName, info.SourceEventQQName);
-        str_copy_new(this->FileID, info.FileID);
-        str_copy_new(this->FileName, info.FileName);
-    }
-    PrivateMessageData(const _EType_PrivateMessageData& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->MessageContent, info.MessageContent);
-        e2s_copy_new(this->SourceEventQQName, info.SourceEventQQName);
-        e2s_copy_new(this->FileID, info.FileID);
-        e2s_copy_new(this->FileName, info.FileName);
-    }
-    ~PrivateMessageData()
-    {
-        delete_str(this->MessageContent);
-        delete_str(this->SourceEventQQName);
-        delete_str(this->FileID);
-        delete_str(this->FileName);
+        string_e2std(this->MessageContent, info.MessageContent);
+        string_e2std(this->SourceEventQQName, info.SourceEventQQName);
+        string_e2std(this->FileID, info.FileID);
+        string_e2std(this->FileName, info.FileName);
     }
 };
 
@@ -793,9 +831,7 @@ struct ServiceInformation
         SVIP_WITH_VIDEO = 107, //SVIP&视频会员
         SVIP_WITH_GREEN = 109, //SVIP&绿钻
         SVIP_WITH_MUSIC = 110 //SVIP&音乐包
-    };
-
-    ServiceCode ServiceCodename;
+    } ServiceCodename;
     eint ServiceLevel;
 
     ServiceInformation(const _EType_ServiceInformation& info):
@@ -847,59 +883,73 @@ struct _EType_FriendInformation
 // 好友信息
 struct FriendInformation
 {
+    // 邮箱
     ::std::string Email;
+    // 账号
     elong QQNumber;
+    // 昵称
     ::std::string Name;
+    // 备注
     ::std::string Note;
+    // 在线状态 只能使用[取好友列表]获取
     ::std::string Status;
+    // 赞数量 只能使用[查询好友信息]获取
     eint Likes;
+    // 签名 只能使用[查询好友信息]获取
     ::std::string Signature;
-
+    // 性别 255: 隐藏, 0: 男, 1: 女
     enum GenderType : eint{
         UNKNOW = 255,
         Male = 0,
         Female = 1
-    };
-
-    GenderType Gender;
-
+    } Gender;
+    // Q等级 只能使用[查询好友信息]获取
     eint Level;
+    // 年龄 只能使用[查询好友信息]获取
     eint Age;
+    // 国家 只能使用[查询好友信息]获取
     ::std::string Nation;
+    // 省份 只能使用[查询好友信息]获取
     ::std::string Province;
+    // 城市 只能使用[查询好友信息]获取
     ::std::string City;
-    ::std::string QQTalent;
-
+    // 服务列表 只能使用[查询好友信息]获取
     ::std::vector<ServiceInformation> ServiceList;
+    // 连续在线天数 只能使用[查询好友信息]获取
+    eint ContinuousOnlineTime;
+    // QQ达人 只能使用[查询好友信息]获取
+    ::std::string QQTalent;
+    // 今日已赞 只能使用[查询好友信息]获取
+    eint LikesToday;
+    // 今日可赞数 只能使用[查询好友信息]获取
+    eint LikesAvailableToday;
 
     friend _EType_FriendInformation;
 
     FriendInformation(const _EType_FriendInformation& info) :
-        QQNumber{info.QQNumber},Gender{info.Gender},Level{info.Level},Age{info.Age}
+        QQNumber{info.QQNumber},
+        Gender{info.Gender},
+        Level{info.Level},
+        Age{info.Age},
+        ContinuousOnlineTime{info.ContinuousOnlineTime},
+        LikesToday{info.LikesToday},
+        LikesAvailableToday{info.LikesAvailableToday}
     {
-        constexpr auto init_with_check = [](auto & member, const auto& src){
-            if(src != nullptr) member = e2s_s(src);
-        };
-
-        init_with_check(this->Email,info.Email);
-        init_with_check(this->Name,info.Name);
-        init_with_check(this->Note,info.Note);
-        init_with_check(this->Status,info.Status);
-        init_with_check(this->Signature,info.Signature);
-        init_with_check(this->Nation,info.Nation);
-        init_with_check(this->Province,info.Province);
-        init_with_check(this->City,info.City);
-        init_with_check(this->QQTalent,info.QQTalent);
+        string_e2std(this->Email,info.Email);
+        string_e2std(this->Name,info.Name);
+        string_e2std(this->Note,info.Note);
+        string_e2std(this->Status,info.Status);
+        string_e2std(this->Signature,info.Signature);
+        string_e2std(this->Nation,info.Nation);
+        string_e2std(this->Province,info.Province);
+        string_e2std(this->City,info.City);
+        string_e2std(this->QQTalent,info.QQTalent);
         
-        const auto & base_list = info.ServiceList;
-
-        #undef INIT_WITH_NULLPTR_CHECK
-
-        if (base_list != nullptr)
+        if (info.ServiceList != nullptr)
         {
-            auto size = reinterpret_cast<eint*>(base_list)[1];
+            auto size = reinterpret_cast<eint*>(info.ServiceList)[1];
             auto pptr = reinterpret_cast<_EType_ServiceInformation**>(
-                reinterpret_cast<eint*>(base_list)+2);
+                reinterpret_cast<eint*>(info.ServiceList)+2);
             ::std::for_each(pptr,pptr+size,[this](const auto ptr){
                 this->ServiceList.push_back(*ptr);
             });
@@ -968,24 +1018,95 @@ struct _EType_GroupInformation
     etext GroupMemo = nullptr;
 };
 // 群信息
-struct GroupInformation : _EType_GroupInformation
+struct GroupInformation
 {
-    GroupInformation(const GroupInformation& info)
+    // 群ID
+    elong GroupID;
+    // 群号
+    elong GroupQQ;
+    // cFlag
+    elong CFlag;
+    // dwGroupInfoSeq
+    elong GroupInfoSeq;
+    // dwGroupFlagExt
+    elong GroupFlagExt;
+    // dwGroupRankSeq
+    elong GroupRankSeq;
+    // dwCertificationType
+    elong CertificationType;
+    // 禁言时间戳
+    elong ShutUpTimestamp;
+    // 框架QQ禁言时间戳
+    elong ThisShutUpTimestamp;
+    // dwCmdUinUinFlag
+    elong CmdUinUinFlag;
+    // dwAdditionalFlag
+    elong AdditionalFlag;
+    // dwGroupTypeFlag
+    elong GroupTypeFlag;
+    // dwGroupSecType
+    elong GroupSecType;
+    // dwGroupSecTypeInfo
+    elong GroupSecTypeInfo;
+    // dwGroupClassExt
+    elong GroupClassExt;
+    // dwAppPrivilegeFlag
+    elong AppPrivilegeFlag;
+    // dwSubscriptionUin
+    elong SubscriptionUin;
+    // 群成员数量
+    elong GroupMemberCount;
+    // dwMemberNumSeq
+    elong MemberNumSeq;
+    // dwMemberCardSeq
+    elong MemberCardSeq;
+    // dwGroupFlagExt3
+    elong GroupFlagExt3;
+    // dwGroupOwnerUin
+    elong GroupOwnerUin;
+    // cIsConfGroup
+    elong IsConfGroup;
+    // cIsModifyConfGroupFace
+    elong IsModifyConfGroupFace;
+    // cIsModifyConfGroupName
+    elong IsModifyConfGroupName;
+    // dwCmduinJoinTime
+    elong CmduinJoinTime;
+    // 群名称
+    ::std::string GroupName;
+    // strGroupMemo
+    ::std::string GroupMemo;
+
+    GroupInformation(const _EType_GroupInformation& info):
+        GroupID{info.GroupID},
+        GroupQQ{info.GroupQQ},
+        CFlag{info.CFlag},
+        GroupInfoSeq{info.GroupInfoSeq},
+        GroupFlagExt{info.GroupFlagExt},
+        GroupRankSeq{info.GroupRankSeq},
+        CertificationType{info.CertificationType},
+        ShutUpTimestamp{info.ShutUpTimestamp},
+        ThisShutUpTimestamp{info.ThisShutUpTimestamp},
+        CmdUinUinFlag{info.CmdUinUinFlag},
+        AdditionalFlag{info.AdditionalFlag},
+        GroupTypeFlag{info.GroupTypeFlag},
+        GroupSecType{info.GroupSecType},
+        GroupSecTypeInfo{info.GroupSecTypeInfo},
+        GroupClassExt{info.GroupClassExt},
+        AppPrivilegeFlag{info.AppPrivilegeFlag},
+        SubscriptionUin{info.SubscriptionUin},
+        GroupMemberCount{info.GroupMemberCount},
+        MemberNumSeq{info.MemberNumSeq},
+        MemberCardSeq{info.MemberCardSeq},
+        GroupFlagExt3{info.GroupFlagExt3},
+        GroupOwnerUin{info.GroupOwnerUin},
+        IsConfGroup{info.IsConfGroup},
+        IsModifyConfGroupFace{info.IsModifyConfGroupFace},
+        IsModifyConfGroupName{info.IsModifyConfGroupName},
+        CmduinJoinTime{info.CmduinJoinTime}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->GroupName, info.GroupName);
-        str_copy_new(this->GroupMemo, info.GroupMemo);
-    }
-    GroupInformation(const _EType_GroupInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->GroupName, info.GroupName);
-        e2s_copy_new(this->GroupMemo, info.GroupMemo);
-    }
-    ~GroupInformation()
-    {
-        delete_str(this->GroupName);
-        delete_str(this->GroupMemo);
+        string_e2std(this->GroupName,info.GroupName);
+        string_e2std(this->GroupMemo,info.GroupMemo);
     }
 };
 
@@ -1022,39 +1143,53 @@ struct _EType_GroupMemberInformation
     elong Level;
 };
 // 群成员信息
-struct GroupMemberInformation : _EType_GroupMemberInformation
+struct GroupMemberInformation
 {
-    GroupMemberInformation(const GroupMemberInformation& info)
+    // 账号
+    ::std::string QQNumber;
+    // 年龄
+    eint Age;
+    // 性别
+    eint Gender;
+    // 昵称
+    ::std::string Name;
+    // 邮箱
+    ::std::string Email;
+    // 名片
+    ::std::string Nickname;
+    // 备注
+    ::std::string Note;
+    // 头衔
+    ::std::string Title;
+    // 手机号
+    ::std::string Phone;
+    // 头衔到期时间
+    elong TitleTimeout;
+    // 禁言时间戳
+    elong ShutUpTimestamp;
+    // 加群时间
+    elong JoinTime;
+    // 发言时间
+    elong ChatTime;
+    // 群等级
+    elong Level;
+
+    GroupMemberInformation(const _EType_GroupMemberInformation& info):
+        Age{info.Age},
+        Gender{info.Gender},
+        TitleTimeout{info.TitleTimeout},
+        ShutUpTimestamp{info.ShutUpTimestamp},
+        JoinTime{info.JoinTime},
+        ChatTime{info.ChatTime},
+        Level{info.Level}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->QQNumber, info.QQNumber);
-        str_copy_new(this->Name, info.Name);
-        str_copy_new(this->Email, info.Email);
-        str_copy_new(this->Nickname, info.Nickname);
-        str_copy_new(this->Note, info.Note);
-        str_copy_new(this->Title, info.Title);
-        str_copy_new(this->Phone, info.Phone);
-    }
-    GroupMemberInformation(const _EType_GroupMemberInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->QQNumber, info.QQNumber);
-        e2s_copy_new(this->Name, info.Name);
-        e2s_copy_new(this->Email, info.Email);
-        e2s_copy_new(this->Nickname, info.Nickname);
-        e2s_copy_new(this->Note, info.Note);
-        e2s_copy_new(this->Title, info.Title);
-        e2s_copy_new(this->Phone, info.Phone);
-    }
-    ~GroupMemberInformation()
-    {
-        delete_str(this->QQNumber);
-        delete_str(this->Name);
-        delete_str(this->Email);
-        delete_str(this->Nickname);
-        delete_str(this->Note);
-        delete_str(this->Title);
-        delete_str(this->Phone);
+        string_e2std(this->QQNumber, info.QQNumber);
+        string_e2std(this->Name, info.Name);
+        string_e2std(this->Email, info.Email);
+        string_e2std(this->Nickname, info.Nickname);
+        string_e2std(this->Note, info.Note);
+        string_e2std(this->Title, info.Title);
+        string_e2std(this->Phone, info.Phone);
     }
 };
 
@@ -1111,39 +1246,80 @@ struct _EType_GroupMessageData
     eint MessageAppID;
 };
 // 群消息数据
-struct GroupMessageData : _EType_GroupMessageData
+struct GroupMessageData
 {
-    GroupMessageData(const GroupMessageData& info)
+    // 发送人QQ
+    elong SenderQQ;
+    // 框架QQ
+    elong ThisQQ;
+    // 消息Req
+    eint MessageReq;
+    // 消息接收时间
+    eint MessageReceiveTime;
+    // 消息群号
+    elong MessageGroupQQ;
+    // 消息来源群名（貌似失效了）
+    ::std::string SourceGroupName;
+    // 发送人群名片 没有名片则为空白
+    ::std::string SenderNickname;
+    // 消息发送时间
+    eint MessageSendTime;
+    // 消息Random
+    elong MessageRandom;
+    // 消息分片序列
+    eint MessageClip;
+    // 消息分片数量
+    eint MessageClipCount;
+    // 消息分片标识
+    elong MessageClipID;
+    // 消息类型
+    MessageTypeEnum MessageType;
+    // 发送人群头衔
+    ::std::string SenderTitle;
+    // 消息内容
+    ::std::string MessageContent;
+    // 回复对象消息内容 如果是回复消息
+    ::std::string ReplyMessageContent;
+    // 发送者气泡ID
+    eint BubbleID;
+    // 框架QQ匿名Id，用于区分别人和自己(当天从未使用过匿名则为0)
+    eint ThisQQAnonymousID;
+    // 保留参数，请勿使用
+    eint reserved_;
+    // 文件Id
+    ::std::string FileID;
+    // 文件Md5
+    ebin FileMD5 = nullptr;
+    // 文件名
+    ::std::string FileName;
+    // 文件大小
+    elong FileSize;
+    // 消息AppID
+    eint MessageAppID;
+    GroupMessageData(const _EType_GroupMessageData& info):
+        SenderQQ{info.SenderQQ},
+        ThisQQ{info.ThisQQ},
+        MessageReq{info.MessageReq},
+        MessageReceiveTime{info.MessageReceiveTime},
+        MessageGroupQQ{info.MessageGroupQQ},
+        MessageSendTime{info.MessageSendTime},
+        MessageRandom{info.MessageRandom},
+        MessageClip{info.MessageClip},
+        MessageClipCount{info.MessageClipCount},
+        MessageClipID{info.MessageClipID},
+        MessageType{info.MessageType},
+        BubbleID{info.BubbleID},
+        ThisQQAnonymousID{info.ThisQQAnonymousID},
+        FileSize{info.FileSize},
+        MessageAppID{info.MessageAppID}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->SourceGroupName, info.SourceGroupName);
-        str_copy_new(this->SenderNickname, info.SenderNickname);
-        str_copy_new(this->SenderTitle, info.SenderTitle);
-        str_copy_new(this->MessageContent, info.MessageContent);
-        str_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
-        str_copy_new(this->FileID, info.FileID);
-        str_copy_new(this->FileName, info.FileName);
-    }
-    GroupMessageData(const _EType_GroupMessageData& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->SourceGroupName, info.SourceGroupName);
-        e2s_copy_new(this->SenderNickname, info.SenderNickname);
-        e2s_copy_new(this->SenderTitle, info.SenderTitle);
-        e2s_copy_new(this->MessageContent, info.MessageContent);
-        e2s_copy_new(this->ReplyMessageContent, info.ReplyMessageContent);
-        e2s_copy_new(this->FileID, info.FileID);
-        e2s_copy_new(this->FileName, info.FileName);
-    }
-    ~GroupMessageData()
-    {
-        delete_str(this->SourceGroupName);
-        delete_str(this->SenderNickname);
-        delete_str(this->SenderTitle);
-        delete_str(this->MessageContent);
-        delete_str(this->ReplyMessageContent);
-        delete_str(this->FileID);
-        delete_str(this->FileName);
+        string_e2std(this->SourceGroupName, info.SourceGroupName);
+        string_e2std(this->SenderNickname, info.SenderNickname);
+        string_e2std(this->SenderTitle, info.SenderTitle);
+        string_e2std(this->MessageContent, info.MessageContent);
+        string_e2std(this->ReplyMessageContent, info.ReplyMessageContent);
+        string_e2std(this->FileID, info.FileID);
+        string_e2std(this->FileName, info.FileName);
     }
 };
 
@@ -1176,30 +1352,46 @@ struct _EType_EventData
     eint EventSubType;
 };
 // 事件数据
-struct EventData : _EType_EventData
+struct EventData
 {
-    EventData(const EventData& info)
+    // 框架QQ
+    elong ThisQQ;
+    // 来源群号
+    elong SourceGroupQQ;
+    // 操作QQ
+    elong OperateQQ;
+    // 触发QQ
+    elong TriggerQQ;
+    // 消息Seq
+    elong MessageSeq;
+    // 消息时间戳
+    eint MessageTimestamp;
+    // 来源群名
+    ::std::string SourceGroupName;
+    // 操作QQ昵称
+    ::std::string OperateQQName;
+    // 触发QQ昵称
+    ::std::string TriggerQQName;
+    // 事件内容
+    ::std::string MessageContent;
+    // 事件类型
+    EventTypeEnum EventType;
+    // 事件子类型
+    eint EventSubType;
+    
+    EventData(const _EType_EventData& info):ThisQQ{info.ThisQQ},
+        SourceGroupQQ{info.SourceGroupQQ},
+        OperateQQ{info.OperateQQ},
+        TriggerQQ{info.TriggerQQ},
+        MessageSeq{info.MessageSeq},
+        MessageTimestamp{info.MessageTimestamp},
+        EventType{info.EventType},
+        EventSubType{info.EventSubType}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->SourceGroupName, info.SourceGroupName);
-        str_copy_new(this->OperateQQName, info.OperateQQName);
-        str_copy_new(this->TriggerQQName, info.TriggerQQName);
-        str_copy_new(this->MessageContent, info.MessageContent);
-    }
-    EventData(const _EType_EventData& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->SourceGroupName, info.SourceGroupName);
-        e2s_copy_new(this->OperateQQName, info.OperateQQName);
-        e2s_copy_new(this->TriggerQQName, info.TriggerQQName);
-        e2s_copy_new(this->MessageContent, info.MessageContent);
-    }
-    ~EventData()
-    {
-        delete_str(this->SourceGroupName);
-        delete_str(this->OperateQQName);
-        delete_str(this->TriggerQQName);
-        delete_str(this->MessageContent);
+        string_e2std(this->SourceGroupName, info.SourceGroupName);
+        string_e2std(this->OperateQQName, info.OperateQQName);
+        string_e2std(this->TriggerQQName, info.TriggerQQName);
+        string_e2std(this->MessageContent, info.MessageContent);
     }
 };
 
@@ -1218,33 +1410,26 @@ struct _EType_GroupCardInformation
     etext GroupDescription = nullptr;
 };
 // 群卡片信息
-struct GroupCardInformation : _EType_GroupCardInformation
+struct GroupCardInformation
 {
-    GroupCardInformation(const GroupCardInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->GroupName, info.GroupName);
-        str_copy_new(this->GroupLocation, info.GroupLocation);
-        str_copy_new(this->GroupClassification, info.GroupClassification);
-        str_copy_new(this->GroupTags, info.GroupTags);
-        str_copy_new(this->GroupDescription, info.GroupDescription);
-    }
+    // 群名称
+    ::std::string GroupName;
+    // 群地点
+    ::std::string GroupLocation;
+    // 群分类
+    ::std::string GroupClassification;
+    // 群标签 以|分割
+    ::std::string GroupTags;
+    // 群介绍
+    ::std::string GroupDescription;
+
     GroupCardInformation(const _EType_GroupCardInformation& info)
     {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->GroupName, info.GroupName);
-        e2s_copy_new(this->GroupLocation, info.GroupLocation);
-        e2s_copy_new(this->GroupClassification, info.GroupClassification);
-        e2s_copy_new(this->GroupTags, info.GroupTags);
-        e2s_copy_new(this->GroupDescription, info.GroupDescription);
-    }
-    ~GroupCardInformation()
-    {
-        delete_str(this->GroupName);
-        delete_str(this->GroupLocation);
-        delete_str(this->GroupClassification);
-        delete_str(this->GroupTags);
-        delete_str(this->GroupDescription);
+        string_e2std(this->GroupName, info.GroupName);
+        string_e2std(this->GroupLocation, info.GroupLocation);
+        string_e2std(this->GroupClassification, info.GroupClassification);
+        string_e2std(this->GroupTags, info.GroupTags);
+        string_e2std(this->GroupDescription, info.GroupDescription);
     }
 };
 
@@ -1267,27 +1452,31 @@ struct _EType_GroupFileInformation
     eint FileType;
 };
 // 群文件信息
-struct GroupFileInformation : _EType_GroupFileInformation
+struct GroupFileInformation
 {
-    GroupFileInformation(const GroupFileInformation& info)
+    // 文件夹fileid或者文件fileid
+    ::std::string FileID;
+    // 文件夹名或文件名
+    ::std::string FileName;
+    // 文件大小，文件夹时表示有多少个文件
+    elong FileSize;
+    // 文件md5，文件夹时为空，部分文件类型也可能是空
+    ebin FileMd5;
+    // 创建文件夹或上传文件的QQ
+    elong FileFromUin;
+    // 创建文件夹或上传文件的QQ
+    ::std::string FileFromNick;
+    // 文件类型  1: 文件, 2: 文件夹
+    eint FileType;
+
+    GroupFileInformation(const _EType_GroupFileInformation& info) :
+        FileSize{info.FileSize},
+        FileFromUin{info.FileFromUin},
+        FileType{info.FileType}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->FileID, info.FileID);
-        str_copy_new(this->FileName, info.FileName);
-        str_copy_new(this->FileFromNick, info.FileFromNick);
-    }
-    GroupFileInformation(const _EType_GroupFileInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->FileID, info.FileID);
-        e2s_copy_new(this->FileName, info.FileName);
-        e2s_copy_new(this->FileFromNick, info.FileFromNick);
-    }
-    ~GroupFileInformation()
-    {
-        delete_str(this->FileID);
-        delete_str(this->FileName);
-        delete_str(this->FileFromNick);
+        string_e2std(this->FileID, info.FileID);
+        string_e2std(this->FileName, info.FileName);
+        string_e2std(this->FileFromNick, info.FileFromNick);
     }
 };
 
@@ -1309,35 +1498,29 @@ struct _EType_CardInformation
 };
 
 // 银行卡信息
-struct CardInformation : _EType_CardInformation
+struct CardInformation
 {
-    CardInformation()
-    {}
-    CardInformation(const CardInformation& info)
+    // 序列
+    eint Serial;
+    // 尾号
+    ::std::string TailNumber;
+    // 银行
+    ::std::string Bank;
+    // 绑定手机
+    ::std::string BindPhone;
+    // bind_serial
+    ::std::string BindSerial;
+    // bank_type
+    ::std::string BankType;
+
+    CardInformation(const _EType_CardInformation& info):
+        Serial{info.Serial}
     {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->TailNumber, info.TailNumber);
-        str_copy_new(this->Bank, info.Bank);
-        str_copy_new(this->BindPhone, info.BindPhone);
-        str_copy_new(this->BindSerial, info.BindSerial);
-        str_copy_new(this->BankType, info.BankType);
-    }
-    CardInformation(const _EType_CardInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->TailNumber, info.TailNumber);
-        e2s_copy_new(this->Bank, info.Bank);
-        e2s_copy_new(this->BindPhone, info.BindPhone);
-        e2s_copy_new(this->BindSerial, info.BindSerial);
-        e2s_copy_new(this->BankType, info.BankType);
-    }
-    ~CardInformation()
-    {
-        delete_str(this->TailNumber);
-        delete_str(this->Bank);
-        delete_str(this->BindPhone);
-        delete_str(this->BindSerial);
-        delete_str(this->BankType);
+        string_e2std(this->TailNumber, info.TailNumber);
+        string_e2std(this->Bank, info.Bank);
+        string_e2std(this->BindPhone, info.BindPhone);
+        string_e2std(this->BindSerial, info.BindSerial);
+        string_e2std(this->BankType, info.BankType);
     }
 };
 
@@ -1351,51 +1534,35 @@ struct _EType_QQWalletInformation
     // 实名
     etext RealName = nullptr;
     // 银行卡列表
-    CardInformation *CardList = nullptr;
+    _EType_CardInformation *CardList = nullptr;
 };
 
 // QQ钱包信息
-struct QQWalletInformation : _EType_QQWalletInformation
+struct QQWalletInformation
 {
-    QQWalletInformation(const QQWalletInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->Balance, info.Balance);
-        str_copy_new(this->ID, info.ID);
-        str_copy_new(this->RealName, info.RealName);
-    }
+    // 余额
+    ::std::string Balance;
+    // 身份证号
+    ::std::string ID;
+    // 实名
+    ::std::string RealName;
+    // 银行卡列表
+    ::std::vector<CardInformation> CardList;
+
     QQWalletInformation(const _EType_QQWalletInformation& info)
     {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->Balance, info.Balance);
-        e2s_copy_new(this->ID, info.ID);
-        e2s_copy_new(this->RealName, info.RealName);
+        string_e2std(this->Balance, info.Balance);
+        string_e2std(this->ID, info.ID);
+        string_e2std(this->RealName, info.RealName);
 
-        if (this->CardList != nullptr)
+        if (info.CardList != nullptr)
         {
-            earray1D<_EType_CardInformation, CardInformation> array;
-            std::vector<CardInformation> info_list;
-            array.data = this->CardList;
-            size_t size = array.Unpack(info_list);
-            if (size > 0) {
-                this->CardList = new CardInformation[size];
-                for (size_t i = 0; i < info_list.size(); i++)
-                {
-                    memcpy(this->CardList + i, &info_list[i], sizeof(CardInformation));
-                }
-            }
-        }
-    }
-    ~QQWalletInformation()
-    {
-        delete_str(this->Balance);
-        delete_str(this->ID);
-        delete_str(this->RealName);
-
-        if (this->CardList != nullptr)
-        {
-            delete this->CardList;
-            this->CardList = nullptr;
+            auto size = reinterpret_cast<eint*>(info.CardList)[1];
+            auto pptr = reinterpret_cast<_EType_CardInformation**>(
+                reinterpret_cast<eint*>(info.CardList)+2);
+            ::std::for_each(pptr,pptr+size,[this](const auto ptr){
+                this->CardList.push_back(*ptr);
+            });
         }
     }
 };
@@ -1425,70 +1592,47 @@ struct _EType_OrderDetail
     etext OperateAmount = nullptr;
 };
 // 订单详情
-struct OrderDetail : _EType_OrderDetail
+struct OrderDetail
 {
-    OrderDetail(const OrderDetail& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->OrderTime, info.OrderTime);
-        str_copy_new(this->OrderDescription, info.OrderDescription);
-        str_copy_new(this->OrderClassification, info.OrderClassification);
-        str_copy_new(this->OrderType, info.OrderType);
-        str_copy_new(this->OrderCommission, info.OrderCommission);
-        str_copy_new(this->OperatorQQ, info.OperatorQQ);
-        str_copy_new(this->OperatorName, info.OperatorName);
-        str_copy_new(this->ReceiverQQ, info.ReceiverQQ);
-        str_copy_new(this->ReceiverName, info.ReceiverName);
-        str_copy_new(this->OperateAmount, info.OperateAmount);
-    }
+    // 订单时间
+    ::std::string OrderTime;
+    // 订单说明
+    ::std::string OrderDescription;
+    // 订单类名
+    ::std::string OrderClassification;
+    // 订单类型
+    ::std::string OrderType;
+    // 订单手续费
+    ::std::string OrderCommission;
+    // 操作人QQ
+    ::std::string OperatorQQ;
+    // 操作人昵称
+    ::std::string OperatorName;
+    // 接收人QQ
+    ::std::string ReceiverQQ;
+    // 接收人昵称
+    ::std::string ReceiverName;
+    // 操作金额
+    ::std::string OperateAmount;
+
     OrderDetail(const _EType_OrderDetail& info)
     {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->OrderTime, info.OrderTime);
-        e2s_copy_new(this->OrderDescription, info.OrderDescription);
-        e2s_copy_new(this->OrderClassification, info.OrderClassification);
-        e2s_copy_new(this->OrderType, info.OrderType);
-        e2s_copy_new(this->OrderCommission, info.OrderCommission);
-        e2s_copy_new(this->OperatorQQ, info.OperatorQQ);
-        e2s_copy_new(this->OperatorName, info.OperatorName);
-        e2s_copy_new(this->ReceiverQQ, info.ReceiverQQ);
-        e2s_copy_new(this->ReceiverName, info.ReceiverName);
-        e2s_copy_new(this->OperateAmount, info.OperateAmount);
-    }
-    ~OrderDetail()
-    {
-        delete_str(this->OrderTime);
-        delete_str(this->OrderDescription);
-        delete_str(this->OrderClassification);
-        delete_str(this->OrderType);
-        delete_str(this->OrderCommission);
-        delete_str(this->OperatorQQ);
-        delete_str(this->OperatorName);
-        delete_str(this->ReceiverQQ);
-        delete_str(this->ReceiverName);
-        delete_str(this->OperateAmount);
+        string_e2std(this->OrderTime, info.OrderTime);
+        string_e2std(this->OrderDescription, info.OrderDescription);
+        string_e2std(this->OrderClassification, info.OrderClassification);
+        string_e2std(this->OrderType, info.OrderType);
+        string_e2std(this->OrderCommission, info.OrderCommission);
+        string_e2std(this->OperatorQQ, info.OperatorQQ);
+        string_e2std(this->OperatorName, info.OperatorName);
+        string_e2std(this->ReceiverQQ, info.ReceiverQQ);
+        string_e2std(this->ReceiverName, info.ReceiverName);
+        string_e2std(this->OperateAmount, info.OperateAmount);
     }
 };
 
 // Note: _EType_开头的是内部转换用的类型，请使用普通的CaptchaInformation
 struct _EType_CaptchaInformation
 {
-    _EType_CaptchaInformation() {}
-    // FIXME: 需要限定类型只能为CaptchaInformation
-    // TODO: 增加字符串指针为null的判断
-    template<typename T>
-    _EType_CaptchaInformation(const T& info) {
-        memcpy(this, &info, sizeof(_EType_CaptchaInformation));
-        this->TokenID = s2e(this->TokenID);
-        this->SKey = s2e(this->SKey);
-        this->BankType = s2e(this->BankType);
-        this->Mobile = s2e(this->Mobile);
-        this->BusinessType = s2e(this->BusinessType);
-        this->TransactionID = s2e(this->TransactionID);
-        this->PurchaserID = s2e(this->PurchaserID);
-        this->Token = s2e(this->Token);
-        this->AuthParams = s2e(this->AuthParams);
-    }
     // token_id
     etext TokenID = nullptr;
     // skey
@@ -1511,51 +1655,57 @@ struct _EType_CaptchaInformation
     etext AuthParams = nullptr;
 };
 // 验证码信息
-struct CaptchaInformation : _EType_CaptchaInformation
+struct CaptchaInformation
 {
-    CaptchaInformation() {};
-    CaptchaInformation(const CaptchaInformation& info)
-    {
-        memcpy(this, &info, sizeof(info));
-        str_copy_new(this->TokenID, info.TokenID);
-        str_copy_new(this->SKey, info.SKey);
-        str_copy_new(this->BankType, info.BankType);
-        str_copy_new(this->Mobile, info.Mobile);
-        str_copy_new(this->BusinessType, info.BusinessType);
-        str_copy_new(this->TransactionID, info.TransactionID);
-        str_copy_new(this->PurchaserID, info.PurchaserID);
-        str_copy_new(this->Token, info.Token);
-        str_copy_new(this->AuthParams, info.AuthParams);
-    }
+    // token_id
+    ::std::string TokenID;
+    // skey
+    ::std::string SKey;
+    // bank_type
+    ::std::string BankType;
+    // mobile
+    ::std::string Mobile;
+    // business_type
+    ::std::string BusinessType;
+    // random
+    eint Random;
+    // transaction_id
+    ::std::string TransactionID;
+    // purchaser_id
+    ::std::string PurchaserID;
+    // token
+    ::std::string Token;
+    // auth_params
+    ::std::string AuthParams;
+
     CaptchaInformation(const _EType_CaptchaInformation& info)
     {
-        memcpy(this, &info, sizeof(info));
-        e2s_copy_new(this->TokenID, info.TokenID);
-        e2s_copy_new(this->SKey, info.SKey);
-        e2s_copy_new(this->BankType, info.BankType);
-        e2s_copy_new(this->Mobile, info.Mobile);
-        e2s_copy_new(this->BusinessType, info.BusinessType);
-        e2s_copy_new(this->TransactionID, info.TransactionID);
-        e2s_copy_new(this->PurchaserID, info.PurchaserID);
-        e2s_copy_new(this->Token, info.Token);
-        e2s_copy_new(this->AuthParams, info.AuthParams);
+        string_e2std(this->TokenID, info.TokenID);
+        string_e2std(this->SKey, info.SKey);
+        string_e2std(this->BankType, info.BankType);
+        string_e2std(this->Mobile, info.Mobile);
+        string_e2std(this->BusinessType, info.BusinessType);
+        string_e2std(this->TransactionID, info.TransactionID);
+        string_e2std(this->PurchaserID, info.PurchaserID);
+        string_e2std(this->Token, info.Token);
+        string_e2std(this->AuthParams, info.AuthParams);
     }
-    ~CaptchaInformation()
-    {
-        delete_str(this->TokenID);
-        delete_str(this->SKey);
-        delete_str(this->BankType);
-        delete_str(this->Mobile);
-        delete_str(this->BusinessType);
-        delete_str(this->TransactionID);
-        delete_str(this->PurchaserID);
-        delete_str(this->Token);
-        delete_str(this->AuthParams);
+    
+    operator _EType_CaptchaInformation() const{
+        _EType_CaptchaInformation ret;
+        ret.TokenID = this->TokenID.c_str();
+        ret.SKey = this->SKey.c_str();
+        ret.BankType = this->BankType.c_str();
+        ret.Mobile = this->Mobile.c_str();
+        ret.BusinessType = this->BusinessType.c_str();
+        ret.Random = this->Random;
+        ret.TransactionID = this->TransactionID.c_str();
+        ret.PurchaserID = this->PurchaserID.c_str();
+        ret.Token = this->Token.c_str();
+        ret.AuthParams = this->AuthParams.c_str();
+        return ret;
     }
 };
-
-#undef e2s_copy_new
-#undef delete_str
 
 #pragma pack()
 #endif // CORNERSTONE_SDK_HEADER_TYPES_H_
