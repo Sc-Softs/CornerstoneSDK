@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "../sdk.h"
 
-#include <cstring>
+#include "../eport/earray.h"
 
 //匿名命名空间，只允许内部链接
 namespace{
@@ -425,9 +425,9 @@ std::string API::GetThisQQ()
  */
 size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &friend_list)
 {
-    earray1D<_EType_FriendInformation, FriendInformation> array;
-    eint size = ::_API_func_GetFriendList(this->key.c_str(), thisQQ, &array.data);
-    return size == 0 ? 0 : array.Unpack(friend_list);
+    earray_head earr;
+    eint size = ::_API_func_GetFriendList(this->key.c_str(), thisQQ, earr);
+    return size == 0 ? 0 : earray1d2vector<_EType_FriendInformation, FriendInformation>(earr,friend_list);
 }
 
 /**
@@ -438,9 +438,9 @@ size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &f
  */
 size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &group_list)
 {
-    earray1D<_EType_GroupInformation, GroupInformation> array;
-    eint size = ::_API_func_GetGroupList(this->key.c_str(), thisQQ, &array.data);
-    return size == 0 ? 0 : array.Unpack(group_list);
+    earray_head earr;
+    eint size = ::_API_func_GetGroupList(this->key.c_str(), thisQQ, earr);
+    return size == 0 ? 0 : earray1d2vector<_EType_GroupInformation, GroupInformation>(earr,group_list);
 }
 
 /**
@@ -452,9 +452,9 @@ size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &gro
  */
 int32_t API::GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::vector<GroupMemberInformation> &group_member_list)
 {
-    earray1D<_EType_GroupMemberInformation, GroupMemberInformation> array;
-    eint size = ::_API_func_GetGroupMemberList(this->key.c_str(), thisQQ, groupQQ, &array.data);
-    return size == 0 ? 0 : array.Unpack(group_member_list);
+    earray_head earr;
+    eint size = ::_API_func_GetGroupMemberList(this->key.c_str(), thisQQ, groupQQ, earr);
+    return size == 0 ? 0 : earray1d2vector<_EType_GroupMemberInformation, GroupMemberInformation>(earr,group_member_list);
 }
 
 /**
@@ -808,9 +808,9 @@ void API::ProcessFriendVerificationEvent(std::int64_t thisQQ, std::int64_t trigg
   */
 void API::ReadForwardedChatHistory(std::int64_t thisQQ, const std::string &resID, std::vector<GroupMessageData> &message_content)
 {
-    earray1D<_EType_GroupMessageData, GroupMessageData> array;
-    ::_API_func_ReadForwardedChatHistory(this->key.c_str(), thisQQ, s2e(resID), &array.data);
-    array.Unpack(message_content);
+    earray_head earr;
+    ::_API_func_ReadForwardedChatHistory(this->key.c_str(), thisQQ, s2e(resID), earr);
+    earray1d2vector<_EType_GroupMessageData, GroupMessageData>(earr,message_content);
 }
 
 /**
@@ -895,9 +895,9 @@ std::string API::MoveGroupFile(std::int64_t thisQQ, std::int64_t groupQQ, const 
  */
 std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder, std::vector<GroupFileInformation> &group_file_list)
 {
-    earray1D<_EType_GroupFileInformation, GroupFileInformation> array;
-    std::string ret = e2s(::_API_func_GetGroupFileList(this->key.c_str(), thisQQ, groupQQ, s2e(folder), &array.data));
-    array.Unpack(group_file_list);
+    earray_head earr;
+    std::string ret = e2s(::_API_func_GetGroupFileList(this->key.c_str(), thisQQ, groupQQ, s2e(folder), earr));
+    earray1d2vector<_EType_GroupFileInformation,GroupFileInformation>(earr,group_file_list);
     return ret;
 }
 

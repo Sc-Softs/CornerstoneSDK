@@ -126,8 +126,6 @@ public:
      */
     API(etext api_data, etext plugin_key);
 
-    ~API();
-
     /**
      * @brief 输出日志
      * @param message 日志
