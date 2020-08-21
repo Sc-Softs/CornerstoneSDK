@@ -11,7 +11,7 @@ using namespace std;
 // 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 私聊消息事件
-EventProcessEnum OnPrivateMessage(PrivateMessageData &data)
+EventProcessEnum OnPrivateMessage(PrivateMessageData data)
 {
     // 序列从0开始，过滤腾讯长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
     if (data.MessageClipID > 0 && data.MessageClip + 1 != data.MessageClipCount)
@@ -115,7 +115,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData &data)
 }
 
 // 群消息事件
-EventProcessEnum OnGroupMessage(GroupMessageData &data)
+EventProcessEnum OnGroupMessage(GroupMessageData data)
 {
     // 序列从0开始，过滤长消息自动分片的片段内容，你也可以删除这里来获取分片片段内容
     if (data.MessageClipID > 0 && data.MessageClip + 1 != data.MessageClipCount)
@@ -200,7 +200,7 @@ EventProcessEnum OnDisabled()
 }
 
 // 事件消息
-EventProcessEnum OnEvent(EventData &data)
+EventProcessEnum OnEvent(EventData data)
 {
     if (data.SourceGroupQQ == 0) // 非群事件
     {

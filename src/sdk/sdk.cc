@@ -33,21 +33,27 @@ SOFTWARE.
 
 #include <cstring>
 #include <unordered_set>
+#include <type_traits>
 
 API *api;
+
+template<typename VData_t>
+inline auto deref_and_remove_volatile(VData_t * data){
+    using data_t = typename ::std::remove_volatile<VData_t>::type;
+    using p_data_t = typename ::std::add_pointer<data_t>::type;
+    return *const_cast<p_data_t>(data);
+}
 
 // 私聊消息事件回调包装
 EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
 {
-    PrivateMessageData data(*(const_cast<_EType_PrivateMessageData *>(eData)));
-    return OnPrivateMessage(data);
+    return OnPrivateMessage(deref_and_remove_volatile(eData));
 }
 
 // 群消息事件回调包装
 EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eData)
 {
-    GroupMessageData data(*(const_cast<_EType_GroupMessageData *>(eData)));
-    return OnGroupMessage(data);
+    return OnGroupMessage(deref_and_remove_volatile(eData));
 }
 
 // 插件卸载事件回调包装（未知参数）
@@ -77,8 +83,7 @@ EventProcessEnum ECallBack_OnDisabled(void*)
 // 其他事件回调包装
 EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData)
 {
-    EventData data(*(const_cast<_EType_EventData *>(eData)));
-    return OnEvent(data);
+    return OnEvent(deref_and_remove_volatile(eData));
 }
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)

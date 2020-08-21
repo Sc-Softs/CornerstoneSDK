@@ -47,9 +47,9 @@ using Json = nlohmann::json;
 #include "api/api.h"
 
 // 好友消息事件
-EventProcessEnum OnPrivateMessage(PrivateMessageData &data);
+EventProcessEnum OnPrivateMessage(PrivateMessageData data);
 // 群消息事件
-EventProcessEnum OnGroupMessage(GroupMessageData &data);
+EventProcessEnum OnGroupMessage(GroupMessageData data);
 // 插件卸载事件
 EventProcessEnum OnUninstall();
 // 插件设置事件 这里可以弹出对话框
@@ -59,7 +59,7 @@ EventProcessEnum OnEnabled();
 // 插件被禁用事件
 EventProcessEnum OnDisabled();
 // 其他事件
-EventProcessEnum OnEvent(EventData &data);
+EventProcessEnum OnEvent(EventData data);
 
 // 私聊消息事件回调包装
 EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData* eData);
