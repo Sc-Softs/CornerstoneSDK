@@ -31,6 +31,8 @@ SOFTWARE.
 #define CORNERSTONE_SDK_HEADER_API_H_
 
 #include "../sdk.h"
+#include "../framework/datatypes.h"
+#include "../framework/permission.h"
 
 class API
 {
