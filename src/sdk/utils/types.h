@@ -56,7 +56,7 @@ private:
     HANDLE heap;
 };
 
-template <class EType, class CType>
+template <class EType>
 class earray1D // 易语言一维数组
     : public earray
 {
@@ -66,27 +66,30 @@ public:
         return ((eint *)this->data)[1];
     }
 
-    size_t Unpack(std::vector<CType> &array) const noexcept
+    size_t Unpack(std::vector<EType> &array) const noexcept
     {
         if (this->GetDimension() != 1)
         {
             return -1;
         }
         auto size = this->GetSize();
+        array.clear();
+        if (size == 0)
+        {
+            return 0;
+        }
         if constexpr (std::is_compound_v<EType>)
         {
             volatile EType **data = (volatile EType **)(((eint *)this->data) + 2);
-            array.clear();
             for (decltype(size) i = 0; i < size; i++)
             {
-                array.push_back((CType)*(const_cast<EType *>(*data)));
+                array.push_back(*(const_cast<EType *>(*data)));
                 data++;
             }
         }
         else
         {
             EType *data = (EType *)(((eint *)this->data) + 2);
-            array.clear();
             for (auto i = 0; i < size; i++)
             {
                 array.push_back(*data);
@@ -96,6 +99,16 @@ public:
         return size;
     }
 };
+
+template <class EType, class CType>
+void cast_earray1D(std::vector<CType> &dst, const std::vector<EType> &src)
+{
+    dst.clear()
+    for (const auto &item : src)
+    {
+        dst.emplace_back(item);
+    }
+}
 
 // 易语言常量
 constexpr ebool etrue = 1;

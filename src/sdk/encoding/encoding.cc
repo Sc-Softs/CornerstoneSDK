@@ -89,7 +89,7 @@ std::wstring ToWideChar(std::uint32_t code_page, const std::string &src_str)
     return wstr;
 }
 
-std::string FromWideChar(std::uint32_t code_page, const std::wstring& src_wstr)
+std::string FromWideChar(std::uint32_t code_page, const std::wstring &src_wstr)
 {
     auto len = WideCharToMultiByte(code_page, 0, src_wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
     if (!len)
@@ -108,12 +108,12 @@ std::string FromWideChar(std::uint32_t code_page, const std::wstring& src_wstr)
     return str;
 }
 
-std::wstring UTF8ToWideChar(const std::string& utf8)
+std::wstring UTF8ToWideChar(const std::string &utf8)
 {
     return ToWideChar(CP_UTF8, utf8);
 }
 
-std::string WideCharToUTF8(const std::wstring& wstr)
+std::string WideCharToUTF8(const std::wstring &wstr)
 {
     return FromWideChar(CP_UTF8, wstr);
 }
@@ -123,11 +123,10 @@ std::wstring ANSIToWideChar(const std::string &ansi)
     return ToWideChar(CP_ACP, ansi);
 }
 
-std::string WideCharToANSI(const std::wstring& wstr)
+std::string WideCharToANSI(const std::wstring &wstr)
 {
     return FromWideChar(CP_ACP, wstr);
 }
-
 
 inline bool IsWideCharHex(wchar_t wch)
 {
@@ -144,16 +143,16 @@ inline std::uint8_t WideCharToHex(wchar_t wch)
     {
         return wch - L'a' + 10;
     }
-    else  // wch >= L'A' && wch <= L'F'
+    else // wch >= L'A' && wch <= L'F'
     {
         return wch - L'A' + 10;
     }
 }
 
-wchar_t UCS2ToWideChar(const std::wstring& ucs2)
+wchar_t UCS2ToWideChar(const std::wstring &ucs2)
 {
     auto it = ucs2.cbegin();
-    it += 2;  // L'\\u'
+    it += 2; // L'\\u'
     uint16_t wch_value = 0;
     for (auto i = 0; i < 4; i++)
     {
@@ -165,7 +164,7 @@ wchar_t UCS2ToWideChar(const std::wstring& ucs2)
     return wch;
 }
 
-std::wstring ANSIWithUCS2ToWideChar(const std::string& ansi_with_ucs2)
+std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2)
 {
     auto wstr_with_ucs2 = ANSIToWideChar(ansi_with_ucs2);
     std::wstring wstr;
@@ -221,7 +220,7 @@ char HexToChar(uint8_t hex)
     {
         return '0' + hex;
     }
-    else  // hex >= 10 && hex <= 15
+    else // hex >= 10 && hex <= 15
     {
         return 'a' + hex - 10;
     }
@@ -240,7 +239,7 @@ std::string WideCharToUCS2(wchar_t wch)
     return ucs2;
 }
 
-std::string WideCharToANSIWithUCS2(const std::wstring& wstr, const std::wstring& force_escape_wchars)
+std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wchars)
 {
     BOOL need_escape = FALSE;
     // 测试是否有需要强制转义的字符
@@ -288,7 +287,7 @@ std::string WideCharToANSIWithUCS2(const std::wstring& wstr, const std::wstring&
             return "";
         }
         wstr_c_tmp[1] = L'\0';
-        auto ansi_c_tmp = new char[8];  // 3应该够用了但是保险点还是分配个8
+        auto ansi_c_tmp = new char[8]; // 3应该够用了但是保险点还是分配个8
         if (!ansi_c_tmp)
         {
             delete[] wstr_c_tmp;
