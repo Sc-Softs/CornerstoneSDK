@@ -11,7 +11,7 @@
                 "_UNICODE"
             ],
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x86"
+            "intelliSenseMode": "${default}"
         },
         {
             "name": "Release",
@@ -23,7 +23,7 @@
                 "_UNICODE"
             ],
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x86"
+            "intelliSenseMode": "${default}"
         }
     ],
     "version": 4
