@@ -838,12 +838,12 @@ struct FriendInformation : _EType_FriendInformation
         etext_copy_new(this->Email, e2s(info.Email));
         etext_copy_new(this->Name, e2s(info.Name));
         etext_copy_new(this->Note, e2s(info.Note));
-        etext_copy_new(this->Status, e2s(info.Status));
-        etext_copy_new(this->Signature, e2s(info.Signature));
-        etext_copy_new(this->Nation, e2s(info.Nation));
-        etext_copy_new(this->Province, e2s(info.Province));
-        etext_copy_new(this->City, e2s(info.City));
-        etext_copy_new(this->QQTalent, e2s(info.QQTalent));
+        if (info.Status != nullptr) etext_copy_new(this->Status, e2s(info.Status));
+        if (info.Signature != nullptr) etext_copy_new(this->Signature, e2s(info.Signature));
+        if (info.Nation != nullptr) etext_copy_new(this->Nation, e2s(info.Nation));
+        if (info.Province != nullptr) etext_copy_new(this->Province, e2s(info.Province));
+        if (info.City != nullptr) etext_copy_new(this->City, e2s(info.City));
+        if (info.QQTalent != nullptr) etext_copy_new(this->QQTalent, e2s(info.QQTalent));
 
         if (this->ServiceList != nullptr)
         {
@@ -874,7 +874,7 @@ struct FriendInformation : _EType_FriendInformation
 
         if (this->ServiceList != nullptr)
         {
-            delete this->ServiceList;
+            delete[] this->ServiceList;
             this->ServiceList = nullptr;
         }
 

@@ -47,19 +47,26 @@ using Json = nlohmann::json;
 #include "api/api.h"
 
 // 好友消息事件
-EventProcess OnPrivateMessage(PrivateMessageData &data);
+EventProcessEnum OnPrivateMessage(PrivateMessageData& data);
+EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData* eData);
 // 群消息事件
-EventProcess OnGroupMessage(GroupMessageData &data);
+EventProcessEnum OnGroupMessage(GroupMessageData& data);
+EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData* eData);
 // 插件卸载事件
-EventProcess OnUninstall();
+EventProcessEnum OnUninstall();
+EventProcessEnum ECallBack_OnUninstall(void*);
 // 插件设置事件 这里可以弹出对话框
-EventProcess OnSettings();
+EventProcessEnum OnSettings();
+EventProcessEnum ECallBack_OnSettings(void*);
 // 插件被启用事件
-EventProcess OnEnabled();
+EventProcessEnum OnEnabled();
+EventProcessEnum ECallBack_OnEnabled(void*);
 // 插件被禁用事件
-EventProcess OnDisabled();
+EventProcessEnum OnDisabled();
+EventProcessEnum ECallBack_OnDisabled(void*);
 // 其他事件
-EventProcess OnEvent(EventData &data);
+EventProcessEnum OnEvent(EventData& data);
+EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData* eData);
 
 // API对象
 class API;
