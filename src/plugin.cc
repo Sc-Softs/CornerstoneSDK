@@ -159,10 +159,7 @@ EventProcessEnum OnGroupMessage(GroupMessageData &data)
             string members;
             // 最多只显示5个群成员
             size_t n = member_list.size();
-            if (n > 5)
-            {
-                n = 5;
-            }
+            if (n > 5) n = 5;
             for (size_t i = 0; i < n; i++)
             {
                 auto member_info = member_list[i];
