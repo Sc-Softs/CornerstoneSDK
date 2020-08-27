@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.9
+兼容 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -32,46 +32,12 @@ SOFTWARE.
 #include <string>
 #include <cstring>
 
-/*
-std::string GBKtoUTF8(const char* src_str)
-{
-    auto len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, nullptr, 0);
-    auto wstr = new wchar_t[len + 1];
-    memset(wstr, 0, len + 1);
-    MultiByteToWideChar(CP_ACP, 0, src_str, -1, wstr, len);
-    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, nullptr, 0, nullptr, nullptr);
-    auto str = new char[len + 1];
-    memset(str, 0, len + 1);
-    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, len, nullptr, nullptr);
-    std::string strTemp = str;
-    if (wstr)
-        delete[] wstr;
-    if (str)
-        delete[] str;
-    return strTemp;
-}
-
-std::string UTF8toGBK(const std::string& src_str)
-{
-    auto len = MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, nullptr, 0);
-    auto wszGBK = new wchar_t[len + 1];
-    memset(wszGBK, 0, len + 1);
-    MultiByteToWideChar(CP_UTF8, 0, src_str.c_str(), -1, wszGBK, len);
-    len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, nullptr, 0, nullptr, nullptr);
-    auto szGBK = new char[len + 1];
-    memset(szGBK, 0, len + 1);
-    WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, nullptr, nullptr);
-    std::string strTemp(szGBK);
-    if (wszGBK)
-        delete[] wszGBK;
-    if (szGBK)
-        delete[] szGBK;
-    return strTemp;
-}
-*/
-
 std::wstring ToWideChar(std::uint32_t code_page, const std::string &src_str)
 {
+    if (src_str.empty())
+    {
+        return L"";
+    }
     auto len = MultiByteToWideChar(code_page, 0, src_str.c_str(), -1, nullptr, 0);
     if (!len)
     {
@@ -91,6 +57,10 @@ std::wstring ToWideChar(std::uint32_t code_page, const std::string &src_str)
 
 std::string FromWideChar(std::uint32_t code_page, const std::wstring &src_wstr)
 {
+    if (src_wstr.empty())
+    {
+        return "";
+    }
     auto len = WideCharToMultiByte(code_page, 0, src_wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
     if (!len)
     {
@@ -133,6 +103,11 @@ inline bool IsWideCharHex(wchar_t wch)
     return (wch >= L'0' && wch <= L'9') || (wch >= L'a' && wch <= L'f') || (wch >= L'A' && wch <= L'F');
 }
 
+std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2)
+{
+    return UnescapeWideChar(ANSIToWideChar(ansi_with_ucs2));
+}
+
 inline std::uint8_t WideCharToHex(wchar_t wch)
 {
     if (wch >= L'0' && wch <= L'9')
@@ -149,72 +124,7 @@ inline std::uint8_t WideCharToHex(wchar_t wch)
     }
 }
 
-wchar_t UCS2ToWideChar(const std::wstring &ucs2)
-{
-    auto it = ucs2.cbegin();
-    it += 2; // L'\\u'
-    uint16_t wch_value = 0;
-    for (auto i = 0; i < 4; i++)
-    {
-        wch_value <<= 4;
-        wch_value += WideCharToHex(*it);
-        it++;
-    }
-    auto wch = static_cast<wchar_t>(wch_value);
-    return wch;
-}
-
-std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2)
-{
-    auto wstr_with_ucs2 = ANSIToWideChar(ansi_with_ucs2);
-    std::wstring wstr;
-    wstr.reserve(wstr_with_ucs2.size());
-    std::wstring ucs2_tmp;
-    ucs2_tmp.reserve(6);
-    for (auto it = wstr_with_ucs2.cbegin(), cend = wstr_with_ucs2.cend(); it != cend; it++)
-    {
-        if (*it == L'\\')
-        {
-            ucs2_tmp = L"\\";
-            it++;
-            if (it != cend && *it == L'u')
-            {
-                ucs2_tmp += L'u';
-                it++;
-                if (it != cend && IsWideCharHex(*it))
-                {
-                    ucs2_tmp += *it;
-                    it++;
-                    if (it != cend && IsWideCharHex(*it))
-                    {
-                        ucs2_tmp += *it;
-                        it++;
-                        if (it != cend && IsWideCharHex(*it))
-                        {
-                            ucs2_tmp += *it;
-                            it++;
-                            if (it != cend && IsWideCharHex(*it))
-                            {
-                                ucs2_tmp += *it;
-                                wstr += UCS2ToWideChar(ucs2_tmp);
-                                continue;
-                            }
-                        }
-                    }
-                }
-            }
-            wstr += ucs2_tmp;
-            if (it == cend)
-            {
-                break;
-            }
-        }
-        wstr += *it;
-    }
-    return wstr;
-}
-
-char HexToChar(uint8_t hex)
+inline char HexToChar(uint8_t hex)
 {
     if (hex <= 9)
     {
@@ -226,7 +136,7 @@ char HexToChar(uint8_t hex)
     }
 }
 
-std::string WideCharToUCS2(wchar_t wch)
+inline std::string WideCharToUCS2(wchar_t wch)
 {
     auto wch_value = static_cast<uint16_t>(wch);
     std::string ucs2;
@@ -241,6 +151,10 @@ std::string WideCharToUCS2(wchar_t wch)
 
 std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wchars)
 {
+    if (wstr.empty())
+    {
+        return "";
+    }
     BOOL need_escape = FALSE;
     // 测试是否有需要强制转义的字符
     if (!force_escape_wchars.empty())
@@ -335,4 +249,123 @@ std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring 
         delete[] ansi_c_tmp;
         return ansi_with_ucs2;
     }
+}
+
+inline char HexToWideChar(uint8_t hex)
+{
+    if (hex <= 9)
+    {
+        return L'0' + hex;
+    }
+    else // hex >= 10 && hex <= 15
+    {
+        return L'a' + hex - 10;
+    }
+}
+
+inline std::wstring WideCharToWideCharUCS2(wchar_t wch)
+{
+    auto wch_value = static_cast<uint16_t>(wch);
+    std::wstring ucs2;
+    ucs2.reserve(6);
+    ucs2 += L"\\u";
+    ucs2 += HexToWideChar(wch_value >> 12);
+    ucs2 += HexToWideChar((wch_value >> 8) & 0xf);
+    ucs2 += HexToWideChar((wch_value >> 4) & 0xf);
+    ucs2 += HexToWideChar(wch_value & 0xf);
+    return ucs2;
+}
+
+std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wchars)
+{
+    if (wstr.empty())
+    {
+        return L"";
+    }
+    if (escape_wchars.empty())
+    {
+        return wstr;
+    }
+    std::wstring wstr_with_ucs2;
+    for (wchar_t wch : wstr)
+    {
+        if (escape_wchars.find(wch) == std::wstring::npos)
+        {
+            wstr_with_ucs2 += wch;
+        }
+        else
+        {
+            wstr_with_ucs2 += WideCharToWideCharUCS2(wch);
+        }
+        
+    }
+    return wstr_with_ucs2;
+}
+
+wchar_t UCS2ToWideChar(const std::wstring &ucs2)
+{
+    auto it = ucs2.cbegin();
+    it += 2; // L'\\u'
+    uint16_t wch_value = 0;
+    for (auto i = 0; i < 4; i++)
+    {
+        wch_value <<= 4;
+        wch_value += WideCharToHex(*it);
+        it++;
+    }
+    auto wch = static_cast<wchar_t>(wch_value);
+    return wch;
+}
+
+std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2)
+{
+    if (wstr_with_ucs2.empty())
+    {
+        return L"";
+    }
+    std::wstring wstr;
+    wstr.reserve(wstr_with_ucs2.size());
+    std::wstring ucs2_tmp;
+    ucs2_tmp.reserve(6);
+    for (auto it = wstr_with_ucs2.cbegin(), cend = wstr_with_ucs2.cend(); it != cend; it++)
+    {
+        if (*it == L'\\')
+        {
+            ucs2_tmp = L"\\";
+            it++;
+            if (it != cend && *it == L'u')
+            {
+                ucs2_tmp += L'u';
+                it++;
+                if (it != cend && IsWideCharHex(*it))
+                {
+                    ucs2_tmp += *it;
+                    it++;
+                    if (it != cend && IsWideCharHex(*it))
+                    {
+                        ucs2_tmp += *it;
+                        it++;
+                        if (it != cend && IsWideCharHex(*it))
+                        {
+                            ucs2_tmp += *it;
+                            it++;
+                            if (it != cend && IsWideCharHex(*it))
+                            {
+                                ucs2_tmp += *it;
+                                wstr += UCS2ToWideChar(ucs2_tmp);
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            wstr += ucs2_tmp;
+            if (it == cend)
+            {
+                break;
+            }
+        }
+        wstr += *it;
+    }
+    return wstr;
 }

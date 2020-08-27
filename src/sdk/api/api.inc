@@ -95,3 +95,4 @@ Func(FriendNormalRedEnvelope, etext(etext, elong, eint, eint, elong, etext, eint
 Func(FriendDrawRedEnvelope, etext(etext, elong, eint, eint, elong, etext, etext, eint), "好友画图红包")
 Func(FriendAudioRedEnvelope, etext(etext, elong, eint, eint, elong, etext, etext, eint), "好友语音红包")
 Func(FriendFollowRedEnvelope, etext(etext, elong, eint, eint, elong, etext, etext, eint), "好友接龙红包")
+Func(SetExclusiveTitle, ebool(etext, elong, elong, elong, etext), "设置专属头衔")

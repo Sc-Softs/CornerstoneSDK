@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.9
+兼容 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -28,8 +28,6 @@ SOFTWARE.
 */
 
 #include "sdk.h"
-
-#include "../config.h"
 
 #include <cstring>
 #include <unordered_set>
@@ -86,6 +84,8 @@ EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData)
     return OnEvent(deref_and_remove_volatile(eData));
 }
 
+extern char* Configuration;
+
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
     // 创建全局API对象
@@ -99,7 +99,7 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
              {"author", config["插件作者"]},
              {"appv", config["插件版本"]},
              {"describe", config["插件说明"]},
-             {"sdkv", "2.6.9"},
+             {"sdkv", "2.7.1"},
              {"friendmsaddres", (uintptr_t)&ECallBack_OnPrivateMessage},
              {"groupmsaddres", (uintptr_t)&ECallBack_OnGroupMessage},
              {"unitproaddres", (uintptr_t)&ECallBack_OnUninstall},

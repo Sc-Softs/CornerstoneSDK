@@ -90,6 +90,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="def\config.def" />
+    <None Include="src\sdk\api\api.inc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\plugin.cc" />
@@ -99,9 +100,27 @@
     <ClCompile Include="src\sdk\utils\types.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\config.h" />
     <ClInclude Include="src\sdk\api\api.h" />
     <ClInclude Include="src\sdk\encoding\encoding.h" />
+    <ClInclude Include="src\sdk\eport\earray.h" />
+    <ClInclude Include="src\sdk\eport\etypes.h" />
+    <ClInclude Include="src\sdk\framework\constants.h" />
+    <ClInclude Include="src\sdk\framework\datatypes.h" />
+    <ClInclude Include="src\sdk\framework\datatype\captcha_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\card_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\etext2string_mem.h" />
+    <ClInclude Include="src\sdk\framework\datatype\event_data.h" />
+    <ClInclude Include="src\sdk\framework\datatype\friend_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\group_card_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\group_file_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\group_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\group_member_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\group_message_data.h" />
+    <ClInclude Include="src\sdk\framework\datatype\order_detail.h" />
+    <ClInclude Include="src\sdk\framework\datatype\private_message_data.h" />
+    <ClInclude Include="src\sdk\framework\datatype\service_information.h" />
+    <ClInclude Include="src\sdk\framework\datatype\wallet_information.h" />
+    <ClInclude Include="src\sdk\framework\permission.h" />
     <ClInclude Include="src\sdk\sdk.h" />
     <ClInclude Include="src\sdk\utils\types.h" />
     <ClInclude Include="src\sdk\utils\utils-inl.h" />

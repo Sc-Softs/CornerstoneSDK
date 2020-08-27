@@ -7,47 +7,125 @@
     <Filter Include="Plugin">
       <UniqueIdentifier>{6e72d6ce-1ec0-4bde-b4a0-a1341b73d6b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CornerstoneSDK\api">
+      <UniqueIdentifier>{1d484d51-ddf4-4fc5-a2ea-e8e6128862bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\encoding">
+      <UniqueIdentifier>{d39e804d-e3cd-4974-b925-d76813ece9aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\eport">
+      <UniqueIdentifier>{895ad2e6-004c-4842-88d0-cbf6e8df7f4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\framework">
+      <UniqueIdentifier>{584db1ad-1675-423a-a62f-b84c40f05a30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\framework\datatype">
+      <UniqueIdentifier>{337254b0-5c24-42c0-afa1-d9e116f7031e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\def">
+      <UniqueIdentifier>{602c6690-4dc1-4450-ba47-9c97232dc8cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CornerstoneSDK\utils">
+      <UniqueIdentifier>{dee16f29-885b-4654-b024-05784f9acd37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\sdk\api\api.cc">
-      <Filter>CornerstoneSDK</Filter>
-    </ClCompile>
     <ClCompile Include="src\sdk\sdk.cc">
-      <Filter>CornerstoneSDK</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sdk\utils\types.cc">
       <Filter>CornerstoneSDK</Filter>
     </ClCompile>
     <ClCompile Include="src\plugin.cc">
       <Filter>Plugin</Filter>
     </ClCompile>
+    <ClCompile Include="src\sdk\api\api.cc">
+      <Filter>CornerstoneSDK\api</Filter>
+    </ClCompile>
     <ClCompile Include="src\sdk\encoding\encoding.cc">
-      <Filter>CornerstoneSDK</Filter>
+      <Filter>CornerstoneSDK\encoding</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sdk\utils\types.cc">
+      <Filter>CornerstoneSDK\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\sdk\api\api.h">
-      <Filter>CornerstoneSDK</Filter>
-    </ClInclude>
     <ClInclude Include="src\sdk\sdk.h">
       <Filter>CornerstoneSDK</Filter>
     </ClInclude>
-    <ClInclude Include="src\sdk\utils\types.h">
-      <Filter>CornerstoneSDK</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sdk\utils\utils-inl.h">
-      <Filter>CornerstoneSDK</Filter>
-    </ClInclude>
-    <ClInclude Include="src\config.h">
-      <Filter>Plugin</Filter>
+    <ClInclude Include="src\sdk\api\api.h">
+      <Filter>CornerstoneSDK\api</Filter>
     </ClInclude>
     <ClInclude Include="src\sdk\encoding\encoding.h">
-      <Filter>CornerstoneSDK</Filter>
+      <Filter>CornerstoneSDK\encoding</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\eport\etypes.h">
+      <Filter>CornerstoneSDK\eport</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\eport\earray.h">
+      <Filter>CornerstoneSDK\eport</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\constants.h">
+      <Filter>CornerstoneSDK\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatypes.h">
+      <Filter>CornerstoneSDK\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\permission.h">
+      <Filter>CornerstoneSDK\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\event_data.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\friend_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\group_card_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\group_file_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\group_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\group_member_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\group_message_data.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\order_detail.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\private_message_data.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\service_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\wallet_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\captcha_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\card_information.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\framework\datatype\etext2string_mem.h">
+      <Filter>CornerstoneSDK\framework\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\utils\types.h">
+      <Filter>CornerstoneSDK\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sdk\utils\utils-inl.h">
+      <Filter>CornerstoneSDK\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\sdk\api\api.inc">
+      <Filter>CornerstoneSDK\api</Filter>
+    </None>
     <None Include="def\config.def">
-      <Filter>CornerstoneSDK</Filter>
+      <Filter>CornerstoneSDK\def</Filter>
     </None>
   </ItemGroup>
 </Project>

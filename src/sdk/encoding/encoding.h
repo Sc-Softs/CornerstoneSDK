@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.9
+兼容 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -33,18 +33,24 @@ SOFTWARE.
 
 #include <string>
 
-/*
-std::string GBKtoUTF8(const char* src_str);
-std::string UTF8toGBK(const std::string& src_str);
-*/
-
 std::wstring UTF8ToWideChar(const std::string& utf8);
 std::string WideCharToUTF8(const std::wstring& wstr);
+
 std::wstring ANSIToWideChar(const std::string& ansi);
 std::string WideCharToANSI(const std::wstring& wstr);
+
 std::wstring ANSIWithUCS2ToWideChar(const std::string& ansi_with_ucs2);
 std::string WideCharToANSIWithUCS2(const std::wstring& wstr, const std::wstring& force_escape_wchars = L"[\\]");
+
+std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wchars);
+std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2);
+
 #define e2s_s(ansi_with_ucs2) WideCharToUTF8(ANSIWithUCS2ToWideChar(ansi_with_ucs2))
 #define s2e_s(utf8) WideCharToANSIWithUCS2(UTF8ToWideChar(utf8))
 #define e2s(ansi_with_ucs2) e2s_s(ansi_with_ucs2).c_str()
 #define s2e(utf8) s2e_s(utf8).c_str()
+
+#define e2s_w_s(ansi) ANSIToWideChar(ansi_with_ucs2)
+#define s2e_w_s(wstr) WideCharToANSI(wstr)
+#define e2s_w(ansi) e2s_w_s(ansi).c_str()
+#define s2e_w(wstr) s2e_w_s(wstr).c_str()

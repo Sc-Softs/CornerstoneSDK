@@ -1,7 +1,7 @@
 /*
 Cornerstone SDK v0.2.0
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.6.9
+兼容 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -31,15 +31,15 @@ SOFTWARE.
 
 #include "../eport/earray.h"
 
-//匿名命名空间，只允许内部链接
-namespace{
-//从api.inc获得相关参数，声明一系列名为_API_func_##_Func_name的函数指针
-#define Func(_Func_name, _Arg_type, _Json_name)\
-typename _f_s<_Arg_type>::type _API_func_##_Func_name;
+// 匿名命名空间，只允许内部链接
+namespace
+{
+// 从api.inc获得相关参数，声明一系列名为_API_func_##_Func_name的函数指针
+#define Func(_Func_name, _Arg_type, _Json_name) \
+    typename _f_s<_Arg_type>::type _API_func_##_Func_name;
 #include ".\api.inc"
 #undef Func
-}
-
+} // namespace
 
 /**
  * @brief 载入插件关键字和系统API函数指针
@@ -49,14 +49,12 @@ typename _f_s<_Arg_type>::type _API_func_##_Func_name;
 API::API(etext api_data, etext plugin_key)
     : j(Json::parse(e2s_s(api_data))), key(plugin_key)
 {
-    //从api.inc获得相关参数，为_API_func_##_Func_name这些函数指针赋值
-    #define Func(_Func_name, _Arg_type, _Json_name) \
-    {\
-        auto val = static_cast<uintptr_t>(this->j[_Json_name]);\
-        _API_func_##_Func_name = reinterpret_cast<typename _f_s<_Arg_type>::type>(val);\
-    }
-    #include ".\api.inc"
-    #undef Func
+//从api.inc获得相关参数，为_API_func_##_Func_name这些函数指针赋值
+#define Func(_Func_name, _Arg_type, _Json_name)                                \
+    _API_func_##_Func_name = reinterpret_cast<typename _f_s<_Arg_type>::type>( \
+        static_cast<uintptr_t>(this->j[_Json_name]));
+#include ".\api.inc"
+#undef Func
 }
 
 /**
@@ -427,7 +425,7 @@ size_t API::GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &f
 {
     earray_head earr;
     eint size = ::_API_func_GetFriendList(this->key.c_str(), thisQQ, earr);
-    return size == 0 ? 0 : earray1d2vector<_EType_FriendInformation, FriendInformation>(earr,friend_list);
+    return size == 0 ? 0 : earray1d2vector<_EType_FriendInformation, FriendInformation>(earr, friend_list);
 }
 
 /**
@@ -440,7 +438,7 @@ size_t API::GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &gro
 {
     earray_head earr;
     eint size = ::_API_func_GetGroupList(this->key.c_str(), thisQQ, earr);
-    return size == 0 ? 0 : earray1d2vector<_EType_GroupInformation, GroupInformation>(earr,group_list);
+    return size == 0 ? 0 : earray1d2vector<_EType_GroupInformation, GroupInformation>(earr, group_list);
 }
 
 /**
@@ -454,7 +452,7 @@ int32_t API::GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::
 {
     earray_head earr;
     eint size = ::_API_func_GetGroupMemberList(this->key.c_str(), thisQQ, groupQQ, earr);
-    return size == 0 ? 0 : earray1d2vector<_EType_GroupMemberInformation, GroupMemberInformation>(earr,group_member_list);
+    return size == 0 ? 0 : earray1d2vector<_EType_GroupMemberInformation, GroupMemberInformation>(earr, group_member_list);
 }
 
 /**
@@ -810,7 +808,7 @@ void API::ReadForwardedChatHistory(std::int64_t thisQQ, const std::string &resID
 {
     earray_head earr;
     ::_API_func_ReadForwardedChatHistory(this->key.c_str(), thisQQ, s2e(resID), earr);
-    earray1d2vector<_EType_GroupMessageData, GroupMessageData>(earr,message_content);
+    earray1d2vector<_EType_GroupMessageData, GroupMessageData>(earr, message_content);
 }
 
 /**
@@ -897,10 +895,9 @@ std::string API::GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, con
 {
     earray_head earr;
     std::string ret = e2s(::_API_func_GetGroupFileList(this->key.c_str(), thisQQ, groupQQ, s2e(folder), earr));
-    earray1d2vector<_EType_GroupFileInformation,GroupFileInformation>(earr,group_file_list);
+    earray1d2vector<_EType_GroupFileInformation, GroupFileInformation>(earr, group_file_list);
     return ret;
 }
-
 
 /**
  * @brief 保存文件到微云
@@ -1429,4 +1426,16 @@ std::string API::FriendAudioRedEnvelope(std::int64_t thisQQ, std::int32_t total_
 std::string API::FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial)
 {
     return e2s_s(::_API_func_FriendFollowRedEnvelope(this->key.c_str(), thisQQ, total_number, total_amount, otherQQ, s2e(follow_content), s2e(payment_password), card_serial));
+}
+
+/**
+ * @brief 设置专属头衔
+ * @param thisQQ 框架QQ
+ * @param groupQQ 群号
+ * @param otherQQ 对方QQ
+ * @param title 头衔
+ */
+bool API::SetExclusiveTitle(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::string title)
+{
+    return e2b(::_API_func_SetExclusiveTitle(this->key.c_str(), thisQQ, groupQQ, otherQQ, s2e(title)));
 }

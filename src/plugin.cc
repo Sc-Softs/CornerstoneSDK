@@ -1,3 +1,4 @@
+// 包含 CornerstoneSDK
 #include "sdk/sdk.h"
 
 #include <cstdint>
@@ -8,7 +9,28 @@ using namespace std;
 // Cornerstone SDK 的部分 API 尚未经过测试，可能仍存在漏洞
 // 欢迎前往 https://github.com/Sc-Softs/CornerstoneSDK 提交Issue和PR，感谢您的贡献
 
-// 请勿在事件处理函数中执行上传文件等耗时操作，此类操作请另开线程执行
+// 插件信息 请注意最后一行末尾是不能有多余逗号
+char* Configuration = R"CFG(
+{
+    "插件名称": "CornerstoneSDK空壳插件",
+    "插件作者": "<这里填写作者名>",
+    "插件版本": "1.0.0",
+    "插件说明": "<这里填写插件说明>",
+    "所需权限":
+    {
+        "输出日志": "<这里填写申请理由>",
+        "发送好友消息": "与好友互动",
+        "发送群消息": "与群成员互动",
+        "发送群临时消息": "与群成员单独互动",
+        "取好友列表": "测试用",
+        "取群列表": "测试用",
+        "取群成员列表": "测试用",
+        "框架重启": "提示：危险权限默认禁用"
+    }
+}
+)CFG";
+
+// 事件处理函数 请勿在函数中执行上传文件等耗时操作，此类操作请另开线程执行
 
 // 私聊消息事件
 EventProcessEnum OnPrivateMessage(PrivateMessageData data)
