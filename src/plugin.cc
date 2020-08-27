@@ -10,7 +10,7 @@ using namespace std;
 // 欢迎前往 https://github.com/Sc-Softs/CornerstoneSDK 提交Issue和PR，感谢您的贡献
 
 // 插件信息 请注意最后一行末尾是不能有多余逗号
-char* Configuration = R"CFG(
+const char* Configuration = R"CFG(
 {
     "插件名称": "CornerstoneSDK空壳插件",
     "插件作者": "<这里填写作者名>",

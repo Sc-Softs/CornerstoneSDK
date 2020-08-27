@@ -441,4 +441,18 @@ enum class PermissionEnum : eint
     FriendAudioRedEnvelope = 90,
     // 好友接龙红包
     FriendFollowRedEnvelope = 91,
+    // 重命名群文件夹
+    RenameGroupDirectory = 92,
+    // 删除群文件夹
+    RemoveGroupDirectory = 93,
+    // 删除群文件
+    RemoveGroupFile = 94,
+    // 保存文件到微云
+    SaveFileToWeiYun = 95,
+    // 移动群文件
+    MoveGroupFile = 96,
+    // 取群文件列表
+    GetGroupFileList = 97,
+    // 设置专属头衔
+    SetExclusiveTitle = 98
 };

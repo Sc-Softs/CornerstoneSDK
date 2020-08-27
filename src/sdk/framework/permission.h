@@ -93,4 +93,10 @@ const std::unordered_map<PermissionEnum, std::string> PermissionMap =
      {PermissionEnum::FriendNormalRedEnvelope, "好友普通红包"},
      {PermissionEnum::FriendDrawRedEnvelope, "好友画图红包"},
      {PermissionEnum::FriendAudioRedEnvelope, "好友语音红包"},
-     {PermissionEnum::FriendFollowRedEnvelope, "好友接龙红包"}};
+     {PermissionEnum::FriendFollowRedEnvelope, "好友接龙红包"},
+     {PermissionEnum::RemoveGroupDirectory, "删除群文件夹"},
+     {PermissionEnum::RemoveGroupFile, "删除群文件"},
+     {PermissionEnum::SaveFileToWeiYun, "保存文件到微云"},
+     {PermissionEnum::MoveGroupFile, "移动群文件"},
+     {PermissionEnum::GetGroupFileList, "取群文件列表"},
+     {PermissionEnum::SetExclusiveTitle, "设置专属头衔"}};

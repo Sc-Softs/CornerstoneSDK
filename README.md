@@ -49,9 +49,11 @@ Cornerstone SDK 使用 [MIT License](./LICENSE) 进行许可
 
 版权所有 &copy; 2020 Contributors of Cornerstone SDK
 
-`src/sdk/third_party/` 目录下的 `json.hpp` 来源于 [JSON for Modern C++](https://github.com/nlohmann/json)，版权属于 &copy; Niels Lohmann
+`src/sdk/third_party/` 目录下的 `json.hpp` 来源于 [JSON for Modern C++](https://github.com/nlohmann/json)，使用 [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT) 进行许可，版权属于 &copy; Niels Lohmann
 
-`bin/` 目录下的 `gn.exe` 和 `ninja.exe` 编译自 [GN](https://gn.googlesource.com/gn/) 和 [Ninja](http://www.ninja-build.org/) 的源码，版权属于 &copy; Google Inc.
+`bin/` 目录下的 `gn.exe` 编译自 [GN](https://gn.googlesource.com/gn/) 的源码，使用 [这份协议](https://gn.googlesource.com/gn/+/master/LICENSE) 进行许可，版权属于 &copy; The Chromium Authors.
+
+`bin/` 目录下的 `ninja.exe` 编译自 [Ninja](http://www.ninja-build.org/) 的源码，使用 [Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING) 进行许可，版权属于 &copy; Contributors of Ninja.
 
 ## 致谢
 

@@ -84,7 +84,7 @@ EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData)
     return OnEvent(deref_and_remove_volatile(eData));
 }
 
-extern char* Configuration;
+const extern char* Configuration;
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
