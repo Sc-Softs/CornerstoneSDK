@@ -26,7 +26,7 @@
   </p>
   <p align="center">
     <b>
-      <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
+      <a href="https://github.com/Sc-Softs/CornerstoneSDK/wiki">
         教程和文档
       </a>
     </b>
