@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// Cornerstone SDK 的部分 API 尚未经过测试，可能仍存在漏洞
+// Cornerstone SDK 可能存在漏洞
 // 欢迎前往 https://github.com/Sc-Softs/CornerstoneSDK 提交Issue和PR，感谢您的贡献
 
 // 插件信息 请注意最后一行末尾是不能有多余逗号

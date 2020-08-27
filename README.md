@@ -10,7 +10,6 @@
   <p align="center">
     面向现代 C++ 的 Corn SDK
   </p>
-
   <p align="center">
     <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
       <img src="https://img.shields.io/badge/release-v0.2.1-important.svg" />
@@ -50,15 +49,15 @@ Cornerstone SDK 使用 [MIT License](./LICENSE) 进行许可
 
 版权所有 &copy; 2020 Contributors of Cornerstone SDK
 
-`src/sdk/third_party/` 目录下的 `json.hpp` 版权属于 &copy; Niels Lohmann
+`src/sdk/third_party/` 目录下的 `json.hpp` 来源于 [JSON for Modern C++](https://github.com/nlohmann/json)，版权属于 &copy; Niels Lohmann
 
-`bin/` 目录下的 `gn.exe` 和 `ninja.exe` 版权属于 &copy; Google Inc.
+`bin/` 目录下的 `gn.exe` 和 `ninja.exe` 编译自 [GN](https://gn.googlesource.com/gn/) 和 [Ninja](http://www.ninja-build.org/) 的源码，版权属于 &copy; Google Inc.
 
 ## 致谢
 
 - [Corn SDK](https://www.xiaolz.cn/)
 
-- [JSON for modern C++](https://github.com/nlohmann/json)
+- [JSON for Modern C++](https://github.com/nlohmann/json)
 
 - [Visual Studio](https://visualstudio.microsoft.com/vs/)
 
