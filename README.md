@@ -39,6 +39,8 @@
 
 此 SDK 可能存在漏洞，请您谅解。如果您遇到问题可以尝试：
 
+- 再次仔细阅读 [SDK 文档](https://github.com/Sc-Softs/CornerstoneSDK/wiki/) 尤其是 [参考](https://github.com/Sc-Softs/CornerstoneSDK/wiki/参考) 中的相关内容。
+
 - 提交 [Issue](https://github.com/Sc-Softs/CornerstoneSDK/issues) 或 [PR](https://github.com/Sc-Softs/CornerstoneSDK/pulls)，感谢您的贡献！
 
 - 加入 Cornerstone SDK 开发 QQ 群（893902998）与我们讨论。
