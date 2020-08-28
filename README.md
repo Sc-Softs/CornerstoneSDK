@@ -8,7 +8,7 @@
 
 <h3>
   <p align="center">
-    面向现代 C++ 的 Corn SDK
+    面向现代 C++ 的小栗子框架插件开发工具
   </p>
   <p align="center">
     <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
