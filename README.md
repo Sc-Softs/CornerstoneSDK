@@ -22,7 +22,7 @@
     </a>
   </p>
   <p align="center">
-    兼容 Corn SDK v2.7.1
+    兼容 Corn SDK（小栗子框架官方易语言 SDK）v2.7.1
   </p>
   <p align="center">
     <b>
@@ -37,7 +37,7 @@
 
 ## 提示
 
-此 SDK 可能存在漏洞，如果您遇到问题可以尝试：
+此 SDK 可能存在漏洞，请您谅解。如果您遇到问题可以尝试：
 
 - 提交 [Issue](https://github.com/Sc-Softs/CornerstoneSDK/issues) 或 [PR](https://github.com/Sc-Softs/CornerstoneSDK/pulls)，感谢您的贡献！
 
@@ -49,15 +49,17 @@ Cornerstone SDK 使用 [MIT License](./LICENSE) 进行许可
 
 版权所有 &copy; 2020 Contributors of Cornerstone SDK
 
+Cornerstone SDK 中的部分逻辑借鉴了 [Corn SDK](https://www.xiaolz.cn/)
+
 `src/sdk/third_party/` 目录下的 `json.hpp` 来源于 [JSON for Modern C++](https://github.com/nlohmann/json)，使用 [MIT License](https://github.com/nlohmann/json/blob/develop/LICENSE.MIT) 进行许可，版权属于 &copy; Niels Lohmann
 
-`bin/` 目录下的 `gn.exe` 编译自 [GN](https://gn.googlesource.com/gn/) 的源码，使用 [这份协议](https://gn.googlesource.com/gn/+/master/LICENSE) 进行许可，版权属于 &copy; The Chromium Authors.
+`bin/` 目录下的 `gn.exe` 编译自 [GN](https://gn.googlesource.com/gn/) 的源码，使用 [这份协议](https://gn.googlesource.com/gn/+/master/LICENSE) 进行许可，版权属于 &copy; The Chromium Authors
 
-`bin/` 目录下的 `ninja.exe` 编译自 [Ninja](http://www.ninja-build.org/) 的源码，使用 [Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING) 进行许可，版权属于 &copy; Contributors of Ninja.
+`bin/` 目录下的 `ninja.exe` 编译自 [Ninja](http://www.ninja-build.org/) 的源码，使用 [Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING) 进行许可，版权属于 &copy; Contributors of Ninja
 
 ## 致谢
 
-- [Corn SDK](https://www.xiaolz.cn/)
+- [小栗子框架和 Corn SDK](https://www.xiaolz.cn/)
 
 - [JSON for Modern C++](https://github.com/nlohmann/json)
 
