@@ -721,8 +721,7 @@ public:
     bool GetGroupInformation(std::int64_t thisQQ, std::int64_t groupQQ, GroupCardInformation &data);
 
     /**
-     * @brief 框架重启
-     * @return 有权限限制，建议使用前检查是否具有权限
+     * @brief 框架重启 有权限限制，建议使用前检查是否具有权限
      */
     void Reboot();
 

@@ -213,7 +213,6 @@ EventProcessEnum OnGroupMessage(GroupMessageData data)
         // 未处理过的消息
         return EventProcessEnum::Ignore;
     }
-    
 
     // 已经处理过的消息阻止其他插件继续处理
     return EventProcessEnum::Block;

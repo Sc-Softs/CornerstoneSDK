@@ -64,9 +64,10 @@ std::string WideCharToANSI(const std::wstring &wstr);
 /**
  * @brief 将 ANSI 编码混杂 UCS2 编码的字符串转换为宽字符串
  * @param ansi_with_ucs2 待转换编码的 ANSI 编码混杂 UCS2 编码的字符串
+ * @param not_unescape_wide_chars 不进行反转义的宽字符集
  * @return 转换后的宽字符串
  */
-std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2);
+std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2, const std::wstring &not_unescape_wide_chars = L"[\\]");
 
 /**
  * @brief 将宽字符串转换为 ANSI 编码混杂 UCS2 编码的字符串
@@ -74,7 +75,7 @@ std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2);
  * @param force_escape_wchars 要强制转义的宽字符集
  * @return 转换后的 ANSI 编码混杂 UCS2 编码的字符串
  */
-std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wchars = L"[\\]");
+std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wide_chars = L"");
 
 /**
  * @brief 转义宽字符串
@@ -82,14 +83,31 @@ std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring 
  * @param escape_wchars 待转义的宽字符集
  * @return 转义后的宽字符串
  */
-std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wchars = L"[\\]");
+std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wide_chars = L"[\\]");
 
 /**
  * @brief 反转义宽字符串
  * @param wstr 待反转义的宽字符串
+ * @param not_unescape_wide_chars 不进行反转义的宽字符集
  * @return 反转义后的宽字符串
  */
-std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2);
+std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2, const std::wstring &not_unescape_wide_chars = L"");
+
+/**
+ * @brief 转义 UTF8 编码的字符串
+ * @param wstr 包含待转义的 UTF8 编码的字符串
+ * @param escape_wchars 待转义的 UTF8 编码的字符集
+ * @return 转义后的 UTF8 编码的字符串
+ */
+std::string EscapeUTF8(const std::string &utf8, const std::string &escape_utf8_chars = "[\\]");
+
+/**
+ * @brief 反转义 UTF8 编码的字符串
+ * @param wstr 待反转义的 UTF8 编码的字符串
+ * @param not_unescape_utf8_chars 不进行反转义的 UTF8 编码的字符集
+ * @return 反转义后的 UTF8 编码的字符串
+ */
+std::string UnescapeUTF8(const std::string &utf8_with_ucs2, const std::string &not_unescape_utf8_chars = "");
 
 #define e2s_s(ansi_with_ucs2) WideCharToUTF8(ANSIWithUCS2ToWideChar(ansi_with_ucs2))
 #define s2e_s(utf8) WideCharToANSIWithUCS2(UTF8ToWideChar(utf8))

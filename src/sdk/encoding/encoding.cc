@@ -103,9 +103,9 @@ inline bool IsWideCharHex(wchar_t wch)
     return (wch >= L'0' && wch <= L'9') || (wch >= L'a' && wch <= L'f') || (wch >= L'A' && wch <= L'F');
 }
 
-std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2)
+std::wstring ANSIWithUCS2ToWideChar(const std::string &ansi_with_ucs2, const std::wstring &not_unescape_wide_chars)
 {
-    return UnescapeWideChar(ANSIToWideChar(ansi_with_ucs2));
+    return UnescapeWideChar(ANSIToWideChar(ansi_with_ucs2), not_unescape_wide_chars);
 }
 
 inline std::uint8_t WideCharToHex(wchar_t wch)
@@ -149,7 +149,7 @@ inline std::string WideCharToUCS2(wchar_t wch)
     return ucs2;
 }
 
-std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wchars)
+std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring &force_escape_wide_chars)
 {
     if (wstr.empty())
     {
@@ -157,11 +157,11 @@ std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring 
     }
     BOOL need_escape = FALSE;
     // 测试是否有需要强制转义的字符
-    if (!force_escape_wchars.empty())
+    if (!force_escape_wide_chars.empty())
     {
         for (auto wch : wstr)
         {
-            if (force_escape_wchars.find(wch) != std::wstring::npos)
+            if (force_escape_wide_chars.find(wch) != std::wstring::npos)
             {
                 need_escape = TRUE;
                 break;
@@ -212,7 +212,7 @@ std::string WideCharToANSIWithUCS2(const std::wstring &wstr, const std::wstring 
         for (auto it : wstr)
         {
             // 如果字符不需要强制转义
-            if (force_escape_wchars.find(it) == std::wstring::npos)
+            if (force_escape_wide_chars.find(it) == std::wstring::npos)
             {
                 // 如果字符是ASCII字符
                 if (static_cast<uint16_t>(it) <= 0x7f)
@@ -276,20 +276,20 @@ inline std::wstring WideCharToWideCharUCS2(wchar_t wch)
     return ucs2;
 }
 
-std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wchars)
+std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape_wide_chars)
 {
     if (wstr.empty())
     {
         return L"";
     }
-    if (escape_wchars.empty())
+    if (escape_wide_chars.empty())
     {
         return wstr;
     }
     std::wstring wstr_with_ucs2;
     for (wchar_t wch : wstr)
     {
-        if (escape_wchars.find(wch) == std::wstring::npos)
+        if (escape_wide_chars.find(wch) == std::wstring::npos)
         {
             wstr_with_ucs2 += wch;
         }
@@ -316,7 +316,7 @@ wchar_t UCS2ToWideChar(const std::wstring &ucs2)
     return wch;
 }
 
-std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2)
+std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2, const std::wstring &not_unescape_wide_chars)
 {
     if (wstr_with_ucs2.empty())
     {
@@ -351,8 +351,12 @@ std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2)
                             if (it != cend && IsWideCharHex(*it))
                             {
                                 ucs2_tmp += *it;
-                                wstr += UCS2ToWideChar(ucs2_tmp);
-                                continue;
+                                auto wch = UCS2ToWideChar(ucs2_tmp);
+                                if (not_unescape_wide_chars.find(wch) == std::wstring::npos)
+                                {
+                                    wstr += wch;
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -367,4 +371,14 @@ std::wstring UnescapeWideChar(const std::wstring &wstr_with_ucs2)
         wstr += *it;
     }
     return wstr;
+}
+
+std::string EscapeUTF8(const std::string &utf8, const std::string &escape_utf8_chars)
+{
+    return WideCharToUTF8(EscapeWideChar(UTF8ToWideChar(utf8), UTF8ToWideChar(escape_utf8_chars)));
+}
+
+std::string UnescapeUTF8(const std::string &utf8_with_ucs2, const std::string &not_unescape_utf8_chars)
+{
+    return WideCharToUTF8(UnescapeWideChar(UTF8ToWideChar(utf8_with_ucs2), UTF8ToWideChar(not_unescape_utf8_chars)));
 }

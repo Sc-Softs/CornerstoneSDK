@@ -15,7 +15,6 @@ shared_library("../out/" + plugin_name)
         # 以下是SDK所需文件，请勿随意更改
         "//src/sdk/sdk.cc",
         "//src/sdk/api/api.cc",
-        "//src/sdk/utils/types.cc",
         "//src/sdk/encoding/encoding.cc",
     ]
 

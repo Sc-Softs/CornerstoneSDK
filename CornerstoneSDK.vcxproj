@@ -97,7 +97,6 @@
     <ClCompile Include="src\sdk\api\api.cc" />
     <ClCompile Include="src\sdk\encoding\encoding.cc" />
     <ClCompile Include="src\sdk\sdk.cc" />
-    <ClCompile Include="src\sdk\utils\types.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sdk\api\api.h" />

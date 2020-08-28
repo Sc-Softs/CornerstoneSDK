@@ -66,14 +66,4 @@ constexpr bool e2b(const ebool &e)
     return ebool2bool(e);
 }
 
-// WARNING: 使用完后请自行delete字符串指针，否则将造成内存泄露
-const char *new_and_copy_str(const char *str);
-
-//=============
-//endregion
-
-#pragma pack(4)
-// 数据结构
-
-#pragma pack()
 #endif // CORNERSTONE_SDK_HEADER_TYPES_H_

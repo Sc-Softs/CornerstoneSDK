@@ -42,9 +42,6 @@
     <ClCompile Include="src\sdk\encoding\encoding.cc">
       <Filter>CornerstoneSDK\encoding</Filter>
     </ClCompile>
-    <ClCompile Include="src\sdk\utils\types.cc">
-      <Filter>CornerstoneSDK\utils</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sdk\sdk.h">
