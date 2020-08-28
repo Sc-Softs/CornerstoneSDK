@@ -297,7 +297,6 @@ std::wstring EscapeWideChar(const std::wstring &wstr, const std::wstring &escape
         {
             wstr_with_ucs2 += WideCharToWideCharUCS2(wch);
         }
-        
     }
     return wstr_with_ucs2;
 }

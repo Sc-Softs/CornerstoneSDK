@@ -64,15 +64,15 @@ struct EventData
     EventTypeEnum EventType;
     // 事件子类型
     eint EventSubType;
-    
-    EventData(const _EType_EventData& info):ThisQQ{info.ThisQQ},
-        SourceGroupQQ{info.SourceGroupQQ},
-        OperateQQ{info.OperateQQ},
-        TriggerQQ{info.TriggerQQ},
-        MessageSeq{info.MessageSeq},
-        MessageTimestamp{info.MessageTimestamp},
-        EventType{info.EventType},
-        EventSubType{info.EventSubType}
+
+    EventData(const _EType_EventData &info) : ThisQQ{info.ThisQQ},
+                                              SourceGroupQQ{info.SourceGroupQQ},
+                                              OperateQQ{info.OperateQQ},
+                                              TriggerQQ{info.TriggerQQ},
+                                              MessageSeq{info.MessageSeq},
+                                              MessageTimestamp{info.MessageTimestamp},
+                                              EventType{info.EventType},
+                                              EventSubType{info.EventSubType}
     {
         string_e2std(this->SourceGroupName, info.SourceGroupName);
         string_e2std(this->OperateQQName, info.OperateQQName);

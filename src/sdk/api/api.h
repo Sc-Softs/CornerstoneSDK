@@ -87,8 +87,8 @@ public:
      * @param groupQQ 群号
      * @param otherQQ 对方QQ
      * @param content 发送内容
-     * @param random 撤回消息用
-     * @param req 撤回消息用
+     * @param random 撤回消息用（传出）
+     * @param req 撤回消息用（传出）
      * @return 成功返回的time用于撤回消息
      */
     std::string SendGroupTemporaryMessage(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, const std::string &content, std::int64_t &random, std::int32_t &req);
@@ -148,8 +148,8 @@ public:
      * @param thisQQ 框架QQ
      * @param friendQQ 好友QQ
      * @param json_content json发送内容
-     * @param random 撤回消息用
-     * @param req 撤回消息用
+     * @param random 撤回消息用（传出）
+     * @param req 撤回消息用（传出）
      * @return 成功返回的time用于撤回消息
      */
     std::string SendFriendJSONMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &json_content, std::int64_t &random, std::int32_t &req);
@@ -223,13 +223,13 @@ public:
     std::string UploadAvatar(std::int64_t thisQQ, const std::uint8_t *picture, size_t size);
 
     /**
-     * @brief silk解码 无权限要求 尚未实现！
+     * @brief silk解码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
     const std::uint8_t *SilkDecode(const std::string &audio_file_path);
 
     /**
-     * @brief silk编码 无权限要求 尚未实现！
+     * @brief silk编码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
     const std::uint8_t *SilkEncode(const std::string &audio_file_path);
@@ -294,7 +294,7 @@ public:
     /**
      * @brief 获取好友列表
      * @param thisQQ 框架QQ
-     * @param friend_list 好友信息列表
+     * @param friend_list 好友信息列表（传出）
      * @return 成功返回好友数量，失败或无权限返回0
      */
     size_t GetFriendList(std::int64_t thisQQ, std::vector<FriendInformation> &friend_list);
@@ -302,7 +302,7 @@ public:
     /**
      * @brief 获取群列表
      * @param thisQQ 框架QQ
-     * @param group_list 群信息列表
+     * @param group_list 群信息列表（传出）
      * @return 成功返回群数量，失败或无权限返回0
      */
     size_t GetGroupList(std::int64_t thisQQ, std::vector<GroupInformation> &group_list);
@@ -311,7 +311,7 @@ public:
      * @brief 获取群成员列表
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param group_member_list 群成员信息列表
+     * @param group_member_list 群成员信息列表（传出）
      * @return 失败或无权限返回数量0
      */
     std::int32_t GetGroupMemberList(std::int64_t thisQQ, std::int64_t groupQQ, std::vector<GroupMemberInformation> &group_member_list);
@@ -578,7 +578,7 @@ public:
      * @brief 查看转发聊天记录内容 私聊消息也可以使用此命令解析，无权限时不执行
      * @param thisQQ 框架QQ
      * @param resID resID 可在xml消息代码中获取到
-     * @param message_content 消息内容 私聊消息也可从该结构获取信息
+     * @param message_content 消息内容 私聊消息也可从该结构获取信息（传出）
      */
     void ReadForwardedChatHistory(std::int64_t thisQQ, const std::string &resID, std::vector<GroupMessageData> &message_content);
 
@@ -641,7 +641,7 @@ public:
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
      * @param folder 欲查看的文件夹名，根目录留空或填/
-     * @param group_file_list 群文件信息列表
+     * @param group_file_list 群文件信息列表（传出）
      */
     std::string GetGroupFileList(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &folder, std::vector<GroupFileInformation> &group_file_list);
 
@@ -707,7 +707,7 @@ public:
      * @brief 查询好友信息
      * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
-     * @param data 数据
+     * @param data 数据（传出）
      * @return 支持陌生人查询
      */
     bool GetFriendInformation(std::int64_t thisQQ, std::int64_t otherQQ, FriendInformation &data);
@@ -716,7 +716,7 @@ public:
      * @brief 查询群信息
      * @param thisQQ 框架QQ
      * @param groupQQ 群号
-     * @param data 数据
+     * @param data 数据（传出）
      */
     bool GetGroupInformation(std::int64_t thisQQ, std::int64_t groupQQ, GroupCardInformation &data);
 
@@ -744,9 +744,9 @@ public:
      * @param fileID FileId
      * @param file_name 文件名
      * @param file_size 文件大小
-     * @param req Req 撤回消息用
-     * @param random Random 撤回消息用
-     * @param time time 撤回消息用
+     * @param req Req 撤回消息用（传出）
+     * @param random Random 撤回消息用（传出）
+     * @param time time 撤回消息用（传出）
      * @return 失败或无权限返回false
      */
     bool ForwardGroupFileToFriend(std::int64_t thisQQ, std::int64_t source_groupQQ, std::int64_t otherQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
@@ -771,9 +771,9 @@ public:
      * @param fileID FileId
      * @param file_name 文件名
      * @param file_size 文件大小
-     * @param req Req 撤回消息用
-     * @param random Random 撤回消息用
-     * @param time time 撤回消息用
+     * @param req Req 撤回消息用（传出）
+     * @param random Random 撤回消息用（传出）
+     * @param time time 撤回消息用（传出）
      * @return 失败或无权限返回false
      */
     bool ForwardFriendFileToFriend(std::int64_t thisQQ, std::int64_t sourceQQ, std::int64_t targetQQ, const std::string &fileID, const std::string &file_name, std::int64_t file_size, std::int32_t &req, std::int64_t &random, std::int32_t &time);
@@ -819,7 +819,7 @@ public:
     /**
      * @brief 获取QQ钱包个人信息
      * @param thisQQ 框架QQ
-     * @param data 数据 获取银行卡信息时注意不要数组越界
+     * @param data 数据（传出）
      * @return 包括余额、名字、银行卡等
      */
     std::string GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInformation &data);
@@ -828,7 +828,7 @@ public:
      * @brief 获取订单详情
      * @param thisQQ 框架QQ
      * @param orderID 订单号或者称之为listid
-     * @param data 数据
+     * @param data 数据（传出）
      * @return 可以查订单，比如别人给你转账，你可以查询转账的详情
      */
     std::string GetOrderDetail(std::int64_t thisQQ, const std::string &orderID, OrderDetail &data);
@@ -1021,7 +1021,7 @@ public:
      * @param card_serial 银行卡序列 大于0时使用银行卡支付
      */
     std::string FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total_number, std::int32_t total_amount, std::int64_t otherQQ, const std::string &follow_content, const std::string &payment_password, std::int32_t card_serial = 0);
-    
+
     /**
      * @brief 设置专属头衔
      * @param thisQQ 框架QQ

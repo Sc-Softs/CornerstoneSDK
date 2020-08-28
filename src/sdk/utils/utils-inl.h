@@ -35,35 +35,22 @@ SOFTWARE.
 #include <string>
 
 template <class>
-struct _f_s;
+struct stdcall_cast_s;
 
 template <class RetT, class... ArgT>
-struct _f_s<RetT(ArgT...)>
+struct stdcall_cast_s<RetT(ArgT...)>
 {
-    using type = typename RetT(__stdcall*)(ArgT...);
+    using type = RetT(__stdcall *)(ArgT...);
 };
 
-
 template <class FuncT>
-inline auto _f(Json api, const char *name)
-{
-    using func_type = _f_s<FuncT>::type;
-    return reinterpret_cast<func_type>(static_cast<uintptr_t>(api[name]));
-}
-
-/*
-template <class FuncT>
-inline FuncT *_f(Json api, const char *name)
-{
-    return (FuncT *)((uintptr_t)api[name]);
-}
-*/
+using stdcall_cast = typename stdcall_cast_s<FuncT>::type;
 
 #define pointer_or_zero(pointer) (((pointer) == nullptr) ? 0 : *(pointer))
 
 /**
- * @brief 获取API返回的JSON文本中的返回码
- * @param retstr API返回的JSON文本
+ * @brief 获取 API 返回的 JSON 文本中的返回码
+ * @param retstr API 返回的 JSON 文本
  * @return 返回码
  */
 inline std::int32_t get_retcode(std::string retstr)
@@ -91,12 +78,12 @@ inline std::string to_string(const wchar_t value)
     return WideCharToUTF8(std::wstring(1, value));
 }
 
-inline std::string to_string(const wchar_t* value)
+inline std::string to_string(const wchar_t *value)
 {
     return WideCharToUTF8(value);
 }
 
-inline std::string to_string(const std::wstring& value)
+inline std::string to_string(const std::wstring &value)
 {
     return WideCharToUTF8(value);
 }
@@ -108,8 +95,8 @@ inline std::string to_string(T value)
 }
 
 /**
- * @brief 依次连接所有参数
- * @return 所有参数连接后的字符串
+ * @brief 将所有参数转换为字符串后依次连接
+ * @return 连接后的字符串
  */
 template <class... Types>
 inline std::string sum_string(Types... args)
@@ -117,11 +104,25 @@ inline std::string sum_string(Types... args)
     return (... + to_string(args));
 }
 
+/**
+ * @brief 将 RGB 颜色分量转换为易语言的颜色值
+ * @param r R 颜色分量
+ * @param g G 颜色分量
+ * @param b B 颜色分量
+ * @return 转换后的颜色值
+ */
 constexpr std::uint32_t make_color(std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
     return r + (g << 8) + (b << 16);
 }
 
+/**
+ * @brief 将易语言的颜色值转换为 RGB 颜色分量
+ * @param color 待转换的颜色值
+ * @param r R 颜色分量（传出）
+ * @param g G 颜色分量（传出）
+ * @param b B 颜色分量（传出）
+ */
 constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g, std::uint8_t &b)
 {
     b = color >> 16;
@@ -131,14 +132,14 @@ constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g,
 
 // 调试
 #ifdef DEBUG
-#define debug() MessageBoxW(nullptr, \
-    L"", \
-    UTF8ToWideChar(sum_string("debug@", __func__, ":", __LINE__)).c_str(), \
-    MB_OK | MB_ICONINFORMATION)
-#define debugEx(x) MessageBoxW(nullptr, \
-    UTF8ToWideChar(sum_string(#x, " == ", (x))).c_str(), \
-    UTF8ToWideChar(sum_string("debugEx@", __func__, ":", __LINE__)).c_str(), \
-    MB_OK | MB_ICONINFORMATION)
+#define debug() MessageBoxW(nullptr,                                                               \
+                            L"",                                                                   \
+                            UTF8ToWideChar(sum_string("debug@", __func__, ":", __LINE__)).c_str(), \
+                            MB_OK | MB_ICONINFORMATION)
+#define debugEx(x) MessageBoxW(nullptr,                                                                 \
+                               UTF8ToWideChar(sum_string(#x, " == ", (x))).c_str(),                     \
+                               UTF8ToWideChar(sum_string("debugEx@", __func__, ":", __LINE__)).c_str(), \
+                               MB_OK | MB_ICONINFORMATION)
 #else
 #define debug()
 #define debugEx(x)

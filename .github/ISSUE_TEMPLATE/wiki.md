@@ -1,5 +1,5 @@
 ---
-name: Wiki
+name: 改进文档
 about: 帮助我们改进文档
 title: ''
 labels: documentation

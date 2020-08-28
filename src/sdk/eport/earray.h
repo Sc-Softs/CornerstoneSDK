@@ -9,15 +9,16 @@
 
 #include "./etypes.h"
 
-struct earray_head{
-    void * data;
+struct earray_head
+{
+    void *data;
     HANDLE heap;
 
     earray_head() noexcept
     {
         this->heap = GetProcessHeap();
         this->data = HeapAlloc(heap, HEAP_ZERO_MEMORY, 1);
-        reinterpret_cast<std::uint8_t*>(this->data)[0] = 1;
+        reinterpret_cast<std::uint8_t *>(this->data)[0] = 1;
     }
 
     ~earray_head() noexcept
@@ -25,30 +26,35 @@ struct earray_head{
         HeapFree(this->heap, 0, this->data);
     }
 
-    operator void**(){
+    operator void **()
+    {
         return &this->data;
     }
 };
 
-template<typename EType,typename CPPType>
-size_t earray1d2vector(const earray_head& earr,::std::vector<CPPType>& out){
-    auto srcptr = reinterpret_cast<eint*>(earr.data);
+template <typename EType, typename CPPType>
+size_t earray1d2vector(const earray_head &earr, ::std::vector<CPPType> &out)
+{
+    auto srcptr = reinterpret_cast<eint *>(earr.data);
     auto dim = srcptr[0];
-    if(dim != 1) return static_cast<size_t>(-1);
+    if (dim != 1)
+        return static_cast<size_t>(-1);
     auto size = srcptr[1];
-    if constexpr (::std::is_compound<CPPType>::value){
-        auto pptr = reinterpret_cast<EType**>(srcptr+2);
+    if constexpr (::std::is_compound<CPPType>::value)
+    {
+        auto pptr = reinterpret_cast<EType **>(srcptr + 2);
         out.clear();
         out.reserve(size);
-        ::std::for_each(pptr, pptr + size,[&](auto ptr){
+        ::std::for_each(pptr, pptr + size, [&](auto ptr) {
             out.emplace_back(*ptr);
         });
     }
-    else{
-        auto ptr = reinterpret_cast<EType*>(srcptr+2);
+    else
+    {
+        auto ptr = reinterpret_cast<EType *>(srcptr + 2);
         out.clear();
         out.reserve(size);
-        ::std::for_each(ptr, ptr + size,[&](auto val){
+        ::std::for_each(ptr, ptr + size, [&](auto val) {
             out.emplace_back(val);
         });
     }

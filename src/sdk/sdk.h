@@ -62,19 +62,19 @@ EventProcessEnum OnDisabled();
 EventProcessEnum OnEvent(EventData data);
 
 // 私聊消息事件回调包装
-EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData* eData);
+EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData);
 // 群消息事件回调包装
-EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData* eData);
+EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eData);
 // 插件卸载事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnUninstall(void*);
+EventProcessEnum ECallBack_OnUninstall(void *);
 // 插件设置事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnSettings(void*);
+EventProcessEnum ECallBack_OnSettings(void *);
 // 插件被启用事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnEnabled(void*);
+EventProcessEnum ECallBack_OnEnabled(void *);
 // 插件被禁用事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnDisabled(void*);
+EventProcessEnum ECallBack_OnDisabled(void *);
 // 其他事件回调包装
-EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData* eData);
+EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData);
 
 // API对象
 class API;

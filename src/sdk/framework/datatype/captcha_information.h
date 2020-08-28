@@ -57,7 +57,7 @@ struct CaptchaInformation
     // auth_params
     ::std::string AuthParams;
 
-    CaptchaInformation(const _EType_CaptchaInformation& info)
+    CaptchaInformation(const _EType_CaptchaInformation &info)
     {
         string_e2std(this->TokenID, info.TokenID);
         string_e2std(this->SKey, info.SKey);
@@ -69,8 +69,9 @@ struct CaptchaInformation
         string_e2std(this->Token, info.Token);
         string_e2std(this->AuthParams, info.AuthParams);
     }
-    
-    operator _EType_CaptchaInformation() const{
+
+    operator _EType_CaptchaInformation() const
+    {
         _EType_CaptchaInformation ret;
         ret.TokenID = this->TokenID.c_str();
         ret.SKey = this->SKey.c_str();

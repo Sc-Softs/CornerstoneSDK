@@ -17,22 +17,23 @@ struct _EType_ServiceInformation
 // 服务信息
 struct ServiceInformation
 {
-    enum ServiceCode : eint{
-        SVIP = 1, //SVIP
-        VIDEO_VIP = 4, //视频会员
-        MUSIC_PACK = 6, //音乐包
-        STAR = 105, //star
-        YELLOW_DIAMOND = 102, //黄钻
-        GREEN_DIAMOND = 103, //绿钻
-        RED_DIAMOND = 101, //红钻
-        YELLOWLOVE = 104, //yellowlove
+    enum ServiceCode : eint
+    {
+        SVIP = 1,              //SVIP
+        VIDEO_VIP = 4,         //视频会员
+        MUSIC_PACK = 6,        //音乐包
+        STAR = 105,            //star
+        YELLOW_DIAMOND = 102,  //黄钻
+        GREEN_DIAMOND = 103,   //绿钻
+        RED_DIAMOND = 101,     //红钻
+        YELLOWLOVE = 104,      //yellowlove
         SVIP_WITH_VIDEO = 107, //SVIP&视频会员
         SVIP_WITH_GREEN = 109, //SVIP&绿钻
-        SVIP_WITH_MUSIC = 110 //SVIP&音乐包
+        SVIP_WITH_MUSIC = 110  //SVIP&音乐包
     } ServiceCodename;
     eint ServiceLevel;
 
-    ServiceInformation(const _EType_ServiceInformation& info):
-        ServiceCodename{info.ServiceCodename}, ServiceLevel{info.ServiceLevel}
-    {}
+    ServiceInformation(const _EType_ServiceInformation &info) : ServiceCodename{info.ServiceCodename}, ServiceLevel{info.ServiceLevel}
+    {
+    }
 };

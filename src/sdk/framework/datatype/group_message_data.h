@@ -112,22 +112,21 @@ struct GroupMessageData
     elong FileSize;
     // 消息AppID
     eint MessageAppID;
-    GroupMessageData(const _EType_GroupMessageData& info):
-        SenderQQ{info.SenderQQ},
-        ThisQQ{info.ThisQQ},
-        MessageReq{info.MessageReq},
-        MessageReceiveTime{info.MessageReceiveTime},
-        MessageGroupQQ{info.MessageGroupQQ},
-        MessageSendTime{info.MessageSendTime},
-        MessageRandom{info.MessageRandom},
-        MessageClip{info.MessageClip},
-        MessageClipCount{info.MessageClipCount},
-        MessageClipID{info.MessageClipID},
-        MessageType{info.MessageType},
-        BubbleID{info.BubbleID},
-        ThisQQAnonymousID{info.ThisQQAnonymousID},
-        FileSize{info.FileSize},
-        MessageAppID{info.MessageAppID}
+    GroupMessageData(const _EType_GroupMessageData &info) : SenderQQ{info.SenderQQ},
+                                                            ThisQQ{info.ThisQQ},
+                                                            MessageReq{info.MessageReq},
+                                                            MessageReceiveTime{info.MessageReceiveTime},
+                                                            MessageGroupQQ{info.MessageGroupQQ},
+                                                            MessageSendTime{info.MessageSendTime},
+                                                            MessageRandom{info.MessageRandom},
+                                                            MessageClip{info.MessageClip},
+                                                            MessageClipCount{info.MessageClipCount},
+                                                            MessageClipID{info.MessageClipID},
+                                                            MessageType{info.MessageType},
+                                                            BubbleID{info.BubbleID},
+                                                            ThisQQAnonymousID{info.ThisQQAnonymousID},
+                                                            FileSize{info.FileSize},
+                                                            MessageAppID{info.MessageAppID}
     {
         string_e2std(this->SourceGroupName, info.SourceGroupName);
         string_e2std(this->SenderNickname, info.SenderNickname);

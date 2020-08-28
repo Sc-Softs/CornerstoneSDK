@@ -37,7 +37,7 @@ struct GroupCardInformation
     // 群介绍
     ::std::string GroupDescription;
 
-    GroupCardInformation(const _EType_GroupCardInformation& info)
+    GroupCardInformation(const _EType_GroupCardInformation &info)
     {
         string_e2std(this->GroupName, info.GroupName);
         string_e2std(this->GroupLocation, info.GroupLocation);

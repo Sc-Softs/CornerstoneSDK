@@ -70,7 +70,8 @@ struct FriendInformation
     // 签名 只能使用[查询好友信息]获取
     ::std::string Signature;
     // 性别 255: 隐藏, 0: 男, 1: 女
-    enum GenderType : eint{
+    enum GenderType : eint
+    {
         UNKNOW = 255,
         Male = 0,
         Female = 1
@@ -98,31 +99,30 @@ struct FriendInformation
 
     friend _EType_FriendInformation;
 
-    FriendInformation(const _EType_FriendInformation& info) :
-        QQNumber{info.QQNumber},
-        Gender{info.Gender},
-        Level{info.Level},
-        Age{info.Age},
-        ContinuousOnlineTime{info.ContinuousOnlineTime},
-        LikesToday{info.LikesToday},
-        LikesAvailableToday{info.LikesAvailableToday}
+    FriendInformation(const _EType_FriendInformation &info) : QQNumber{info.QQNumber},
+                                                              Gender{info.Gender},
+                                                              Level{info.Level},
+                                                              Age{info.Age},
+                                                              ContinuousOnlineTime{info.ContinuousOnlineTime},
+                                                              LikesToday{info.LikesToday},
+                                                              LikesAvailableToday{info.LikesAvailableToday}
     {
-        string_e2std(this->Email,info.Email);
-        string_e2std(this->Name,info.Name);
-        string_e2std(this->Note,info.Note);
-        string_e2std(this->Status,info.Status);
-        string_e2std(this->Signature,info.Signature);
-        string_e2std(this->Nation,info.Nation);
-        string_e2std(this->Province,info.Province);
-        string_e2std(this->City,info.City);
-        string_e2std(this->QQTalent,info.QQTalent);
-        
+        string_e2std(this->Email, info.Email);
+        string_e2std(this->Name, info.Name);
+        string_e2std(this->Note, info.Note);
+        string_e2std(this->Status, info.Status);
+        string_e2std(this->Signature, info.Signature);
+        string_e2std(this->Nation, info.Nation);
+        string_e2std(this->Province, info.Province);
+        string_e2std(this->City, info.City);
+        string_e2std(this->QQTalent, info.QQTalent);
+
         if (info.ServiceList != nullptr)
         {
-            auto size = reinterpret_cast<eint*>(info.ServiceList)[1];
-            auto pptr = reinterpret_cast<_EType_ServiceInformation**>(
-                reinterpret_cast<eint*>(info.ServiceList)+2);
-            ::std::for_each(pptr,pptr+size,[this](const auto ptr){
+            auto size = reinterpret_cast<eint *>(info.ServiceList)[1];
+            auto pptr = reinterpret_cast<_EType_ServiceInformation **>(
+                reinterpret_cast<eint *>(info.ServiceList) + 2);
+            ::std::for_each(pptr, pptr + size, [this](const auto ptr) {
                 this->ServiceList.push_back(*ptr);
             });
         }

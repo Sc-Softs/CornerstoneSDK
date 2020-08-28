@@ -45,10 +45,9 @@ struct GroupFileInformation
     // 文件类型  1: 文件, 2: 文件夹
     eint FileType;
 
-    GroupFileInformation(const _EType_GroupFileInformation& info) :
-        FileSize{info.FileSize},
-        FileFromUin{info.FileFromUin},
-        FileType{info.FileType}
+    GroupFileInformation(const _EType_GroupFileInformation &info) : FileSize{info.FileSize},
+                                                                    FileFromUin{info.FileFromUin},
+                                                                    FileType{info.FileType}
     {
         string_e2std(this->FileID, info.FileID);
         string_e2std(this->FileName, info.FileName);

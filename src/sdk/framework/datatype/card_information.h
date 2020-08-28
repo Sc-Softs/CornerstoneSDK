@@ -41,8 +41,7 @@ struct CardInformation
     // bank_type
     ::std::string BankType;
 
-    CardInformation(const _EType_CardInformation& info):
-        Serial{info.Serial}
+    CardInformation(const _EType_CardInformation &info) : Serial{info.Serial}
     {
         string_e2std(this->TailNumber, info.TailNumber);
         string_e2std(this->Bank, info.Bank);

@@ -131,35 +131,34 @@ struct GroupInformation
     // strGroupMemo
     ::std::string GroupMemo;
 
-    GroupInformation(const _EType_GroupInformation& info):
-        GroupID{info.GroupID},
-        GroupQQ{info.GroupQQ},
-        CFlag{info.CFlag},
-        GroupInfoSeq{info.GroupInfoSeq},
-        GroupFlagExt{info.GroupFlagExt},
-        GroupRankSeq{info.GroupRankSeq},
-        CertificationType{info.CertificationType},
-        ShutUpTimestamp{info.ShutUpTimestamp},
-        ThisShutUpTimestamp{info.ThisShutUpTimestamp},
-        CmdUinUinFlag{info.CmdUinUinFlag},
-        AdditionalFlag{info.AdditionalFlag},
-        GroupTypeFlag{info.GroupTypeFlag},
-        GroupSecType{info.GroupSecType},
-        GroupSecTypeInfo{info.GroupSecTypeInfo},
-        GroupClassExt{info.GroupClassExt},
-        AppPrivilegeFlag{info.AppPrivilegeFlag},
-        SubscriptionUin{info.SubscriptionUin},
-        GroupMemberCount{info.GroupMemberCount},
-        MemberNumSeq{info.MemberNumSeq},
-        MemberCardSeq{info.MemberCardSeq},
-        GroupFlagExt3{info.GroupFlagExt3},
-        GroupOwnerUin{info.GroupOwnerUin},
-        IsConfGroup{info.IsConfGroup},
-        IsModifyConfGroupFace{info.IsModifyConfGroupFace},
-        IsModifyConfGroupName{info.IsModifyConfGroupName},
-        CmduinJoinTime{info.CmduinJoinTime}
+    GroupInformation(const _EType_GroupInformation &info) : GroupID{info.GroupID},
+                                                            GroupQQ{info.GroupQQ},
+                                                            CFlag{info.CFlag},
+                                                            GroupInfoSeq{info.GroupInfoSeq},
+                                                            GroupFlagExt{info.GroupFlagExt},
+                                                            GroupRankSeq{info.GroupRankSeq},
+                                                            CertificationType{info.CertificationType},
+                                                            ShutUpTimestamp{info.ShutUpTimestamp},
+                                                            ThisShutUpTimestamp{info.ThisShutUpTimestamp},
+                                                            CmdUinUinFlag{info.CmdUinUinFlag},
+                                                            AdditionalFlag{info.AdditionalFlag},
+                                                            GroupTypeFlag{info.GroupTypeFlag},
+                                                            GroupSecType{info.GroupSecType},
+                                                            GroupSecTypeInfo{info.GroupSecTypeInfo},
+                                                            GroupClassExt{info.GroupClassExt},
+                                                            AppPrivilegeFlag{info.AppPrivilegeFlag},
+                                                            SubscriptionUin{info.SubscriptionUin},
+                                                            GroupMemberCount{info.GroupMemberCount},
+                                                            MemberNumSeq{info.MemberNumSeq},
+                                                            MemberCardSeq{info.MemberCardSeq},
+                                                            GroupFlagExt3{info.GroupFlagExt3},
+                                                            GroupOwnerUin{info.GroupOwnerUin},
+                                                            IsConfGroup{info.IsConfGroup},
+                                                            IsModifyConfGroupFace{info.IsModifyConfGroupFace},
+                                                            IsModifyConfGroupName{info.IsModifyConfGroupName},
+                                                            CmduinJoinTime{info.CmduinJoinTime}
     {
-        string_e2std(this->GroupName,info.GroupName);
-        string_e2std(this->GroupMemo,info.GroupMemo);
+        string_e2std(this->GroupName, info.GroupName);
+        string_e2std(this->GroupMemo, info.GroupMemo);
     }
 };

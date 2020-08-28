@@ -73,14 +73,13 @@ struct GroupMemberInformation
     // 群等级
     elong Level;
 
-    GroupMemberInformation(const _EType_GroupMemberInformation& info):
-        Age{info.Age},
-        Gender{info.Gender},
-        TitleTimeout{info.TitleTimeout},
-        ShutUpTimestamp{info.ShutUpTimestamp},
-        JoinTime{info.JoinTime},
-        ChatTime{info.ChatTime},
-        Level{info.Level}
+    GroupMemberInformation(const _EType_GroupMemberInformation &info) : Age{info.Age},
+                                                                        Gender{info.Gender},
+                                                                        TitleTimeout{info.TitleTimeout},
+                                                                        ShutUpTimestamp{info.ShutUpTimestamp},
+                                                                        JoinTime{info.JoinTime},
+                                                                        ChatTime{info.ChatTime},
+                                                                        Level{info.Level}
     {
         string_e2std(this->QQNumber, info.QQNumber);
         string_e2std(this->Name, info.Name);

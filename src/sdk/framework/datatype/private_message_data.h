@@ -114,25 +114,24 @@ struct PrivateMessageData
     // 文件大小
     elong FileSize;
 
-    PrivateMessageData(const _EType_PrivateMessageData& info) :
-        SenderQQ{info.SenderQQ},
-        ThisQQ{info.ThisQQ},
-        MessageReq{info.MessageReq},
-        MessageSeq{info.MessageSeq},
-        MessageReceiveTime{info.MessageReceiveTime},
-        MessageGroupQQ{info.MessageGroupQQ},
-        MessageSendTime{info.MessageSendTime},
-        MessageRandom{info.MessageRandom},
-        MessageClip{info.MessageClip},
-        MessageClipCount{info.MessageClipCount},
-        MessageClipID{info.MessageClipID},
-        BubbleID{info.BubbleID},
-        MessageType{info.MessageType},
-        MessageSubType{info.MessageSubType},
-        MessageSubTemporaryType{info.MessageSubTemporaryType},
-        RedEnvelopeType{info.RedEnvelopeType},
-        SourceEventQQ{info.SourceEventQQ},
-        FileSize{info.FileSize}
+    PrivateMessageData(const _EType_PrivateMessageData &info) : SenderQQ{info.SenderQQ},
+                                                                ThisQQ{info.ThisQQ},
+                                                                MessageReq{info.MessageReq},
+                                                                MessageSeq{info.MessageSeq},
+                                                                MessageReceiveTime{info.MessageReceiveTime},
+                                                                MessageGroupQQ{info.MessageGroupQQ},
+                                                                MessageSendTime{info.MessageSendTime},
+                                                                MessageRandom{info.MessageRandom},
+                                                                MessageClip{info.MessageClip},
+                                                                MessageClipCount{info.MessageClipCount},
+                                                                MessageClipID{info.MessageClipID},
+                                                                BubbleID{info.BubbleID},
+                                                                MessageType{info.MessageType},
+                                                                MessageSubType{info.MessageSubType},
+                                                                MessageSubTemporaryType{info.MessageSubTemporaryType},
+                                                                RedEnvelopeType{info.RedEnvelopeType},
+                                                                SourceEventQQ{info.SourceEventQQ},
+                                                                FileSize{info.FileSize}
     {
         string_e2std(this->MessageContent, info.MessageContent);
         string_e2std(this->SourceEventQQName, info.SourceEventQQName);

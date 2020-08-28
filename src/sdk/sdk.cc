@@ -35,8 +35,9 @@ SOFTWARE.
 
 API *api;
 
-template<typename VData_t>
-inline auto deref_and_remove_volatile(VData_t * data){
+template <typename VData_t>
+inline auto deref_and_remove_volatile(VData_t *data)
+{
     using data_t = typename ::std::remove_volatile<VData_t>::type;
     using p_data_t = typename ::std::add_pointer<data_t>::type;
     return *const_cast<p_data_t>(data);
@@ -55,25 +56,28 @@ EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eDat
 }
 
 // 插件卸载事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnUninstall(void*)
+EventProcessEnum ECallBack_OnUninstall(void *)
 {
-    return OnUninstall();
+    auto ret = OnUninstall();
+    // 释放全局api对象避免内存泄漏
+    delete api;
+    return ret;
 }
 
 // 插件设置事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnSettings(void*)
+EventProcessEnum ECallBack_OnSettings(void *)
 {
     return OnSettings();
 }
 
 // 插件被启用事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnEnabled(void*)
+EventProcessEnum ECallBack_OnEnabled(void *)
 {
     return OnEnabled();
 }
 
 // 插件被禁用事件回调包装（未知参数）
-EventProcessEnum ECallBack_OnDisabled(void*)
+EventProcessEnum ECallBack_OnDisabled(void *)
 {
     return OnDisabled();
 }
@@ -84,7 +88,7 @@ EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData)
     return OnEvent(deref_and_remove_volatile(eData));
 }
 
-const extern char* Configuration;
+const extern char *Configuration;
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
@@ -126,7 +130,7 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
                 "更改私聊消息内容"};
         for (auto &it : config["所需权限"].items())
         {
-            auto is_safe = "1";                    // 是否是安全的权限
+            auto is_safe = "1";                     // 是否是安全的权限
             if (dangerous_api.count(it.key()) == 1) // 如果 == 1 就算找到
             {
                 is_safe = "0";

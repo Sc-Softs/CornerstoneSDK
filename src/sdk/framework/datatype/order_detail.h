@@ -57,7 +57,7 @@ struct OrderDetail
     // 操作金额
     ::std::string OperateAmount;
 
-    OrderDetail(const _EType_OrderDetail& info)
+    OrderDetail(const _EType_OrderDetail &info)
     {
         string_e2std(this->OrderTime, info.OrderTime);
         string_e2std(this->OrderDescription, info.OrderDescription);

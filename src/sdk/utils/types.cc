@@ -31,29 +31,11 @@ SOFTWARE.
 
 #include <cstring>
 
-earray::earray() noexcept
-{
-    // 分配一个空间专门给框架释放着玩
-    this->heap = GetProcessHeap();
-    this->data = HeapAlloc(heap, HEAP_ZERO_MEMORY, 1);
-    *((std::uint8_t*)this->data) = 1;
-}
-
-earray::~earray() noexcept
-{
-    HeapFree(this->heap, 0, this->data);
-}
-
-size_t earray::GetDimension() const noexcept
-{
-    return ((eint *)this->data)[0];
-}
-
 // WARNING: 使用完后请自行delete字符串指针，否则将造成内存泄露
-const char* new_and_copy_str(const char* str)
+const char *new_and_copy_str(const char *str)
 {
     size_t size = std::strlen(str);
-    char* newStr = new char[size + 1];
+    char *newStr = new char[size + 1];
     std::memcpy(newStr, str, size + 1);
     newStr[size] = '\0';
     return newStr;

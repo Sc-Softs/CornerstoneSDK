@@ -34,7 +34,7 @@ struct QQWalletInformation
     // 银行卡列表
     ::std::vector<CardInformation> CardList;
 
-    QQWalletInformation(const _EType_QQWalletInformation& info)
+    QQWalletInformation(const _EType_QQWalletInformation &info)
     {
         string_e2std(this->Balance, info.Balance);
         string_e2std(this->ID, info.ID);
@@ -42,10 +42,10 @@ struct QQWalletInformation
 
         if (info.CardList != nullptr)
         {
-            auto size = reinterpret_cast<eint*>(info.CardList)[1];
-            auto pptr = reinterpret_cast<_EType_CardInformation**>(
-                reinterpret_cast<eint*>(info.CardList)+2);
-            ::std::for_each(pptr,pptr+size,[this](const auto ptr){
+            auto size = reinterpret_cast<eint *>(info.CardList)[1];
+            auto pptr = reinterpret_cast<_EType_CardInformation **>(
+                reinterpret_cast<eint *>(info.CardList) + 2);
+            ::std::for_each(pptr, pptr + size, [this](const auto ptr) {
                 this->CardList.push_back(*ptr);
             });
         }
