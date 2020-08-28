@@ -12,7 +12,7 @@
   </p>
   <p align="center">
     <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
-      <img src="https://img.shields.io/badge/release-v0.2.1-important.svg" />
+      <img src="https://img.shields.io/badge/release-v1.0.0-important.svg" />
     </a>
     <a href="https://zh.cppreference.com/w/cpp/17">
       <img src="https://img.shields.io/badge/language-C++17-informational.svg" />

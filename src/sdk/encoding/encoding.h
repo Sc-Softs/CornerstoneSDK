@@ -1,5 +1,5 @@
 /*
-Cornerstone SDK v0.2.0
+Cornerstone SDK v1.0.0
 -- 面向现代 C++ 的 Corn SDK
 兼容 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
