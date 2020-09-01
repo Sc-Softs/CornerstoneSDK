@@ -30,7 +30,7 @@ SOFTWARE.
 #include "../sdk.h"
 
 #include "../eport/earray.h"
-
+#include <windows.h>
 // 匿名命名空间，只允许内部链接
 namespace
 {
@@ -44,12 +44,17 @@ namespace
 API::API(etext api_data, etext plugin_key)
     : j(Json::parse(e2s_s(api_data))), key(plugin_key)
 {
-//从api.inc获得相关参数，为_API_func_##_Func_name这些函数指针赋值
-#define Func(_Func_name, _Arg_type, _Json_name)                         \
-    _API_func_##_Func_name = reinterpret_cast<stdcall_cast<_Arg_type>>( \
-        static_cast<uintptr_t>(this->j[_Json_name]));
-#include ".\api.inc"
-#undef Func
+        try{
+            //从api.inc获得相关参数，为_API_func_##_Func_name这些函数指针赋值
+            #define Func(_Func_name, _Arg_type, _Json_name)                         \
+                _API_func_##_Func_name = reinterpret_cast<stdcall_cast<_Arg_type>>( \
+                    static_cast<uintptr_t>(this->j[_Json_name]));
+            #include ".\api.inc"
+            #undef Func
+        }
+        catch(void*e){
+                MessageBox(NULL,TEXT("API加载出错!请提交issue到\r\nhttps://github.com/Sc-Softs/CornerstoneSDK\r\n Ctrl+C复制内容"),TEXT("SDK提示"),0|MB_ICONERROR);
+           }
 }
 
 std::string API::OutputLog(const std::string &message, std::int32_t text_color, std::int32_t background_color)
