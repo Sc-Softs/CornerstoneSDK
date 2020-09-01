@@ -64,7 +64,7 @@ Func(GetGroupFileList, etext(etext, elong, elong, etext, void **), "取群文件
 Func(SaveFileToWeiYun, etext(etext, elong, elong, etext, etext), "保存文件到微云")
 Func(SetStatus, ebool(etext, elong, eint, eint, eint), "设置在线状态")
 Func(CheckPermission, ebool(etext, etext), "api是否有权限")
-Func(ReloadPlugin, void(etext, etext), "重载自身")
+//Func(ReloadPlugin, void(etext, etext), "重载自身")
 Func(GetPluginDataDirectory, etext(etext), "取插件数据目录")
 Func(QQLike, etext(etext, elong, elong), "QQ点赞")
 Func(GetImageDownloadLink, etext(etext, etext, elong, elong), "取图片下载地址")
