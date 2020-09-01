@@ -463,7 +463,7 @@ bool API::CheckPermission(const std::string &permission)
 
 void API::ReloadPlugin(const std::string &new_file_path)
 {
-    return ::_API_func_ReloadPlugin(this->key.c_str(), s2e(new_file_path));
+    //return ::_API_func_ReloadPlugin(this->key.c_str(), s2e(new_file_path));
 }
 
 std::string API::GetPluginDataDirectory()
