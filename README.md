@@ -12,7 +12,7 @@
   </p>
   <p align="center">
     <a href="https://github.com/Sc-Softs/CornerstoneSDK/releases">
-      <img src="https://img.shields.io/badge/release-v1.0.0-important.svg" />
+      <img src="https://img.shields.io/badge/release-v1.0.1-important.svg" />
     </a>
     <a href="https://zh.cppreference.com/w/cpp/17">
       <img src="https://img.shields.io/badge/language-C++17-informational.svg" />
@@ -22,7 +22,7 @@
     </a>
   </p>
   <p align="center">
-    兼容 Corn SDK（小栗子框架官方易语言 SDK）v2.7.1
+    兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK（小栗子框架官方易语言 SDK）v2.7.1
   </p>
   <p align="center">
     <b>

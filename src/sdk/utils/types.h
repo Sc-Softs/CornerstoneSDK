@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,8 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_SDK_HEADER_TYPES_H_
-#define CORNERSTONE_SDK_HEADER_TYPES_H_
+#pragma once
 
 #include <cstring>
 #include <unordered_map>
@@ -65,5 +64,3 @@ constexpr bool e2b(const ebool &e)
 {
     return ebool2bool(e);
 }
-
-#endif // CORNERSTONE_SDK_HEADER_TYPES_H_

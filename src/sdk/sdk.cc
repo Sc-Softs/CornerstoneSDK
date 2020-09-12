@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -31,71 +31,128 @@ SOFTWARE.
 
 #include <cstring>
 #include <unordered_set>
-#include <type_traits>
+// #include <type_traits>
+#include <exception>
 
 API *api;
 
 template <typename VData_t>
 inline auto deref_and_remove_volatile(VData_t *data)
 {
-    using data_t = typename ::std::remove_volatile<VData_t>::type;
-    using p_data_t = typename ::std::add_pointer<data_t>::type;
+    using data_t = typename ::std::remove_volatile_t<VData_t>;
+    using p_data_t = typename ::std::add_pointer_t<data_t>;
     return *const_cast<p_data_t>(data);
 }
 
 // 私聊消息事件回调包装
 EventProcessEnum ECallBack_OnPrivateMessage(volatile _EType_PrivateMessageData *eData)
 {
-    return OnPrivateMessage(deref_and_remove_volatile(eData));
+    try
+    {
+        return OnPrivateMessage(deref_and_remove_volatile(eData));
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理私聊消息事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 群消息事件回调包装
 EventProcessEnum ECallBack_OnGroupMessage(volatile _EType_GroupMessageData *eData)
 {
-    return OnGroupMessage(deref_and_remove_volatile(eData));
+    try
+    {
+        return OnGroupMessage(deref_and_remove_volatile(eData));
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理群消息事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 插件卸载事件回调包装（未知参数）
 EventProcessEnum ECallBack_OnUninstall(void *)
 {
-    auto ret = OnUninstall();
-    // 释放全局api对象避免内存泄漏
-    delete api;
-    return ret;
+    try
+    {
+        auto ret = OnUninstall();
+        // 释放全局api对象避免内存泄漏
+        delete api;
+        return ret;
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理插件卸载事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 插件设置事件回调包装（未知参数）
 EventProcessEnum ECallBack_OnSettings(void *)
 {
-    return OnSettings();
+    try
+    {
+        return OnSettings();
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理插件设置事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 插件被启用事件回调包装（未知参数）
 EventProcessEnum ECallBack_OnEnabled(void *)
 {
-    return OnEnabled();
+    try
+    {
+        return OnEnabled();
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理插件被启用事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 插件被禁用事件回调包装（未知参数）
 EventProcessEnum ECallBack_OnDisabled(void *)
 {
-    return OnDisabled();
+    try
+    {
+        return OnDisabled();
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理插件被禁用事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 // 其他事件回调包装
 EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData)
 {
-    return OnEvent(deref_and_remove_volatile(eData));
+    try
+    {
+        return OnEvent(deref_and_remove_volatile(eData));
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("处理其他事件时出现异常", e);
+        return EventProcessEnum::Ignore;
+    }
 }
 
 const extern char *Configuration;
 
 extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
 {
-    // 创建全局API对象
-    api = new API(apidata, pluginkey);
     try
     {
+        // 创建全局API对象
+        api = new API(apidata, pluginkey);
         // 解析插件配置
         auto config = Json::parse(Configuration);
         Json json_info =
@@ -152,10 +209,12 @@ extern "C" etext __stdcall apprun(etext apidata, etext pluginkey)
     }
     catch (Json::exception e)
     {
-        MessageBoxW(nullptr,
-                    UTF8ToWideChar(sum_string("插件信息解析失败，请检查config.h\r\n错误信息：\r\n", e.what())).c_str(),
-                    UTF8ToWideChar("Cornerstone SDK 错误").c_str(),
-                    MB_OK | MB_ICONERROR);
+        ErrorMessageBox("解析插件信息时出现异常，请检查 config.h", e);
+        return "{}";
+    }
+    catch (std::exception e)
+    {
+        ErrorMessageBox("加载插件时出现异常", e);
         return "{}";
     }
 }

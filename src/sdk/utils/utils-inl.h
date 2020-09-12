@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,8 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_SDK_HEADER_UNTILS_INL_H_
-#define CORNERSTONE_SDK_HEADER_UNTILS_INL_H_
+#pragma once
 
 #include "../sdk.h"
 
@@ -130,19 +129,26 @@ constexpr void read_color(std::uint32_t color, std::uint8_t &r, std::uint8_t &g,
     r = color & 0x000000ff;
 }
 
+// 报错
+#define ErrorMessageBox(message, e) MessageBoxW(                                 \
+    nullptr,                                                                     \
+    UTF8ToWideChar(sum_string(message, "\r\n错误信息：\r\n", e.what())).c_str(), \
+    UTF8ToWideChar("Cornerstone SDK 错误").c_str(),                              \
+    MB_OK | MB_ICONERROR)
+
 // 调试
 #ifdef DEBUG
-#define debug() MessageBoxW(nullptr,                                                               \
-                            L"",                                                                   \
-                            UTF8ToWideChar(sum_string("debug@", __func__, ":", __LINE__)).c_str(), \
-                            MB_OK | MB_ICONINFORMATION)
-#define debugEx(x) MessageBoxW(nullptr,                                                                 \
-                               UTF8ToWideChar(sum_string(#x, " == ", (x))).c_str(),                     \
-                               UTF8ToWideChar(sum_string("debugEx@", __func__, ":", __LINE__)).c_str(), \
-                               MB_OK | MB_ICONINFORMATION)
+#define debug() MessageBoxW(                                               \
+    nullptr,                                                               \
+    L"",                                                                   \
+    UTF8ToWideChar(sum_string("debug@", __func__, ":", __LINE__)).c_str(), \
+    MB_OK | MB_ICONINFORMATION)
+#define debugEx(x) MessageBoxW(                                              \
+    nullptr,                                                                 \
+    UTF8ToWideChar(sum_string(#x, " == ", (x))).c_str(),                     \
+    UTF8ToWideChar(sum_string("debugEx@", __func__, ":", __LINE__)).c_str(), \
+    MB_OK | MB_ICONINFORMATION)
 #else
 #define debug()
 #define debugEx(x)
 #endif
-
-#endif // CORNERSTONE_SDK_HEADER_UNTILS_INL_H_

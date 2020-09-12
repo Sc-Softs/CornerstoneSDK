@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,8 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_SDK_HEADER_SDK_H_
-#define CORNERSTONE_SDK_HEADER_SDK_H_
+#pragma once
 
 // 系统
 #define WIN32_LEAN_AND_MEAN
@@ -79,5 +78,3 @@ EventProcessEnum ECallBack_OnEvent(volatile _EType_EventData *eData);
 // API对象
 class API;
 extern API *api;
-
-#endif // CORNERSTONE_SDK_HEADER_SDK_H_

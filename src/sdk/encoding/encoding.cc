@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可

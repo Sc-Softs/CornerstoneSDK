@@ -1,7 +1,7 @@
 /*
-Cornerstone SDK v1.0.0
+Cornerstone SDK v1.0.1
 -- 面向现代 C++ 的 Corn SDK
-兼容 Corn SDK v2.7.1
+兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK v2.7.1
 https://github.com/Sc-Softs/CornerstoneSDK
 
 使用 MIT License 进行许可
@@ -27,8 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef CORNERSTONE_SDK_HEADER_API_H_
-#define CORNERSTONE_SDK_HEADER_API_H_
+#pragma once
 
 #include "../sdk.h"
 #include "../framework/datatypes.h"
@@ -677,12 +676,6 @@ public:
     bool CheckPermission(const std::string &permission);
 
     /**
-     * @brief 重载自身 [暂时无效，请勿调用]没有权限限制，请勿将新的插件文件下载至plugin文件夹，请确保新旧文件appname一致
-     * @param new_file_path 新文件路径 若要更新插件，可将插件文件下载后在此填写新文件路径
-    */
-    void ReloadPlugin(const std::string &new_file_path = "");
-
-    /**
      * @brief 获取插件数据目录 没有权限限制，建议将设置文件之类的都写这里面
      * @return 插件数据目录 结果结尾带\
      */
@@ -1034,5 +1027,3 @@ private:
     Json j;
     ::std::string key;
 };
-
-#endif // CORNERSTONE_SDK_HEADER_API_H_
