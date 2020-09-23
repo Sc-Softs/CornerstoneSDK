@@ -143,7 +143,7 @@ EventProcessEnum OnPrivateMessage(PrivateMessageData data)
     }
 
     // 已经处理过的消息返回Block阻止其他插件继续处理
-    return EventProcessEnum::Block;
+    return EventProcessEnum::Ignore;
 }
 
 // 群消息事件
@@ -215,7 +215,7 @@ EventProcessEnum OnGroupMessage(GroupMessageData data)
     }
 
     // 已经处理过的消息阻止其他插件继续处理
-    return EventProcessEnum::Block;
+    return EventProcessEnum::;
 }
 
 // 插件卸载事件
