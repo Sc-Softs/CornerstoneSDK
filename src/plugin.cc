@@ -215,7 +215,7 @@ EventProcessEnum OnGroupMessage(GroupMessageData data)
     }
 
     // 已经处理过的消息阻止其他插件继续处理
-    return EventProcessEnum::;
+    return EventProcessEnum::Ignore;
 }
 
 // 插件卸载事件
