@@ -472,17 +472,19 @@ std::string API::GetImageDownloadLink(const std::string &image_code, std::int64_
 
 bool API::GetFriendInformation(std::int64_t thisQQ, std::int64_t otherQQ, FriendInformation &data)
 {
-    volatile _EType_FriendInformation *eInfo;
-    auto ret = e2b(::_API_func_GetFriendInformation(this->key.c_str(), thisQQ, otherQQ, &eInfo));
-    data = *(const_cast<_EType_FriendInformation *>(eInfo));
+    _EType_FriendInformation eInfo;
+    auto pi = &eInfo;
+    auto ret = e2b(::_API_func_GetFriendInformation(this->key.c_str(), thisQQ, otherQQ, &pi));
+    data = eInfo;
     return ret;
 }
 
 bool API::GetGroupInformation(std::int64_t thisQQ, std::int64_t groupQQ, GroupCardInformation &data)
 {
-    volatile _EType_GroupCardInformation *eInfo;
-    auto ret = e2b(::_API_func_GetGroupInformation(this->key.c_str(), thisQQ, groupQQ, &eInfo));
-    data = *(const_cast<_EType_GroupCardInformation *>(eInfo));
+    _EType_GroupCardInformation eInfo;
+    auto pi = &eInfo;
+    auto ret = e2b(::_API_func_GetGroupInformation(this->key.c_str(), thisQQ, groupQQ, &pi));
+    data = eInfo;
     return ret;
 }
 

@@ -128,6 +128,8 @@ struct FriendInformation
 
     friend _EType_FriendInformation;
 
+    FriendInformation() = default;
+
     FriendInformation(const _EType_FriendInformation &info) : QQNumber{info.QQNumber},
                                                               Gender{info.Gender},
                                                               Level{info.Level},

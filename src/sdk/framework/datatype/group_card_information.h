@@ -66,6 +66,8 @@ struct GroupCardInformation
     // 群介绍
     ::std::string GroupDescription;
 
+    GroupCardInformation() = default;
+
     GroupCardInformation(const _EType_GroupCardInformation &info)
     {
         string_e2std(this->GroupName, info.GroupName);
