@@ -96,9 +96,9 @@ std::string API::SendGroupTemporaryMessage(std::int64_t thisQQ, std::int64_t gro
     return e2s_s(::_API_func_SendGroupTemporaryMessage(this->key.c_str(), thisQQ, groupQQ, otherQQ, s2e(content), &random_p, &req_p));
 }
 
-std::string API::AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification, const std::string &comment)
+std::string API::AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification)
 {
-    return e2s_s(::_API_func_AddFriend(this->key.c_str(), thisQQ, otherQQ, s2e(verification), s2e(comment)));
+    return e2s_s(::_API_func_AddFriend(this->key.c_str(), thisQQ, otherQQ, s2e(verification)));
 }
 
 std::string API::AddGroup(std::int64_t thisQQ, std::int64_t groupQQ, const std::string &verification)
@@ -187,12 +187,12 @@ std::string API::SetGroupNickname(std::int64_t thisQQ, std::int64_t groupQQ, std
 
 std::string API::GetNameFromCache(std::int64_t otherQQ)
 {
-    return e2s_s(::_API_func_GetNameFromCache(this->key.c_str(), otherQQ));
+    return e2s_s(::_API_func_GetNameFromCache(this->key.c_str(), ::std::to_string(otherQQ).c_str()));
 }
 
-std::string API::GetNameForce(std::int64_t otherQQ)
+std::string API::GetNameForce(std::int64_t thisQQ, std::int64_t otherQQ)
 {
-    return e2s_s(::_API_func_GetNameForce(this->key.c_str(), otherQQ));
+    return e2s_s(::_API_func_GetNameForce(this->key.c_str(), thisQQ, ::std::to_string(otherQQ).c_str()));
 }
 
 std::string API::GetGroupNameFromCache(std::int64_t groupQQ)
@@ -207,7 +207,7 @@ std::string API::GetSKey(std::int64_t thisQQ)
 
 std::string API::GetPSKey(std::int64_t thisQQ, const std::string &domain)
 {
-    return e2s_s(::_API_func_GetPSKey(this->key.c_str(), thisQQ));
+    return e2s_s(::_API_func_GetPSKey(this->key.c_str(), thisQQ, domain.c_str()));
 }
 
 std::string API::GetClientKey(std::int64_t thisQQ)

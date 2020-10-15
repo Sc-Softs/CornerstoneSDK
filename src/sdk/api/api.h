@@ -109,7 +109,7 @@ public:
      * @param verification 设置回答问题答案或是验证消息，多个问题答案用"|"分隔开
      * @param comment 自定义给对方的备注
      */
-    std::string AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification, const std::string &comment);
+    std::string AddFriend(std::int64_t thisQQ, std::int64_t otherQQ, const std::string &verification);
 
     /**
      * @brief 添加群（你在群内或需要付费入群也会直接发送验证消息）
@@ -251,10 +251,11 @@ public:
 
     /**
      * @brief 强制获取昵称
+     * @param thisQQ 框架QQ
      * @param otherQQ 对方QQ
      * @return 成功返回昵称
      */
-    std::string GetNameForce(std::int64_t otherQQ);
+    std::string GetNameForce(std::int64_t thisQQ, std::int64_t otherQQ);
 
     /**
      * @brief 从缓存获取群名（如果是框架QQ没加的群，[查询群信息]后也会记录缓存）
