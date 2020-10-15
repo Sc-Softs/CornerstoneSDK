@@ -46,11 +46,23 @@ enum class EventProcessEnum : eint
 // 消息类型
 enum class MessageTypeEnum : eint
 {
-    // 临时会话
+    // 消息类型_临时会话
     Temporary = 141,
-    // 好友通常消息
+    // 消息类型_临时会话_群临时
+    GroupTemporary = 0,
+    // 消息类型_临时会话_公众号
+    OfficialAccountsTemporary = 129,
+    // 消息类型_临时会话_网页QQ咨询
+    WebQQTemporary = 201,
+    // 消息类型_好友通常消息
     FriendUsualMessage = 166,
-    // 好友文件
+    // 消息类型_私聊红包 
+    FriendRedEnvlope = 10,
+    // 消息类型_私聊转账 
+    FriendTransferAccounts = 2,
+    // 消息类型_私聊普通
+    FriendCommon = 0,
+    // 消息类型_好友文件, "529", 隐藏, 
     FriendFile = 529,
     // 好友语音
     FriendAudio = 208,
@@ -75,39 +87,39 @@ enum class MessageSubTypeEnum : eint
 enum class EventTypeEnum : eint
 {
     // 好友事件_被好友删除
-    Friend_Removed = 15,
+    Friend_Removed = 100,
     // 好友事件_签名变更
-    Friend_SignatureChanged = 16,
+    Friend_SignatureChanged = 101,
     // 好友事件_昵称改变
-    Friend_NameChanged = 17,
+    Friend_NameChanged = 102,
     // 好友事件_某人撤回事件
-    Friend_UserUndid = 18,
+    Friend_UserUndid = 103,
     // 好友事件_有新好友
-    Friend_NewFriend = 19,
+    Friend_NewFriend = 104,
     // 好友事件_好友请求
-    Friend_FriendRequest = 20,
+    Friend_FriendRequest = 105,
     // 好友事件_对方同意了您的好友请求
-    Friend_FriendRequestAccepted = 21,
+    Friend_FriendRequestAccepted = 106,
     // 好友事件_对方拒绝了您的好友请求
-    Friend_FriendRequestRefused = 22,
+    Friend_FriendRequestRefused = 107,
     // 好友事件_资料卡点赞
-    Friend_InformationLiked = 23,
+    Friend_InformationLiked = 108,
     // 好友事件_签名点赞
-    Friend_SignatureLiked = 24,
+    Friend_SignatureLiked = 109,
     // 好友事件_签名回复
-    Friend_SignatureReplied = 25,
+    Friend_SignatureReplied = 110,
     // 好友事件_个性标签点赞
-    Friend_TagLiked = 26,
+    Friend_TagLiked = 111,
     // 好友事件_随心贴回复
-    Friend_StickerLiked = 27,
+    Friend_StickerLiked = 112,
     // 好友事件_随心贴增添
-    Friend_StickerAdded = 28,
+    Friend_StickerAdded = 113,
 
     // 空间事件_与我相关
-    QZone_Related = 30,
+    QZone_Related = 29,
 
     // 框架事件_登录成功
-    This_SignInSuccess = 32,
+    This_SignInSuccess = 31,
 
     // 群事件_我被邀请加入群
     Group_Invited = 1,
@@ -164,7 +176,11 @@ enum class EventTypeEnum : eint
     // 群事件_隐藏成员群头衔
     Group_HideMemberTitle = 28,
     // 群事件_某人被解除禁言
-    Group_MemberNotShutUp = 29
+    Group_MemberNotShutUp = 29,
+    // 群事件_我被踢出
+    Group_BeenKicked = 30,
+    // 群事件_群名变更
+    Group_GroupNameChange = 32,
 };
 
 // 语音类型
