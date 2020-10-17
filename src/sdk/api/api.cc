@@ -261,14 +261,14 @@ std::string API::GetSignature(std::int64_t thisQQ, std::int64_t otherQQ)
     return e2s_s(::_API_func_GetSignature(this->key.c_str(), thisQQ, otherQQ));
 }
 
-bool API::SetName(std::int64_t thisQQ, const std::string &name)
+bool API::ModifyName(std::int64_t thisQQ, const std::string &name)
 {
-    return e2b(::_API_func_SetName(this->key.c_str(), thisQQ, s2e(name)));
+    return e2b(::_API_func_ModifyName(this->key.c_str(), thisQQ, s2e(name)));
 }
 
-bool API::SetSignature(std::int64_t thisQQ, const std::string &signature, const std::string &location)
+bool API::ModifySignature(std::int64_t thisQQ, const std::string &signature, const std::string &location)
 {
-    return e2b(::_API_func_SetSignature(this->key.c_str(), thisQQ, s2e(signature), s2e(location)));
+    return e2b(::_API_func_ModifySignature(this->key.c_str(), thisQQ, s2e(signature), s2e(location)));
 }
 
 bool API::RemoveGroupMember(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, bool is_verification_refused)

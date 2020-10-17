@@ -64,7 +64,6 @@
         "climits": "cpp",
         "random": "cpp",
         "bit": "cpp",
-        "*.tcc": "cpp",
         "cstdarg": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",

@@ -357,7 +357,7 @@ public:
      * @param name 昵称
      * @return 失败或无权限返回false
      */
-    bool SetName(std::int64_t thisQQ, const std::string &name);
+    bool ModifyName(std::int64_t thisQQ, const std::string &name);
 
     /**
      * @brief 修改个性签名
@@ -366,7 +366,7 @@ public:
      * @param location 可自定义签名地点
      * @return 失败或无权限返回false
      */
-    bool SetSignature(std::int64_t thisQQ, const std::string &signature, const std::string &location = "");
+    bool ModifySignature(std::int64_t thisQQ, const std::string &signature, const std::string &location = "");
 
     /**
      * @brief 删除群成员
@@ -1024,7 +1024,204 @@ public:
      */
     bool SetExclusiveTitle(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::string title);
 
+    /**
+     * @brief 下线指定QQ 敏感权限，建议使用前检查是否有权限
+     * @param targetQQ 框架QQ
+     * @return 返回真表示成功投递下线任务，不代表对应QQ下线成功
+     */
+    bool LogoutQQ(std::int64_t targetQQ);
+
+    /**
+     * @brief 登录指定QQ 敏感权限，建议使用前检查是否有权限
+     * @param targetQQ 框架QQ
+     * @return 返回真表示成功投递密码登录任务，不代表对应QQ登录成功
+     */
+    bool LoginQQ(std::int64_t targetQQ);
+
+    /**
+     * @brief 取群未领红包 注意：使用此API获取的红包只能用手Q上"群未领红包"入口的http请求领取
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param data 数据
+     * @return 成功返回未领红包数量
+     */
+    int32_t GetGroupUnclaimedRedEnvelope(std::int64_t thisQQ, std::int64_t groupQQ, 参考 数组 群未领红包数据 data);
+
+    /**
+     * @brief 发送输入状态 在与他人私聊时，在发消息前使用，显得更有真实感，输入状态默认为1
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @param input_status 输入状态 1:正在输入,2:关闭显示,3:正在说话
+     */
+    bool SendInputStatus(std::int64_t thisQQ, std::int64_t otherQQ, std::int32_t input_status = 1);
+
+    /**
+     * @brief 修改资料 生日、家乡、所在地 参数格式和子参数数量必须正确，否则修改资料无法成功，不需要修改的项就传空字符串或-1
+     * @param thisQQ 框架QQ
+     * @param nickname 昵称
+     * @param gender 性别 1:男 2:女,默认男
+     * @param birthday 生日 格式：2020/5/5 均为整数
+     * @param occupation 职业 1:IT,2:制造,3:医疗,4:金融,5:商业,6:文化,7:艺术,8:法律,9:教育,10:行政,11:模特,12:空姐,13:学生,14:其他职业，默认1
+     * @param company 公司名
+     * @param location 所在地 国家代码|省份代码|市代码|区字母|区代码，如：49|13110|56|NK|51，表示中国江西省吉安市青原区，这些数据是腾讯的数据，非国际数据
+     * @param hometown 家乡 国家代码|省份代码|市代码|区字母|区代码，如：49|13110|56|NI|50，表示中国江西省吉安市吉州区，这些数据是腾讯的数据，非国际数据
+     * @param email 邮箱
+     * @param description 个人说明
+     */
+    bool ModifyInformation(std::int64_t thisQQ, std::string nickname = "", std::int32_t gender = -1, std::string birthday = "", std::int32_t occupation = -1, std::string company = "", std::string location = "", std::string hometown = "", std::string email = "", std::string description = "");
+
+    /**
+     * @brief 取群文件下载地址
+     * @param thisQQ 框架QQ
+     * @param groupQQ 来源群号 QQ必须在群内
+     * @param file_id 文件id
+     * @param file_name 文件名 可自定义，必须带文件类型后缀，如xxx.zip
+     * @return 文件下载地址在返回的json里面，具有时效性，请及时下载
+     */
+    std::string GetGroupFileDownloadLink(int64_t thisQQ, int64_t groupQQ, std::string file_id, std::string file_name);
+
+    /**
+     * @brief 打好友电话 不建议频繁使用
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     */
+    void CallFriend(std::int64_t thisQQ, std::int64_t otherQQ);
+
+    /**
+     * @brief 头像双击_好友
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     */
+    bool AvatarDoubleClick_Friend(std::int64_t thisQQ, std::int64_t otherQQ);
+
+    /**
+     * @brief 头像双击_群
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @param groupQQ 群号
+     */
+    bool AvatarDoubleClick_Group(std::int64_t thisQQ, std::int64_t otherQQ, std::int64_t groupQQ);
+
+    /**
+     * @brief 取群成员简略信息 http
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param data 数据
+     * @return 群上限、群主、管理员
+     */
+    std::string GetGroupMemberBrief(std::int64_t thisQQ, std::int64_t groupQQ, 参考 群成员状况简略信息 data);
+
+    /**
+     * @brief 群聊置顶
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param is_pinned 置顶 是否置顶,默认假
+     * @return 成功返回真，失败或无权限返回假
+     */
+    bool PinGroup(std::int64_t thisQQ, std::int64_t groupQQ, bool is_pinned = false);
+
+    /**
+     * @brief 私聊置顶
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     * @param is_pinned 置顶 是否置顶,默认假
+     * @return 成功返回真，失败或无权限返回假
+     */
+    bool PinPrivate(std::int64_t thisQQ, std::int64_t otherQQ, bool is_pinned = false);
+
+    /**
+     * @brief 取加群链接
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @return 失败返回空
+     */
+    std::string GetGroupJoinLink(std::int64_t thisQQ, std::int64_t groupQQ);
+
+    /**
+     * @brief 设为精华 置指定群消息为精华内容
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param message_req 消息Req
+     * @param message_random 消息Random
+     * @return 成功返回真,失败或无权限返回假,需要管理员权限
+     */
+    bool Mark(std::int64_t thisQQ, std::int64_t groupQQ, std::int32_t message_req, std::int64_t message_random);
+
+    /**
+     * @brief 群权限_设置群昵称规则 需要管理员权限
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param nickname_rule 名片规则
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool GroupPermission_SetGroupNicknameRule(std::int64_t thisQQ, std::int64_t groupQQ, std::string nickname_rule);
+
+    /**
+     * @brief 群权限_设置群发言频率 需要管理员权限
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param limit 限制条数 限制每分钟多少条发言,为0表示无限制
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool GroupPermission_SetGroupMessageFrequencyLimit(std::int64_t thisQQ, std::int64_t groupQQ, std::int32_t limit);
+
+    /**
+     * @brief 群权限_设置群查找方式 需要管理员权限
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param seeking_method 查找方式 0不允许,1通过群号或关键词,2仅可通过群号,默认1
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool GroupPermission_SetGroupSeekingMethod(std::int64_t thisQQ, std::int64_t groupQQ, std::int32_t seeking_method);
+
+    /**
+     * @brief 邀请好友加群 拉好友或群友入群,需要群聊开启了邀请
+     * @param thisQQ 框架QQ
+     * @param target_groupQQ 目标群号 欲邀入的群号
+     * @param otherQQ 对方QQ
+     * @param source_groupQQ 来源群号 若对方为群友,在此填入来源群号
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool InviteFriendToGroup(std::int64_t thisQQ, std::int64_t target_groupQQ, std::int64_t otherQQ, std::int64_t source_groupQQ = -1);
+
+    /**
+     * @brief 置群内消息通知 置群内指定QQ消息通知类型
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param otherQQ 对方QQ
+     * @param notification_type 通知类型 0不接收此人消息,1特别关注,2接收此人消息,默认2
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool SetGroupMessageNotification(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::int32_t notification_type = 2);
+
+    /**
+     * @brief 修改群名称 需要管理员权限
+     * @param thisQQ 框架QQ
+     * @param groupQQ 群号
+     * @param name 名称 新的群名称
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool ModifyGroupName(std::int64_t thisQQ, std::int64_t groupQQ, std::string name);
+
+    /**
+     * @brief 重载自身 无权限限制
+     * @param file_path 新文件路径 若需重载自身并替换更新自身，在此处填入新dll文件路径
+     */
+    void Reload(std::string file_path = "");
+
+    /**
+     * @brief 下线PCQQ 下线PCQQ客户端
+     * @param targetQQ 框架QQ
+     * @return 成功返回真,失败或无权限返回假
+     */
+    bool LogoutPCQQ(std::int64_t targetQQ);
+
+    /**
+     * @brief 取框架版本 无权限限制
+     */
+    std::string GetVersion();
+
 private:
     Json j;
-    ::std::string key;
+    std::string key;
 };
