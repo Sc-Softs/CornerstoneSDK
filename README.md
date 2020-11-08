@@ -1,6 +1,7 @@
 <h1>
   <p align=center>
-    ![Logo](Logo.png)
+    <img src="Logo.png" alt="logo"/>
+    
     <b>
       Cornerstone SDK
     </b>
