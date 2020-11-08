@@ -1,6 +1,6 @@
 <h1>
   <p align=center>
-    <img src="Logo.png" alt="logo"/>
+    <img src="Logo.png" alt="logo"/><br>
     <b>
       Cornerstone SDK
     </b>
