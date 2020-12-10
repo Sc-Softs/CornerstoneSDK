@@ -555,7 +555,7 @@ std::string API::GetFriendStatus(std::int64_t thisQQ, std::int64_t otherQQ)
 
 std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInformation &data)
 {
-    volatile _EType_QQWalletInformation *eInfo;
+    _EType_QQWalletInformation eInfo_o, * eInfo = &eInfo_o;
     auto ret = e2s_s(::_API_func_GetQQWalletPersonalInformation(this->key.c_str(), thisQQ, &eInfo));
     data = *(const_cast<_EType_QQWalletInformation *>(eInfo));
     return ret;
@@ -563,7 +563,7 @@ std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInf
 
 std::string API::GetOrderDetail(std::int64_t thisQQ, const std::string &orderID, OrderDetail &data)
 {
-    volatile _EType_OrderDetail *eInfo;
+    _EType_OrderDetail eInfo_o, *eInfo = &eInfo_o;
     auto ret = e2s_s(::_API_func_GetOrderDetail(this->key.c_str(), thisQQ, s2e(orderID), &eInfo));
     data = *(const_cast<_EType_OrderDetail *>(eInfo));
     return ret;
@@ -571,7 +571,7 @@ std::string API::GetOrderDetail(std::int64_t thisQQ, const std::string &orderID,
 
 std::string API::SubmitPaymentCaptcha(std::int64_t thisQQ, CaptchaInformation *captcha_information, const std::string &captcha, const std::string &payment_password)
 {
-    volatile _EType_CaptchaInformation eInfo = *captcha_information;
+    _EType_CaptchaInformation eInfo_o, *eInfo = &eInfo_o;
     return e2s_s(::_API_func_SubmitPaymentCaptcha(this->key.c_str(), thisQQ, &eInfo, s2e(captcha), s2e(payment_password)));
 }
 
