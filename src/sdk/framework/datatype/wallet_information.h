@@ -62,6 +62,8 @@ struct QQWalletInformation
     ::std::string RealName;
     // 银行卡列表
     ::std::vector<CardInformation> CardList;
+   
+    QQWalletInformation() {}
 
     QQWalletInformation(const _EType_QQWalletInformation &info)
     {

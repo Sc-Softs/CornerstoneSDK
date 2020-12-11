@@ -556,8 +556,10 @@ std::string API::GetFriendStatus(std::int64_t thisQQ, std::int64_t otherQQ)
 std::string API::GetQQWalletPersonalInformation(std::int64_t thisQQ, QQWalletInformation &data)
 {
     _EType_QQWalletInformation eInfo_o, * eInfo = &eInfo_o;
+    earray_head earr;
+    eInfo->CardList = reinterpret_cast<decltype(eInfo->CardList)>(earr.data);
     auto ret = e2s_s(::_API_func_GetQQWalletPersonalInformation(this->key.c_str(), thisQQ, &eInfo));
-    data = *(const_cast<_EType_QQWalletInformation *>(eInfo));
+    data = eInfo_o;
     return ret;
 }
 
