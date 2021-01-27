@@ -59,18 +59,18 @@ std::string API::OutputLog(const std::string &message, std::int32_t text_color, 
 
 std::string API::SendFriendMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &content, std::int64_t &random, std::int32_t &req)
 {
-    elong *random_p = nullptr;
-    eint *req_p = nullptr;
+    elong random_p;
+    eint req_p;
     auto ret = e2s_s(::_API_func_SendFriendMessage(this->key.c_str(), thisQQ, friendQQ, s2e(content), &random_p, &req_p));
-    random = pointer_or_zero(random_p);
-    req = pointer_or_zero(req_p);
+    random = random_p;
+    req = req_p;
     return ret;
 }
 
 std::string API::SendFriendMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &content)
 {
-    elong *random_p = nullptr;
-    eint *req_p = nullptr;
+    elong random_p;
+    eint req_p;
     return e2s_s(::_API_func_SendFriendMessage(this->key.c_str(), thisQQ, friendQQ, s2e(content), &random_p, &req_p));
 }
 
@@ -123,18 +123,18 @@ std::string API::SetSpecialFriend(std::int64_t thisQQ, std::int64_t otherQQ, boo
 
 std::string API::SendFriendJSONMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &json_content, std::int64_t &random, std::int32_t &req)
 {
-    elong *random_p = nullptr;
-    eint *req_p = nullptr;
+    elong random_p;
+    eint req_p;
     auto ret = e2s_s(::_API_func_SendFriendJSONMessage(this->key.c_str(), thisQQ, friendQQ, s2e(json_content), &random_p, &req_p));
-    random = pointer_or_zero(random_p);
-    req = pointer_or_zero(req_p);
+    random = random_p;
+    req = req_p;
     return ret;
 }
 
 std::string API::SendFriendJSONMessage(std::int64_t thisQQ, std::int64_t friendQQ, const std::string &json_content)
 {
-    elong *random_p = nullptr;
-    eint *req_p = nullptr;
+    elong random_p;
+    eint req_p;
     return e2s_s(::_API_func_SendFriendJSONMessage(this->key.c_str(), thisQQ, friendQQ, s2e(json_content), &random_p, &req_p));
 }
 
