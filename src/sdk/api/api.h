@@ -32,6 +32,9 @@ SOFTWARE.
 #include "../sdk.h"
 #include "../framework/datatypes.h"
 #include "../framework/permission.h"
+#include <stdint.h>
+#include <string>
+#include <vector>
 
 class API
 {
@@ -225,13 +228,13 @@ public:
      * @brief silk解码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkDecode(const std::string &audio_file_path);
+    const std::vector<std::uint8_t> SilkDecode(const std::string &audio_file_path);
 
     /**
      * @brief silk编码 无权限要求（尚未实现！）
      * @param audio_file_path 音频文件路径 注意文件后缀必须和文件格式相对应
      */
-    const std::uint8_t *SilkEncode(const std::string &audio_file_path);
+    const std::vector<std::uint8_t> SilkEncode(const std::string &audio_file_path);
 
     /**
      * @brief 设置群名片
@@ -1024,6 +1027,45 @@ public:
      */
     bool SetExclusiveTitle(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::string title);
 
+
+    /**
+     * @brief 打好友QQ电话
+     * @param thisQQ 框架QQ
+     * @param otherQQ 对方QQ
+     */
+    void MakeQQPhoneCall(std::int64_t thisQQ, std::int64_t otherQQ);
+
+    /**
+     * @brief 下线指定QQ
+     * @param targetQQ 目标QQ
+     */
+    bool OfflineQQ(std::int64_t targetQQ);
+
+    /**
+     * @brief 登录指定QQ
+     * @param targetQQ 目标QQ
+     */
+    bool OnlineQQ(std::int64_t targetQQ);
+
+    /**
+     * @brief 请求ssoseq
+     * @param thisQQ 框架QQ
+     */
+    int GetSsoSeq(std::int64_t thisQQ);
+
+    /**
+     * @brief 取SessionKey
+     * @param thisQQ 框架QQ
+     */
+    std::string GetSessionKey(std::int64_t thisQQ);
+
+    /**
+     * @brief 取btn_gtk
+     * @param thisQQ 框架QQ
+     * @param btn_gtk 自定义btn_gtk
+     */
+    std::string GetBtnGtk(std::int64_t thisQQ, const std::string &btn_gtk);
+    
 private:
     Json j;
     ::std::string key;

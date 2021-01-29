@@ -168,16 +168,16 @@ std::string API::UploadAvatar(std::int64_t thisQQ, const std::uint8_t *picture, 
     return e2s_s(::_API_func_UploadAvatar(this->key.c_str(), thisQQ, picture, static_cast<eint>(size)));
 }
 
-const std::uint8_t *API::SilkDecode(const std::string &audio_file_path)
+const std::vector<std::uint8_t> API::SilkDecode(const std::string &audio_file_path)
 {
     // TODO: 实现该方法
-    return nullptr;
+    return {};
 }
 
-const std::uint8_t *API::SilkEncode(const std::string &audio_file_path)
+const std::vector<std::uint8_t> API::SilkEncode(const std::string &audio_file_path)
 {
     // TODO: 实现该方法
-    return nullptr;
+    return {};
 }
 
 std::string API::SetGroupNickname(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, const std::string &nickname)
@@ -655,4 +655,31 @@ std::string API::FriendFollowRedEnvelope(std::int64_t thisQQ, std::int32_t total
 bool API::SetExclusiveTitle(std::int64_t thisQQ, std::int64_t groupQQ, std::int64_t otherQQ, std::string title)
 {
     return e2b(::_API_func_SetExclusiveTitle(this->key.c_str(), thisQQ, groupQQ, otherQQ, s2e(title)));
+}
+
+void API::MakeQQPhoneCall(std::int64_t thisQQ, std::int64_t otherQQ){
+    return ::_API_func_MakeQQPhoneCall(this->key.c_str(), thisQQ, otherQQ);
+}
+
+bool API::OfflineQQ(std::int64_t targetQQ){
+    return e2b(::_API_func_OfflineQQ(this->key.c_str(), targetQQ));
+}
+
+bool API::OnlineQQ(std::int64_t targetQQ){
+    return e2b(::_API_func_OnlineQQ(this->key.c_str(), targetQQ));
+}
+
+
+int API::GetSsoSeq(std::int64_t thisQQ){
+    return ::_API_func_GetSsoSeq(this->key.c_str(), thisQQ);
+}
+
+
+std::string API::GetSessionKey(std::int64_t thisQQ){
+    return e2s_s(::_API_func_GetSessionKey(this->key.c_str(),thisQQ));
+}
+
+
+std::string API::GetBtnGtk(std::int64_t thisQQ, const std::string &btn_gtk){
+    return e2s_s(::_API_func_GetBtnGtk(this->key.c_str(),thisQQ, s2e(btn_gtk) ));
 }

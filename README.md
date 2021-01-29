@@ -23,7 +23,7 @@
     </a>
   </p>
   <p align="center">
-    兼容小栗子框架 v2.7.1-v2.7.2 和 Corn SDK（小栗子框架官方易语言 SDK）v2.7.1
+    兼容小栗子框架 v2.7.1-v2.9.3.0(部分更新) 和 Corn SDK（小栗子框架官方易语言 SDK）v2.7.1
   </p>
   <p align="center">
     <b>

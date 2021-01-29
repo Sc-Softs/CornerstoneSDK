@@ -45,6 +45,10 @@ using Json = nlohmann::json;
 // API
 #include "api/api.h"
 
+//for warnings
+struct PrivateMessageData;
+struct GroupMessageData;
+
 // 好友消息事件
 EventProcessEnum OnPrivateMessage(PrivateMessageData data);
 // 群消息事件

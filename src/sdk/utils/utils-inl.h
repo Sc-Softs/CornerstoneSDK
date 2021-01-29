@@ -72,6 +72,8 @@ inline std::string to_string(const std::string &value)
     return value;
 }
 
+std::string WideCharToUTF8(const std::wstring &wstr); //for warnings
+
 inline std::string to_string(const wchar_t value)
 {
     return WideCharToUTF8(std::wstring(1, value));
